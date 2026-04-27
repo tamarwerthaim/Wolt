@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 14)
 # Including all logic classes shown in the UML
 add_executable(ProductRecommendation 
     src/main.cpp 
-    #src/User.cpp 
-    #src/Product.cpp
+    src/User.cpp 
+    src/Product.cpp
     #src/MemoryUsers.cpp
     #src/Add.cpp
     #src/Help.cpp
@@ -26,8 +26,10 @@ include_directories(${GTEST_INCLUDE_DIRS})
 add_executable(unit_tests 
     tests/test_main.cpp 
     #tests/RecommendTests.cpp 
-    #src/User.cpp 
-    #src/Product.cpp
+    src/User.cpp 
+    tests/UserTests.cpp
+    src/Product.cpp
+    tests/ProductTests.cpp
     #src/MemoryUsers.cpp
     #src/Recommend.cpp
 )
