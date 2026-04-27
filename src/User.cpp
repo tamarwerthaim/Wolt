@@ -1,12 +1,13 @@
 #include "User.h"
+#include <set>
 
 User::User(int id) : userID(id) {}
 
 void User::addProduct(const Product& p) {
-    productList.push_back(p);
+    productList.insert(p);
 }
 
-const std::vector<Product>& User::getProducts() const {
+const std::set<Product>& User::getProducts() const {
     return productList;
 }
 
