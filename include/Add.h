@@ -29,7 +29,7 @@ private:
     
     // Finds the user in the repo or creates a new one if he doesn't exist
     User& getOrCreateUser(int userId);
-
+    
 public:
     // Constructor to initialize the repo and the input string
     Add(IUserRepo& repo, const std::string& input);

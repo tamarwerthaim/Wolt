@@ -19,29 +19,13 @@ MemoryUsers:: ~MemoryUsers() {
 void MemoryUsers:: addUser(User* user) {
     if (user != nullptr) {
         users.push_back(user);
-        saveToFile(user);
+        saveAllToFile();
     }
 }
 
 // Returns the entire list of users
 std::vector<User*> MemoryUsers:: getUsers() {
     return users;
-}
-
-// Helper to save a single user to the file
-void MemoryUsers::saveToFile(User* user) {
-    // Open the file in append mode to add the new user without overwriting existing data
-    std::ofstream outFile(filename, std::ios::app);
-    if (outFile.is_open()) {
-        // write the user ID followed by all product IDs, separated by spaces
-        outFile << user->getID();
-        for (const auto& p : user->getProducts()) {
-            outFile << " " << p.getID();
-        }
-        // Add a newline at the end of each user's data
-        outFile << "\n";
-        outFile.close();
-    }
 }
 
 // Helper to load all users when the program starts
@@ -73,4 +57,20 @@ void MemoryUsers::loadFromFile() {
     }
     // Close the file after reading all users
     inFile.close();
+}
+// Save all users to the file (overwrite)
+void MemoryUsers::saveAllToFile() {
+    std::ofstream outFile(filename, std::ios::trunc);
+    // If we can't open the file for writing, we should return without crashing
+    if (!outFile.is_open()) 
+        return;
+    // Write each user and their products to the file
+    for (auto user : users) {
+        outFile << user->getID();
+        // Write all product IDs for this user, separated by spaces
+        for (const auto& p : user->getProducts()) {
+            outFile << " " << p.getID();
+        }
+        outFile << "\n";
+    }
 }

@@ -8,22 +8,18 @@
 Add::Add(IUserRepo& repo, const std::string& input) : repo(repo), input(input) {}
 
 void Add::execute() {
-    // empty AddCommandData
+    // Parse the input and validate it
     AddCommandData data;
-    
-    // parseAndValidate get reference and If the input is correct-
-    // fills parseAndValidate with the details
-    if (!parseAndValidate(data)) {
+    if (!parseAndValidate(data)) 
         return;
-    }
-
-    // Get the user from the repository (create one if missing)
+    // Get the user (or create if not exist) and add the products
     User& user = getOrCreateUser(data.userId);
-
-    // Loop through all unique products we found and add them to the user
+    // Add each product to the user
     for (int pid : data.productIds) {
         user.addProduct(Product(pid));
     }
+    // Save the updated user list to the file
+    repo.saveAllToFile();
 }
 
 void Add::setInput(std::string inp) { 
