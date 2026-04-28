@@ -12,7 +12,7 @@ public:
     // Getter method - 'const' ensures it doesn't modify the object
     int getID() const;
     // Comparison operator for std::set ordering and duplicate detection
-    bool Product::operator<(const Product& other) const;
+    bool operator<(const Product& other) const;
 };
 
 #endif

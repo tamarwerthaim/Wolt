@@ -14,3 +14,12 @@ const std::set<Product>& User::getProducts() const {
 int User::getID() const { 
     return userID; 
 }
+
+bool User::hasProduct(int id) const {
+    for (const auto& product : productList) {
+        if (product.getID() == id) {
+            return true;
+        }
+    }
+    return false;
+}

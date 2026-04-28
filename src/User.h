@@ -25,6 +25,9 @@ class User{
 
         // Getter for the user ID. 'const' ensures the method is read-only.
         int getID() const;
+
+        //check if the product exist
+        bool hasProduct(int id) const;
 };
 
 #endif
