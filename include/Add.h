@@ -36,6 +36,9 @@ public:
 
     // The main function that runs the parsing and updates the user
     void execute() override;
+
+    // Set the input parameters for the add command
+    void setInput(std::string inp);
 };
 
 #endif
