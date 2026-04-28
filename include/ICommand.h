@@ -1,6 +1,7 @@
 #ifndef ICOMMAND_H  // deal if its exist
 #define ICOMMAND_H
 #include <string>
+#include <sstream>
 
 class ICommand {
 public:
