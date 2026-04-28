@@ -5,13 +5,17 @@
 
 class IUserRepo {
 public:
+    // Virtual destructor to ensure proper cleanup of derived classes
     virtual ~IUserRepo() {}
-    
-    // add user to our reposity
+
+    // add a new user pointer to our collection
     virtual void addUser(User* user) = 0;
-    
-    // return all the users in vector
+
+    // return the entire list of users
     virtual std::vector<User*> getUsers() = 0;
+
+    // Save all users to the file
+    virtual void saveAllToFile() {}
 };
 
 #endif

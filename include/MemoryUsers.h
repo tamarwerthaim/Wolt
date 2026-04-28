@@ -11,9 +11,6 @@ private:
     // field
     std::vector<User*> users;
     std::string filename;
-
-    // Helper to save a single user to the file
-    void saveToFile(User* user);
     
     // Helper to load all users when the program starts
     void loadFromFile();
@@ -29,6 +26,10 @@ public:
 
     // Returns the entire list of users
     std::vector<User*> getUsers() override;
+
+    // Save all users to the file
+    void saveAllToFile() override;
+
 };
 
 #endif
