@@ -25,25 +25,29 @@ void App::run() {
     }
 }
 
-//the work on one line
 void App::processCommand(const std::string& line) {
+    // Create a stream to parse the line
     std::stringstream ss(line);
     std::string commandName;
-    // Extract the first word as the command name - ss stay with the rest line
-    ss >> commandName;
+    
+    // Extract the first word as the command name
+    ss >> commandName; 
 
     try {
-        // Look up the command in the map; throws an exception if the command name is invalid.
+        // Find the command object in our map
         ICommand* cmd = commands.at(commandName);
         
-        // run execute on the currect object
-        cmd->setInput(ss.str());
+        // Get the rest of the line (the parameters)
+        std::string remainingInput;
+        std::getline(ss >> std::ws, remainingInput); 
+        
+        // Pass the parameters and run the command
+        cmd->setInput(remainingInput); 
         cmd->execute();
 
     } catch (...) {
-        //if the command doesnt exist, dont do anything and move to the next loop
+        // Ignore the line if the command is not found in the map
     }
-
 }
 
 void App::cleanup() {
