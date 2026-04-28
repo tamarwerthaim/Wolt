@@ -22,6 +22,7 @@ void Add::execute() {
     repo.saveAllToFile();
 }
 
+// Parses the input string and validates the data.
 void Add::setInput(std::string inp) { 
     this->input = inp;
 }
