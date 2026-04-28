@@ -25,8 +25,8 @@ void App::run() {
     }
 }
 
-//the work on one line
 void App::processCommand(const std::string& line) {
+    // Create a stream to parse the line
     std::stringstream ss(line);
     std::string commandName;
     // Read the command name (the first word)
