@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(ProductRecommendation)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 include_directories(include)
+include_directories(src)
+include_directories(.)
 
 # --- Main Application Target ---
 # Including all logic classes shown in the UML
@@ -11,12 +13,12 @@ add_executable(ProductRecommendation
     src/User.cpp 
     src/Product.cpp
     src/Add.cpp
-    src/MemoryUsers.cpp3
+    src/MemoryUsers.cpp
     src/Help.cpp
     src/Recommend.cpp
-    #src/App.cpp
-    #src/File.cpp
-    #src/Console.cpp
+    src/APP.cpp
+    src/File.cpp
+    src/Console.cpp
 )
 
 # --- Testing Infrastructure (WOLT-24) ---

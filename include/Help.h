@@ -20,9 +20,6 @@ public:
 
     // Set the input parameters for the help command
     void setInput(std::string inp);
-
-    // Returns the help format for this command
-    std::string getFormat() const override;
 };
 
 #endif
