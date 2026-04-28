@@ -18,5 +18,6 @@ bool Console::isFinished() {
 
 //implement write from IOutput, and go down a line. 
 void Console::write(const std::string& message) {
-    std::cout << message << std::endl;
+    std::cout << message;
+    std::cout.flush();
 }
