@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/Product.h"
+#include "Product.h"
 
 // try to create Product
 TEST(ProductTests, ConstructorAndGet){

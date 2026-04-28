@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "../src/User.h"
-#include "../src/Product.h"
+#include "User.h"
+#include "Product.h"
 
 
 // try to create User
@@ -31,16 +31,12 @@ TEST(UserTests, AddSomeProducts) {
     ASSERT_EQ(u.getProducts().size(), 3);
     EXPECT_TRUE(u.hasProduct(101));
     EXPECT_TRUE(u.hasProduct(102));
-<<<<<<< Updated upstream
     EXPECT_TRUE(u.hasProduct(103));
-=======
-    EXPECT_TRUE(u.hasProduct(103)); 
->>>>>>> Stashed changes
 }
 
 
 //try to add the same product
-TEST(userTests, AddSameProducts){
+TEST(UserTests, AddSameProducts){
     User u(1);
     u.addProduct(Product(101));
     u.addProduct(Product(101));
@@ -48,8 +44,4 @@ TEST(userTests, AddSameProducts){
 
     ASSERT_EQ(u.getProducts().size(), 1);
     EXPECT_TRUE(u.hasProduct(101));  
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes

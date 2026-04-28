@@ -1,100 +1,155 @@
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include "Add.h"
+#include "User.h"
+#include "Product.h"
+#include "IUserRepo.h"
+#include <vector>
+#include <string>
 
-// דימוי של הקלט
-class MockInput : public IInput {
+// A fake repository to store users in memory during tests
+class FakeRepo : public IUserRepo {
 public:
-    MOCK_METHOD(int, readInt, (), (override));
-    MOCK_METHOD(std::vector<int>, readIntList, (), (override));
-};
-
-// דימוי של המחסן (Repo)
-class MockRepo : public IUserRepo {
-public:
-    MOCK_METHOD(std::vector<User>&, getUsers, (), (override));
-    MOCK_METHOD(void, addUser, (User user), (override));
-};
-
-class AddTest : public ::testing::Test {
-protected:
-    MockRepo mockRepo;
-    MockInput mockInput;
-    std::vector<User> userList; // וקטור אמיתי שהמוק ישתמש בו
-
-    void SetUp() override {
-        // גורמים למוק להחזיר את הוקטור שלנו בכל פעם שקוראים ל-getUsers
-        ON_CALL(mockRepo, getUsers()).WillByDefault(testing::ReturnRef(userList));
+    std::vector<User*> users;
+    std::vector<User*> getUsers() override { return users; }
+    void addUser(User* user) override { users.push_back(user); }
+    
+    // Clean up memory after tests
+    ~FakeRepo() {
+        for (User* u : users) delete u;
     }
 };
 
-// --- טסטים בגישת TDD (בדיקת הלוגיקה הבסיסית) ---
+TEST(AddTest, ShouldDoNothingIfInputIsEmpty) {
+    FakeRepo repo;
+    std::string emptyInput = ""; 
 
-// 1. בדיקה שהפקודה יוצרת משתמש אם הוא לא קיים
-TEST_F(AddTest, ShouldCreateUserIfMissing) {
-    EXPECT_CALL(mockInput, readInt()).WillOnce(testing::Return(10)); // מזהה משתמש 10
-    EXPECT_CALL(mockInput, readIntList()).WillOnce(testing::Return(std::vector<int>{101}));
+    Add command(repo, emptyInput);
+    command.execute();
+
+    // Verify that no user was created
+    EXPECT_EQ(repo.users.size(), 0);
+}
+
+TEST(AddTest, ShouldNotCreateUserIfNoProductsProvided) {
+    FakeRepo repo;
+    std::string onlyUser = "100"; // User ID exists but no products
+
+    Add command(repo, onlyUser);
+    command.execute();
+
+    // Verify that the user was not created because the product list is empty
+    EXPECT_EQ(repo.users.size(), 0);
+}
+
+TEST(AddTest, ShouldCreateUserIfMissing) {
+    FakeRepo repo;
+    Add command(repo, "10 101"); 
+    command.execute();
+
+    // Check if the user was created correctly with the right ID
+    ASSERT_EQ(repo.users.size(), 1);
+    EXPECT_EQ(repo.users[0]->getID(), 10);
+}
+
+TEST(AddTest, ShouldHandleDuplicateProductsInInput) {
+    FakeRepo repo;
+    Add command(repo, "1 50 50");  
+
+    command.execute();
+
+    // The set should ignore the duplicate product ID
+    ASSERT_EQ(repo.users.size(), 1);
+    EXPECT_EQ(repo.users[0]->getProducts().size(), 1);
+}
+
+TEST(AddTest, ShouldHandleMultipleSpacesInInput) {
+    FakeRepo repo;
+    // Input with many spaces between numbers
+    Add command(repo, "7    1   2     3"); 
+
+    command.execute();
+
+    // Check if the parser ignored the extra spaces
+    ASSERT_EQ(repo.users.size(), 1);
+    EXPECT_EQ(repo.users[0]->getProducts().size(), 3);
+}
+
+TEST(AddTest, ShouldIgnoreEntireLineIfContainsInvalidWord) {
+    FakeRepo repo;
+    // Input contains a word "apple" instead of a number
+    std::string messyInput = "10 101 apple 102"; 
+
+    Add command(repo, messyInput);
+    command.execute();
+
+    // The whole line should be ignored
+    EXPECT_EQ(repo.users.size(), 0);
+}
+
+TEST(AddTest, ShouldIgnoreLineIfTokenIsMixedAlphaNumeric) {
+    FakeRepo repo;
+    // Input contains "1a" which is invalid
+    std::string mixedInput = "10 101 1a"; 
+
+    Add command(repo, mixedInput);
+    command.execute();
+
+    // Verify the system rejected the mixed input
+    EXPECT_EQ(repo.users.size(), 0);
+}
+
+TEST(AddTest, ShouldIgnoreLineWithFloatingPointNumbers) {
+    FakeRepo repo;
+    // Decimal numbers are not allowed
+    Add command(repo, "10 101.5 102"); 
+    command.execute();
+
+    EXPECT_EQ(repo.users.size(), 0);
+}
+
+TEST(AddTest, ShouldIgnoreLineWithOverflowNumbers) {
+    FakeRepo repo;
+    // Very large number that exceeds int capacity
+    Add command(repo, "10 99999999999999999999"); 
+    command.execute();
+
+    EXPECT_EQ(repo.users.size(), 0);
+}
+
+TEST(AddTest, ShouldIgnoreLineWithPunctuation) {
+    FakeRepo repo;
+    // Commas are not valid separators
+    Add command(repo, "10, 101, 102"); 
+    command.execute();
+
+    EXPECT_EQ(repo.users.size(), 0);
+}
+
+TEST(AddTest, ShouldIgnoreNegativeIds) {
+    FakeRepo repo;
+    // ID numbers must be positive
+    Add command(repo, "10 -101"); 
+    command.execute();
+
+    EXPECT_EQ(repo.users.size(), 0); 
+}
+
+TEST(AddTest, ShouldHandleLargeNumberOfProducts) {
+    FakeRepo repo;
+    int userId = 99;
+    int numberOfProducts = 1000; 
     
-    // הציפייה המרכזית: addUser חייבת להיקרא פעם אחת
-    EXPECT_CALL(mockRepo, addUser(testing::_)).Times(1);
+    // Create a very long input string with 1000 products
+    std::string largeInput = std::to_string(userId);
+    for (int i = 1; i <= numberOfProducts; ++i) {
+        largeInput += " " + std::to_string(i);
+    }
 
-    Add command(mockRepo, mockInput);
-    command.execute();
-}
-
-// 2. בדיקה שהפקודה מוסיפה מוצרים למשתמש קיים
-TEST_F(AddTest, ShouldAddProductsToExistingUser) {
-    userList.push_back(User(10)); // המשתמש כבר קיים בוקטור
-    
-    EXPECT_CALL(mockInput, readInt()).WillOnce(testing::Return(10));
-    EXPECT_CALL(mockInput, readIntList()).WillOnce(testing::Return(std::vector<int>{202}));
-    EXPECT_CALL(mockRepo, addUser(testing::_)).Times(0); // אסור ליצור משתמש חדש!
-
-    Add command(mockRepo, mockInput);
+    Add command(repo, largeInput);
     command.execute();
 
-    // בדיקה שהמוצר באמת נכנס למשתמש (בזכות ה-set ממשימה 15)
-    EXPECT_EQ(userList[0].getProducts().size(), 1);
-}
-
-// --- טסטים למקרי קצה (Edge Cases) ---
-
-// 3. מקרה קצה: רשימת מוצרים ריקה (לפי הדרישה: "חייב לפחות מוצר אחד")
-TEST_F(AddTest, ShouldDoNothingIfProductListIsEmpty) {
-    EXPECT_CALL(mockInput, readInt()).WillOnce(testing::Return(5));
-    EXPECT_CALL(mockInput, readIntList()).WillOnce(testing::Return(std::vector<int>{})); // ריק
-
-    Add command(mockRepo, mockInput);
-    command.execute();
-
-    // מוודאים שלא נוצר משתמש ולא קרה כלום
-    EXPECT_EQ(userList.size(), 0);
-}
-
-// 4. מקרה קצה: כפילויות בקלט (המשתמש הקיש אותו מוצר פעמיים)
-TEST_F(AddTest, ShouldHandleDuplicateProductsInInput) {
-    userList.push_back(User(1));
-    
-    // קלט עם כפילות: מוצר 50 מופיע פעמיים
-    EXPECT_CALL(mockInput, readInt()).WillOnce(testing::Return(1));
-    EXPECT_CALL(mockInput, readIntList()).WillOnce(testing::Return(std::vector<int>{50, 50}));
-
-    Add command(mockRepo, mockInput);
-    command.execute();
-
-    // הבדיקה הקריטית: בגלל ה-set, צריך להיות רק מוצר אחד
-    EXPECT_EQ(userList[0].getProducts().size(), 1);
-}
-
-// 5. מקרה קצה: הרבה רווחים בין המספרים (לוודא שה-input מתמודד)
-// הטסט הזה בודק שהקומנד לא "נלחץ" מזה שהקלט מגיע אחרי רווחים
-TEST_F(AddTest, ShouldHandleMultipleSpacesInInput) {
-    EXPECT_CALL(mockInput, readInt()).WillOnce(testing::Return(7));
-    EXPECT_CALL(mockInput, readIntList()).WillOnce(testing::Return(std::vector<int>{1, 2, 3}));
-
-    Add command(mockRepo, mockInput);
-    command.execute();
-
-    ASSERT_EQ(userList.size(), 1);
-    EXPECT_EQ(userList[0].getProducts().size(), 3);
+    // Verify that all 1000 products were added successfully
+    ASSERT_EQ(repo.users.size(), 1);
+    EXPECT_EQ(repo.users[0]->getID(), userId);
+    EXPECT_EQ(repo.users[0]->getProducts().size(), numberOfProducts);
 }
