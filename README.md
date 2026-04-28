@@ -1,55 +1,79 @@
-# Wolt
 
-## Project Overview
-This system is a command-line driven recommendation engine for a delivery platform. It allows adding users and their purchase history, while providing smart product recommendations based on user similarity (Collaborative Filtering). The project emphasizes clean code, design patterns, and data persistence.
+# Wolt Product Recommendation System
 
-## Features
-- **Smart Recommendations:** Uses a weighted algorithm to suggest products based on shared interests between users.
-- **Data Persistence:** Automatically saves and loads data from a local file (`users_db.txt`), ensuring information is kept even after the program closes.
-- **Command Pattern:** Decoupled architecture where every action (Add, Recommend, Help) is its own command object.
-- **Robust Parsing:** Handles irregular inputs, extra spaces, and invalid data types using `std::stringstream`.
-- **Comprehensive Testing:** Over 20 unit tests covering every edge case from memory management to math logic.
+A robust C++ recommendation engine designed to provide personalized product suggestions using a **Collaborative Filtering** algorithm. The system analyzes user purchase history to find similarities between users and recommends products that "similar" customers enjoyed.
 
-## File Structure & Responsibilities
+## Overview
+This application serves as a backend for a product recommendation service. It manages a repository of users and their purchased products, ensuring data consistency and persistence. Built with a modular architecture, it utilizes the **Command Pattern** to handle user inputs and a **Repository Pattern** for data management.
 
-### Core Logic (`src` & `include`)
-- **`User.h / .cpp`**: Manages user identity and their set of purchased products.
-- **`Product.h / .cpp`**: Simple data model for products.
-- **`Recommend.h / .cpp`**: The heart of the system. Implements the recommendation algorithm and tie-breaking logic.
-- **`Add.h / .cpp`**: Handles the addition of new users and products to the repository.
-- **`Help.h / .cpp`**: Provides the user with a list of available commands and their usage.
-- **`MemoryUsers.h / .cpp`**: Acts as the system's "Database". Manages memory-resident users and synchronizes them with the physical storage file.
+## Key Features
+* **Intelligent Recommendations:** Uses a weighted scoring system based on shared purchase history.
+* **Data Persistence:** Automatically saves and loads user data from `data/users_db.txt`, ensuring information is never lost between sessions.
+* **Input Validation:** Robust parsing logic that handles extra spaces, invalid characters, and incorrect command formats without crashing.
+* **Dockerized Environment:** Fully containerized for easy deployment and consistent testing across different machines.
+* **Unit Tested:** Comprehensive test suite using **Google Test (GTest)** covering edge cases, persistence, and algorithm accuracy.
 
-### Infrastructure & Interfaces
-- **`ICommand.h`**: Interface for all executable commands.
-- **`IInput.h / IOutput.h`**: Interfaces for input/output sources (Console or File).
-- **`IUserRepo.h`**: Interface for user storage, allowing for future DB integrations.
-- **`Console.h / .cpp`**: Concrete implementation of `IOutput` for terminal display.
-- **`File.h / .cpp`**: Concrete implementation for file-based operations.
+## Project Structure
+The project is organized to maintain a clean separation between logic, data, and tests:
 
-### Entry Points
-- **`app.h / .cpp`**: The main application controller. Manages the command loop and initializes dependencies.
-- **`main.cpp`**: The bootstrap file that kicks off the application.
+```text
+Wolt/
+├── data/               # Persistent data storage (users_db.txt)
+├── src/                # All .cpp and .h source files
+├── tests/              # Unit tests for all components
+├── CMakeLists.txt      # Build system configuration
+├── Dockerfile          # Configuration for Docker container
+└── README.md           # Project documentation
 
-## The Recommendation Algorithm
-The system calculates a "Similarity Weight" for every user compared to the target user:
-1. **Identify Peers:** Find all users who bought the "Context Product".
-2. **Calculate Weight:** For each peer, count how many *other* products they share with the target user.
-3. **Score Products:** For every product the target hasn't seen yet, add the peer's weight to that product's score.
-4. **Rank & Filter:** Sort products by Score (highest first) and ID (lowest first as a tie-breaker). Return the Top 10.
 
-## Persistence
-All data is stored in `users_db.txt`. 
-- **Saving:** Every time the `add` command is used, the repo appends the new data to the file.
-- **Loading:** Upon startup, `MemoryUsers` reads the file and reconstructs the user base in memory.
+## Running Instructions
+Prerequisites
+Docker Desktop installed and running.
 
-## Build and Run
+1. Build the Docker Image
+Navigate to the root directory of the project and run:
+docker build -t wolt-app .
 
-### Prerequisites
-- Docker (Recommended)
-- CMake & GCC (For local builds)
+2. Run the Interactive Application
+To ensure that data persists on your host machine, use a volume to link the data directory:
+docker run -it --rm -v "${PWD}/data:/app/data" wolt-app ./build/ProductRecommendation
 
-### Using Docker
-1. **Build the project:**
-   ```bash
-   docker build -t wolt-app .
+3. Run Unit Tests
+To verify all system components:
+docker run --rm wolt-app ./build/unit_tests
+
+Run Examples
+Once the application is running, you can use the following commands:
+
+Adding Data
+Format: add [userId] [productId1] [productId2] ...
+
+Plaintext
+add 1 100 101 102 103
+add 2 101 102 104 105 106
+User 1 and User 2 now share products 101 and 102, creating a similarity "weight" of 2.
+
+Getting Recommendations
+Format: recommend [userId] [productId]
+
+Plaintext
+recommend 1 101
+Expected Output:
+
+Plaintext
+104 105 106
+Explanation: The system finds that User 2 is similar to User 1. Since User 2 also bought 104, 105, and 106, these are recommended to User 1.
+
+Help Command
+To see all available commands:
+
+Plaintext
+help
+Technical Details
+Language: C++11/14/17
+
+Algorithm: Collaborative Filtering. Similarity is calculated by the number of shared products between the target user and others, excluding the current product ID provided in the recommend command.
+
+Ranking: Recommendations are sorted by their cumulative weight (higher first). In case of a tie, the lower Product ID is prioritized.
+
+Persistence: The MemoryUsers class ensures all add operations are flushed to data/users_db.txt using the saveAllToFile method.
