@@ -41,6 +41,9 @@ public:
     // Inherited from ICommand
     void execute() override;
 
+    // Update the input parameters for the recommendation command
+    void setInput(std::string inp);
+
     // Main entry point for the algorithm logic used in tests
     std::vector<Product> getRecommendations(int userId, int productId);
 };

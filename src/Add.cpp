@@ -26,6 +26,10 @@ void Add::execute() {
     }
 }
 
+void Add::setInput(std::string inp) { 
+    this->input = inp;
+}
+
 bool Add::parseAndValidate(AddCommandData& outData) {
     // Stop if the string is empty
     if (input.empty()) return false;

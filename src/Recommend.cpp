@@ -43,6 +43,11 @@ void Recommend::execute() {
     output->write("\n");
 }
 
+// Update the input parameters for the recommendation command
+void Recommend::setInput(std::string inp) { 
+    this->input = inp;
+}
+
 // Main logic to get the recommendations for a user based on the product they watched
 std::vector<Product> Recommend::getRecommendations(int userId, int productId) {
     std::vector<User*> allUsers = users->getUsers();
