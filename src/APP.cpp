@@ -1,4 +1,4 @@
-#include "App.h"
+#include "APP.h"
 #include <sstream>
 
 // The constructor injects all the dependencies
@@ -37,7 +37,8 @@ void App::processCommand(const std::string& line) {
         ICommand* cmd = commands.at(commandName);
         
         // run execute on the currect object
-        cmd->execute(ss);
+        cmd->setInput(ss.str());
+        cmd->execute();
 
     } catch (...) {
         //if the command doesnt exist, dont do anything and move to the next loop
