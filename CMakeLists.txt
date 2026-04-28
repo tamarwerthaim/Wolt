@@ -2,13 +2,14 @@ cmake_minimum_required(VERSION 3.10)
 project(ProductRecommendation)
 
 set(CMAKE_CXX_STANDARD 14)
+include_directories(include)
 
 # --- Main Application Target ---
 # Including all logic classes shown in the UML
 add_executable(ProductRecommendation 
     src/main.cpp 
-    #src/User.cpp 
-    #src/Product.cpp
+    src/User.cpp 
+    src/Product.cpp
     #src/MemoryUsers.cpp
     #src/Add.cpp
     #src/Help.cpp

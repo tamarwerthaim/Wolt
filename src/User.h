@@ -10,11 +10,11 @@ class User{
         std::vector<Product> productList;
 
     public:
-        User(int id)
-        void addProduct(const Product& p)
-        const std::vector<Product>& getProducts() const
-        int getID() const
-}
+        User(int id);
+        void addProduct(const Product& p);
+        const std::vector<Product>& getProducts() const;
+        int getID() const;
+};
 
 #endif
 
