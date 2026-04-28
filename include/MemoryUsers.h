@@ -3,15 +3,24 @@
 
 #include "IUserRepo.h"
 #include <vector>
+#include <string>
+#include <fstream>
 
 class MemoryUsers : public IUserRepo {
 private:
     // field
     std::vector<User*> users;
+    std::string filename;
+
+    // Helper to save a single user to the file
+    void saveToFile(User* user);
+    
+    // Helper to load all users when the program starts
+    void loadFromFile();
 
 public:
     // Constructor
-    MemoryUsers();
+    MemoryUsers(std::string dbFile = "all_users.txt");
     // destructor to clean up any dynamically allocated memory
     virtual ~MemoryUsers();
 
