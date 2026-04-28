@@ -31,7 +31,11 @@ TEST(UserTests, AddSomeProducts) {
     ASSERT_EQ(u.getProducts().size(), 3);
     EXPECT_TRUE(u.hasProduct(101));
     EXPECT_TRUE(u.hasProduct(102));
+<<<<<<< Updated upstream
     EXPECT_TRUE(u.hasProduct(103));
+=======
+    EXPECT_TRUE(u.hasProduct(103)); 
+>>>>>>> Stashed changes
 }
 
 
@@ -44,4 +48,8 @@ TEST(userTests, AddSameProducts){
 
     ASSERT_EQ(u.getProducts().size(), 1);
     EXPECT_TRUE(u.hasProduct(101));  
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes

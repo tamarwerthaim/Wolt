@@ -11,7 +11,7 @@ add_executable(ProductRecommendation
     src/User.cpp 
     src/Product.cpp
     #src/MemoryUsers.cpp
-    #src/Add.cpp
+    src/Add.cpp
     #src/Help.cpp
     #src/Recommend.cpp
     #src/App.cpp
@@ -31,6 +31,8 @@ add_executable(unit_tests
     tests/UserTests.cpp
     src/Product.cpp
     tests/ProductTests.cpp
+    src/Add.cpp
+    tests/AddTests.cpp
     #src/MemoryUsers.cpp
     #src/Recommend.cpp
 )
