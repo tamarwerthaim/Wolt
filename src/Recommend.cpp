@@ -8,8 +8,8 @@ Recommend::Recommend(IInput* in, IOutput* out, IUserRepo* repo)
 }
 // execute the recommendation command - writing at most top 10 product recommendations 
 // to the givven product and user
-void Recommend::execute() override {
-    
+void Recommend::execute() {
+    //TODO:
     // Read user ID and product ID from input - convert to integers
     int userID = std::stoi(input->read());
     int productID = std::stoi(input->read());
@@ -32,7 +32,7 @@ void Recommend::execute() override {
 
 // Main logic to get the recommendations for a user based on the product they watched
 std::vector<Product> Recommend::getRecommendations(int userId, int productId) {
-    std::vector<User> allUsers = users->getUsers();
+    std::vector<User*> allUsers = users->getUsers();
     
     // 1. Get the target user
     User* target = findTargetUser(userId, allUsers);
@@ -47,52 +47,94 @@ std::vector<Product> Recommend::getRecommendations(int userId, int productId) {
 }
 
  // Calculates how many products two users have in common.
-int Recommend::calcSimilar(const User& target, const User& other) const {
+ int Recommend::calcSimilar(const User& target, const User& other, int productId) const {
     int commonCount = 0;
-    auto targetProducts = target.getProducts();
-    auto otherProducts = other.getProducts();
-
     // Compare every product from target with every product from other
-    for (const auto& p1 : targetProducts) {
-        for (const auto& p2 : otherProducts) {
-            if (p1.getID() == p2.getID()) {
-                commonCount++;
-            }
+    for (const auto& p : target.getProducts()) {
+        if (p.getID() == productId) 
+            continue;
+        if (other.hasProduct(p.getID())) {
+            commonCount++;
         }
     }
     return commonCount;
 }
+// int Recommend::calcSimilar(const User& target, const User& other) const {
+//     int commonCount = 0;
+//     auto targetProducts = target.getProducts();
+//     auto otherProducts = other.getProducts();
+
+//     // Compare every product from target with every product from other
+//     for (const auto& p1 : targetProducts) {
+//         for (const auto& p2 : otherProducts) {
+//             if (p1.getID() == p2.getID()) {
+//                 commonCount++;
+//             }
+//         }
+//     }
+//     return commonCount;
+// }
 
  // Finds all users in the repo who watched this product.
+
+// std::vector<User> Recommend::getUsersWithProduct(const Product& p) {
+//     std::vector<User> result;
+//     // Get all users from the repository
+//     std::vector<User> allUsers = users->getUsers();
+
+//     for (const auto& u : allUsers) {
+//         auto products = u.getProducts();
+//         // Check if this specific user watched the product
+//         for (const auto& prod : products) {
+//             if (prod.getID() == p.getID()) {
+//                 result.push_back(u);
+//                 // Found, move to next user
+//                 break;
+//             }
+//         }
+//     }
+//     return result;
+// }
+
+// std::vector<User> Recommend::getUsersWithProduct(const Product& p) {
+//     std::vector<User> result;
+//     std::vector<User*> allUsers = users->getUsers(); // שינוי ל-User*
+
+//     for (auto u : allUsers) {
+//         auto products = u->getProducts(); // שימוש ב-<- כי זה פוינטר
+//         for (const auto& prod : products) {
+//             if (prod.getID() == p.getID()) {
+//                 result.push_back(*u); // מכניסים את האובייקט עצמו לתוצאה
+//                 break;
+//             }
+//         }
+//     }
+//     return result;
+// }
 
 std::vector<User> Recommend::getUsersWithProduct(const Product& p) {
     std::vector<User> result;
     // Get all users from the repository
-    std::vector<User> allUsers = users->getUsers();
+    std::vector<User*> allUsers = users->getUsers(); 
 
-    for (const auto& u : allUsers) {
-        auto products = u.getProducts();
+    for (auto u : allUsers) {
         // Check if this specific user watched the product
-        for (const auto& prod : products) {
-            if (prod.getID() == p.getID()) {
-                result.push_back(u);
-                // Found, move to next user
-                break;
-            }
+        if (u->hasProduct(p.getID())) {
+            result.push_back(*u); 
         }
     }
     return result;
 }
 
 // Logic for finding the user
-User* Recommend::findTargetUser(int userId, std::vector<User>& allUsers) {
-    for (auto& u : allUsers) {
-        if (u.getID() == userId) 
-            return &u;
+User* Recommend::findTargetUser(int userId, std::vector<User*>& allUsers) {
+    for (auto u : allUsers) {
+        if (u->getID() == userId) return u;
     }
     // Return null if not found
     return nullptr;
 }
+
 
 // Logic for the scoring algorithm
 std::map<int, int> Recommend::calculateRawScores(const User& target, int productId) {
@@ -103,11 +145,15 @@ std::map<int, int> Recommend::calculateRawScores(const User& target, int product
         if (other.getID() == target.getID()) 
             continue;
 
-        int weight = calcSimilar(target, other);
+        int weight = calcSimilar(target, other, productId);
         if (weight > 0) {
             for (const auto& p : other.getProducts()) {
                 // Don't recommend the same product they already watched
-                if (p.getID() == productId) continue;
+                if (p.getID() == productId) 
+                    continue;
+                // Don't recommend products they already have
+                if (target.hasProduct(p.getID())) 
+                    continue;
                 // Add the weight to the score of this product
                 scores[p.getID()] += weight;
             }

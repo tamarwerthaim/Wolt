@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "../src/User.h"
-#include "../src/Product.h"
+#include "User.h"
+#include "Product.h"
 
 
 // try to create User

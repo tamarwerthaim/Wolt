@@ -1,5 +1,5 @@
 #ifndef USER_H
-#define USERE_H
+#define USER_H
 
 #include "Product.h"
 #include <set>

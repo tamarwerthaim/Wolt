@@ -5,127 +5,196 @@
 #include "User.h"
 #include "Product.h"
 
-// Testing the recommendation logic for WOLT-19
+// Tests for the recommendation engine logic
 class RecommendTest : public ::testing::Test {
 protected:
     MemoryUsers repo;
 
     void SetUp() override {
-        // Clearing the data before each test
+        // Setup can be added here if needed later
     }
 };
 
-/**
- * Just checking that the basic math works.
- */
+// Basic test - check if scores and weight work for a similar user
 TEST_F(RecommendTest, BasicFlowFromAppendix) {
-    // Setting up User 1 with some products
     User u1(1); 
     u1.addProduct(Product(100)); u1.addProduct(Product(101)); 
     u1.addProduct(Product(102)); u1.addProduct(Product(103));
+    u1.addProduct(Product(104)); // Current product context
     
-    // User 5 shares 3 products with User 1, so his "weight" is 3
     User u5(5); 
     u5.addProduct(Product(100)); u5.addProduct(Product(102)); 
     u5.addProduct(Product(103)); 
-    u5.addProduct(Product(105)); // This is the product we expect to see
+    u5.addProduct(Product(104)); // Shared context item
+    u5.addProduct(Product(105)); // Expected recommendation
     
-    repo.addUser(u1);
-    repo.addUser(u5);
+    repo.addUser(&u1);
+    repo.addUser(&u5);
 
-    Recommend cmd(&repo); 
+    Recommend cmd(nullptr, nullptr, &repo);
     auto results = cmd.getRecommendations(1, 104); 
     
     ASSERT_FALSE(results.empty());
-    // Product 105 should be first because it got a score of 3
     EXPECT_EQ(results[0].getID(), 105); 
 }
 
-/**
- * What happens if two products have the same score?
- * The rules say: sort them by ID (the smaller ID comes first).
- */
+// Tie-breaker: if scores are the same, smaller ID should be first
 TEST_F(RecommendTest, TieBreakerSort) {
-    User u1(1); u1.addProduct(Product(100));
+    User u1(1); u1.addProduct(Product(100)); u1.addProduct(Product(999));
     
-    // Two different users, each gives a weight of 1 to a different product
-    User u2(2); u2.addProduct(Product(100)); u2.addProduct(Product(200));
-    User u3(3); u3.addProduct(Product(100)); u3.addProduct(Product(150));
+    // Both users have same weight but different products
+    User u2(2); u2.addProduct(Product(100)); u2.addProduct(Product(200)); u2.addProduct(Product(999));
+    User u3(3); u3.addProduct(Product(100)); u3.addProduct(Product(150)); u3.addProduct(Product(999));
 
-    repo.addUser(u1); repo.addUser(u2); repo.addUser(u3);
+    repo.addUser(&u1); repo.addUser(&u2); repo.addUser(&u3);
 
-    Recommend cmd(&repo);
+    Recommend cmd(nullptr, nullptr, &repo);
     auto results = cmd.getRecommendations(1, 999);
 
-    // Both 150 and 200 have score 1, so 150 must be first
     ASSERT_GE(results.size(), 2);
-    EXPECT_EQ(results[0].getID(), 150);
+    EXPECT_EQ(results[0].getID(), 150); // 150 is smaller than 200
     EXPECT_EQ(results[1].getID(), 200);
 }
 
-/**
- * If no one shares any products with the user,
- * we shouldn't get any recommendations back.
- */
+// No common products between users means no recommendations
 TEST_F(RecommendTest, NoSharedProductsEmptyResult) {
     User u1(1); u1.addProduct(Product(500));
-    User u2(2); u2.addProduct(Product(111)); // No overlap at all
+    User u2(2); u2.addProduct(Product(111)); 
 
-    repo.addUser(u1); repo.addUser(u2);
+    repo.addUser(&u1); repo.addUser(&u2);
 
-    Recommend cmd(&repo);
+    Recommend cmd(nullptr, nullptr, &repo);
     auto results = cmd.getRecommendations(1, 500);
 
     EXPECT_TRUE(results.empty());
 }
 
-/**
- * Checking the behavior when the target user has already watched some products.
- * These products should be kept in the recommendations if they are popular among similar users.
- */
-TEST_F(RecommendTest, KeepAlreadyWatchedProducts) {
-    // User 1 already watched 101
-    User u1(1); 
-    u1.addProduct(Product(100)); 
-    u1.addProduct(Product(101));
+// Case where the user ID isn't in the repository
+TEST_F(RecommendTest, UserNotFoundInRepo) {
+    User u1(1); u1.addProduct(Product(100));
+    repo.addUser(&u1);
 
-    // User 2 is similar and also watched 101 and 102
-    User u2(2); 
-    u2.addProduct(Product(100)); 
-    u2.addProduct(Product(101)); 
-    u2.addProduct(Product(102));
+    Recommend cmd(nullptr, nullptr, &repo);
+    auto results = cmd.getRecommendations(99, 100); // 99 doesn't exist
 
-    repo.addUser(u1); 
-    repo.addUser(u2);
-
-    Recommend cmd(&repo);
-    auto results = cmd.getRecommendations(1, 100);
-
-    // 101 should still be there, and because 101 < 102, it should be first
-    ASSERT_GE(results.size(), 2);
-    EXPECT_EQ(results[0].getID(), 101); 
-    EXPECT_EQ(results[1].getID(), 102);
+    EXPECT_TRUE(results.empty());
 }
 
-/**
- * Checking the "Top 10" limit.
- * Even if there are 15 possible products, don't return more than 10.
- */
-TEST_F(RecommendTest, MaxTenRecommendations) {
-    User target(1); target.addProduct(Product(1));
-    repo.addUser(target);
+// Influence check: user with more common items counts more
+TEST_F(RecommendTest, WeightMathVerification) {
+    User target(1); 
+    target.addProduct(Product(10)); target.addProduct(Product(20)); target.addProduct(Product(100));
 
-    // Creating 15 users to trigger 15 different recommendations
-    for(int i = 2; i <= 16; ++i) {
-        User u(i);
-        u.addProduct(Product(1)); 
-        u.addProduct(Product(1000 + i)); 
-        repo.addUser(u);
+    // Weight 2: shares products 10 and 20
+    User userA(2);
+    userA.addProduct(Product(10)); userA.addProduct(Product(20)); 
+    userA.addProduct(Product(100)); userA.addProduct(Product(50));
+
+    // Weight 1: shares only product 10
+    User userB(3);
+    userB.addProduct(Product(10)); userB.addProduct(Product(100)); userB.addProduct(Product(60));
+
+    repo.addUser(&target); repo.addUser(&userA); repo.addUser(&userB);
+
+    Recommend cmd(nullptr, nullptr, &repo);
+    auto results = cmd.getRecommendations(1, 100);
+
+    ASSERT_GE(results.size(), 2);
+    EXPECT_EQ(results[0].getID(), 50); // 50 wins because User A has more influence
+}
+
+// Checking the 10-limit and sorting when many users recommend items
+TEST_F(RecommendTest, MaxTenWithTieBreaker) {
+    User target(1); 
+    target.addProduct(Product(100));
+    target.addProduct(Product(999)); // Anchor for similarity
+    repo.addUser(&target);
+
+    std::vector<User> users_pool;
+    users_pool.reserve(15); // Pre-allocate to keep pointers safe
+
+    for(int i = 10; i <= 20; ++i) { 
+        users_pool.emplace_back(i);
+        users_pool.back().addProduct(Product(100)); 
+        users_pool.back().addProduct(Product(999)); 
+        users_pool.back().addProduct(Product(i + 1000)); 
+        repo.addUser(&users_pool.back());
     }
 
-    Recommend cmd(&repo);
-    auto results = cmd.getRecommendations(1, 1);
+    Recommend cmd(nullptr, nullptr, &repo);
+    auto results = cmd.getRecommendations(1, 100);
 
-    // Make sure it cut the list at 10
-    EXPECT_LE(results.size(), 10);
+    ASSERT_EQ(results.size(), 10); // Check for exact cut-off
+    EXPECT_EQ(results[0].getID(), 1010); 
+    EXPECT_EQ(results[9].getID(), 1019); 
+}
+
+// Filter check: don't recommend products the user already has
+TEST_F(RecommendTest, HighSimilarityButAlmostAllSeen) {
+    User target(1);
+    target.addProduct(10); target.addProduct(20); target.addProduct(30); target.addProduct(100);
+
+    User similar(2);
+    similar.addProduct(10); similar.addProduct(20); similar.addProduct(30); 
+    similar.addProduct(100); similar.addProduct(50); // 50 is the only new one
+
+    repo.addUser(&target); repo.addUser(&similar);
+
+    Recommend cmd(nullptr, nullptr, &repo);
+    auto results = cmd.getRecommendations(1, 100);
+
+    ASSERT_EQ(results.size(), 1);
+    EXPECT_EQ(results[0].getID(), 50); // Should skip 10, 20, 30
+}
+
+// All items offered are already seen - expecting empty results
+TEST_F(RecommendTest, TargetUserSawEverything) {
+    User target(1);
+    target.addProduct(Product(10)); target.addProduct(Product(20)); target.addProduct(Product(100));
+    repo.addUser(&target);
+
+    User similar(2);
+    similar.addProduct(Product(100)); similar.addProduct(Product(10)); similar.addProduct(Product(20));
+    repo.addUser(&similar);
+
+    Recommend cmd(nullptr, nullptr, &repo);
+    auto results = cmd.getRecommendations(1, 100);
+
+    EXPECT_TRUE(results.empty());
+}
+
+// Product 999 doesn't exist in any user list
+TEST_F(RecommendTest, OrphanProductContext) {
+    User u1(1); u1.addProduct(Product(100));
+    User u2(2); u2.addProduct(Product(200));
+    
+    repo.addUser(&u1);
+    repo.addUser(&u2);
+
+    Recommend cmd(nullptr, nullptr, &repo);
+    auto results = cmd.getRecommendations(1, 999);
+
+    EXPECT_TRUE(results.empty());
+}
+
+// Duplicate test: handles adding the same user multiple times
+TEST_F(RecommendTest, IntegrityCheckDuplicateData) {
+    User target(1); 
+    target.addProduct(Product(100));
+    target.addProduct(Product(999)); 
+    repo.addUser(&target);
+
+    User u2(2);
+    u2.addProduct(Product(100));
+    u2.addProduct(Product(999));
+    u2.addProduct(Product(200)); 
+    
+    repo.addUser(&u2);
+    repo.addUser(&u2); // Duplicate add shouldn't break logic
+
+    Recommend cmd(nullptr, nullptr, &repo);
+    auto results = cmd.getRecommendations(1, 100);
+
+    ASSERT_FALSE(results.empty());
+    EXPECT_EQ(results[0].getID(), 200);
 }

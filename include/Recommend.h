@@ -18,10 +18,11 @@ private:
     IUserRepo* users;
 
     // Finds user in the repo
-    User* findTargetUser(int userId, std::vector<User>& allUsers);
+    // User* findTargetUser(int userId, std::vector<User>& allUsers);
+    User* findTargetUser(int userId, std::vector<User*>& allUsers);
 
     // Calculates similarity between two users
-    int calcSimilar(const User& target, const User& other) const;
+    int calcSimilar(const User& target, const User& other, int productId) const;
 
     // Finds all users who watched a specific product
     std::vector<User> getUsersWithProduct(const Product& p);
