@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(ProductRecommendation)
 
 set(CMAKE_CXX_STANDARD 14)
+include_directories(include)
 
 # --- Main Application Target ---
 # Including all logic classes shown in the UML
