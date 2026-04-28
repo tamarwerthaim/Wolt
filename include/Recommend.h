@@ -9,11 +9,12 @@
 #include "Product.h"
 #include <vector>
 #include <map>
+#include <string>
 
 class Recommend : public ICommand {
 private:
     // fields
-    IInput* input;
+    std::string input;
     IOutput* output;
     IUserRepo* users;
 
@@ -35,7 +36,7 @@ private:
 
 public:
     // Constructor
-    Recommend(IInput* in, IOutput* out, IUserRepo* repo);
+    Recommend(std::string in, IOutput* out, IUserRepo* repo);
 
     // Inherited from ICommand
     void execute() override;

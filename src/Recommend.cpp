@@ -1,18 +1,30 @@
 #include "Recommend.h"
 #include <map>
 #include <algorithm>
+#include <sstream>
 
-Recommend::Recommend(IInput* in, IOutput* out, IUserRepo* repo) 
+Recommend::Recommend(std::string in, IOutput* out, IUserRepo* repo) 
     : input(in), output(out), users(repo) {
     
 }
 // execute the recommendation command - writing at most top 10 product recommendations 
-// to the givven product and user
 void Recommend::execute() {
-    //TODO:
-    // Read user ID and product ID from input - convert to integers
-    int userID = std::stoi(input->read());
-    int productID = std::stoi(input->read());
+    std::stringstream ss(input);
+    int userID;
+    int productID;
+
+    // 1. Try to read the two integers
+    if (!(ss >> userID >> productID)) {
+        // If we're here, the input wasn't 2 ints
+        return; 
+    }
+
+    // make sure there's no "garbage" left at the end
+    std::string extra;
+    if (ss >> extra) {
+        // If we can still read something, it means there were more than 2 parameters
+        return;
+    }
 
     // Get the recommendations for the user and product
     std::vector<Product> recommendationsList = getRecommendations(userID, productID);
