@@ -1,9 +1,11 @@
 #include "Product.h"
 
-// constractor
 Product::Product(int id) : productID(id) {}
 
-// return ID
 int Product::getID() const { 
         return productID; 
+}
+
+bool Product::operator<(const Product& other) const {
+    return this->productID < other.productID;
 }
