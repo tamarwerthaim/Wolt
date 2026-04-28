@@ -5,7 +5,6 @@
 //implement read from IInput, read line.
 std::string Console::read() {
     std::string input;
-    //   clean buffer?   //////////////////////////////////////////////////////////////////////////////////////////////////
     std::getline(std::cin, input);
     return input;
 }

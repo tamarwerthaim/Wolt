@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
+// Constructor
 Recommend::Recommend(std::string in, IOutput* out, IUserRepo* repo) 
     : input(in), output(out), users(repo) {
     

@@ -4,6 +4,7 @@
 
 class IInput {
 public:
+    // destructor
     virtual ~IInput() {}
     //read input from user
     virtual std::string read() = 0; 

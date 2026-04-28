@@ -37,17 +37,17 @@ TEST(HelpTest, ShouldWriteToOutputWhenExecuted) {
 }
 
 // Test 3: Verify the output matches the required format exactly
-TEST(HelpTest, ShouldPrintCorrectFormat) {
+TEST(HelpTest, ShouldPrintCorrectFormat) { // שיניתי מ-TEST_F ל-TEST
     MockOutput mock;
     Help command(mock, "");
 
     command.execute();
 
-    // Verify we have 3 lines and the text is correct
+    // Verify we have 3 lines and the text is correct (including the newlines)
     ASSERT_EQ(mock.capturedMessages.size(), 3);
-    EXPECT_EQ(mock.capturedMessages[0], "add [userid] [productid1] [productid2] ...");
-    EXPECT_EQ(mock.capturedMessages[1], "recommend [userid] [productid]");
-    EXPECT_EQ(mock.capturedMessages[2], "help");
+    EXPECT_EQ(mock.capturedMessages[0], "add [userid] [productid1] [productid2] ...\n");
+    EXPECT_EQ(mock.capturedMessages[1], "recommend [userid] [productid]\n");
+    EXPECT_EQ(mock.capturedMessages[2], "help\n");
 }
 
 // Test 4: Ensure the command ignores extra numbers (e.g., "help 23")
