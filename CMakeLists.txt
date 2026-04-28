@@ -10,10 +10,10 @@ add_executable(ProductRecommendation
     src/main.cpp 
     src/User.cpp 
     src/Product.cpp
-    #src/MemoryUsers.cpp
     src/Add.cpp
+    src/MemoryUsers.cpp
     #src/Help.cpp
-    #src/Recommend.cpp
+    src/Recommend.cpp
     #src/App.cpp
     #src/File.cpp
     #src/Console.cpp
@@ -26,15 +26,15 @@ include_directories(${GTEST_INCLUDE_DIRS})
 # The test executable targets the logic inside the 'Recommend' class
 add_executable(unit_tests 
     tests/test_main.cpp 
-    #tests/RecommendTests.cpp 
+    tests/RecommendTest.cpp 
     src/User.cpp 
-    tests/UserTests.cpp
     src/Product.cpp
+    src/Recommend.cpp
+    tests/UserTests.cpp
     tests/ProductTests.cpp
     src/Add.cpp
     tests/AddTests.cpp
-    #src/MemoryUsers.cpp
-    #src/Recommend.cpp
+    src/MemoryUsers.cpp
 )
 
 # Link tests with GTest and threading support
