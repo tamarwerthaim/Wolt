@@ -36,7 +36,7 @@ TEST(UserTests, AddSomeProducts) {
 
 
 //try to add the same product
-TEST(userTests, AddSameProducts){
+TEST(UserTests, AddSameProducts){
     User u(1);
     u.addProduct(Product(101));
     u.addProduct(Product(101));
