@@ -46,6 +46,10 @@ add_executable(unit_tests
     tests/ConsoleTests.cpp
     src/File.cpp
     tests/FileTests.cpp
+    #tests/HelpTests.cpp
+    tests/appTest.cpp
+    src/Help.cpp
+    src/APP.cpp
 )
 
 # Link tests with GTest and threading support
