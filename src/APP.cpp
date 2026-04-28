@@ -29,24 +29,20 @@ void App::processCommand(const std::string& line) {
     // Create a stream to parse the line
     std::stringstream ss(line);
     std::string commandName;
-    
-    // Extract the first word as the command name
-    ss >> commandName; 
+    // Read the command name (the first word)
+    ss >> commandName;
+
+    // Read the rest of the line as parameters (if any)
+    std::string params;
+    std::getline(ss, params); 
 
     try {
-        // Find the command object in our map
         ICommand* cmd = commands.at(commandName);
-        
-        // Get the rest of the line (the parameters)
-        std::string remainingInput;
-        std::getline(ss >> std::ws, remainingInput); 
-        
-        // Pass the parameters and run the command
-        cmd->setInput(remainingInput); 
+        // Set the parameters for the command and execute it
+        cmd->setInput(params);
         cmd->execute();
-
     } catch (...) {
-        // Ignore the line if the command is not found in the map
+        // If the command is not found continue without crashing
     }
 }
 

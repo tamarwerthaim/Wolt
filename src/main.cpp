@@ -8,36 +8,20 @@
 #include <string>
 
 int main() {
-    // 1. Create the main objects
-    // The console handles both typing and printing
     Console console; 
-    MemoryUsers repo;
+    // We use a file named "data/users_db.txt" to store our users.
+    MemoryUsers repo("data/users_db.txt"); 
 
-    // 2. Create a map for the commands
     std::map<std::string, ICommand*> commandMap;
 
-    // 3. Put commands in the map
-    // 'add' only needs the database
+    // Initialize the command map with our commands, injecting the necessary dependencies
     commandMap["add"] = new Add(repo, "");
-    
-    // 'help' only needs the screen to print
     commandMap["help"] = new Help(console, "");
-    
-    // 'recommend' needs input, output, and the database
     commandMap["recommend"] = new Recommend("", &console, &repo);
     
-    // 4. Setup the App
-    // Give the app the console, the database, and the commands
+    // Create the app with all dependencies injected
     App woltApp(console, console, repo, commandMap);
-
-    // 5. Start the program loop
     woltApp.run();
- 
-    // Delete all commands in the map to free memory
-    for (auto const& [name, cmd] : commandMap) {
-        delete cmd;
-    }
-    commandMap.clear(); // Empty the map
-
+    
     return 0;
 }
