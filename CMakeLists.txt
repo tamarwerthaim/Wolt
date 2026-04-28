@@ -35,6 +35,7 @@ add_executable(unit_tests
     src/Add.cpp
     tests/AddTests.cpp
     src/MemoryUsers.cpp
+    tests/MemoryUsersTest.cpp
     #src/MemoryUsers.cpp
     #src/Recommend.cpp
     src/Console.cpp
