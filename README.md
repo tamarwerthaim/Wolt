@@ -1,22 +1,34 @@
 
-# Wolt Product Recommendation System
+//good readme
+# Recommendation System Using CLI:
 
-A robust C++ recommendation engine designed to provide personalized product suggestions using a **Collaborative Filtering** algorithm. The system analyzes user purchase history to find similarities between users and recommends products that "similar" customers enjoyed.
+This project is a C++ command-line interface (CLI) application designed to manage users product history and to provide personalized product recommendations. It utilizes user product history to identify similarities between users and suggest relevant items based on it.
 
-## Overview
-This application serves as a backend for a product recommendation service. It manages a repository of users and their purchased products, ensuring data consistency and persistence. Built with a modular architecture, it utilizes the **Command Pattern** to handle user inputs and a **Repository Pattern** for data management.
 
-## Key Features
-* **Intelligent Recommendations:** Uses a weighted scoring system based on shared purchase history.
-* **Data Persistence:** Automatically saves and loads user data from `data/users_db.txt`, ensuring information is never lost between sessions.
-* **Input Validation:** Robust parsing logic that handles extra spaces, invalid characters, and incorrect command formats without crashing.
-* **Dockerized Environment:** Fully containerized for easy deployment and consistent testing across different machines.
-* **Unit Tested:** Comprehensive test suite using **Google Test (GTest)** covering edge cases, persistence, and algorithm accuracy.
 
-## Project Structure
-The project is organized to maintain a clean separation between logic, data, and tests:
+## Architecture & Design Principles:
 
-```text
+The system was built with a focus on SOLID principles and Loose Coupling to ensure future extensibility.
+
+
+
+### Design Patterns Used:
+
+**Encapsulation and Interfaces:** Every command is encapsulated in its own class (for example: Add, Recommend), inheriting from a common ICommand interface. This allows for adding new commands without modifying the current code.
+
+
+
+**Repository And Data Managment:** Data access is abstracted via the IUserRepo interface. The MemoryUsers handles persistent storage in the data/ folder, but can be swapped for a database implementation easily.
+
+
+
+**Dependency Injection:** High-level modules like the RecommendationEngine do not depend on low-level details; instead, they receive interfaces (like IInput) through their constructors.
+
+
+
+### Project Structure:
+
+
 Wolt/
 ├── data/               # Persistent data storage (users_db.txt)
 ├── src/                # All .cpp and .h source files
@@ -26,54 +38,60 @@ Wolt/
 └── README.md           # Project documentation
 
 
-## Running Instructions
-Prerequisites
-Docker Desktop installed and running.
 
-1. Build the Docker Image
-Navigate to the root directory of the project and run:
-docker build -t wolt-app .
+## Docker Commands:
 
-2. Run the Interactive Application
-To ensure that data persists on your host machine, use a volume to link the data directory:
-docker run -it --rm -v "${PWD}/data:/app/data" wolt-app ./build/ProductRecommendation
 
-3. Run Unit Tests
-To verify all system components:
-docker run --rm wolt-app ./build/unit_tests
 
-Run Examples
-Once the application is running, you can use the following commands:
+**Build the container properly:**
+```
+docker build -t wolt .
+```
 
-Adding Data
-Format: add [userId] [productId1] [productId2] ...
+**Run tests without user input allowed:** 
+```
+docker run --rm wolt-app ./build/unit_tests 
+```
 
-Plaintext
-add 1 100 101 102 103
-add 2 101 102 104 105 106
-User 1 and User 2 now share products 101 and 102, creating a similarity "weight" of 2.
+**Run the project itself:**
 
-Getting Recommendations
-Format: recommend [userId] [productId]
+   **using CMD:**
+   ```
+   docker run -it -v "%cd%/data:/usr/src/app/data" wolt
+   ```
+   **using POWERSHELL, LINUX and MACOS:**
+   ```
+   docker run -it --rm -v "${PWD}/data:/app/data" wolt-app ./build/ProductRecommendation
+   ```
 
-Plaintext
-recommend 1 101
-Expected Output:
 
-Plaintext
-104 105 106
-Explanation: The system finds that User 2 is similar to User 1. Since User 2 also bought 104, 105, and 106, these are recommended to User 1.
+## Program Usage And Commands:
 
-Help Command
-To see all available commands:
+The application remains endlessly active and accepts the following commands:
 
-Plaintext
-help
-Technical Details
-Language: C++11/14/17
 
-Algorithm: Collaborative Filtering. Similarity is calculated by the number of shared products between the target user and others, excluding the current product ID provided in the recommend command.
 
-Ranking: Recommendations are sorted by their cumulative weight (higher first). In case of a tie, the lower Product ID is prioritized.
+**1. Add:** add [userid] [productid1] [productid2] ...
 
-Persistence: The MemoryUsers class ensures all add operations are flushed to data/users_db.txt using the saveAllToFile method.
+    -Associates products with a user. Data is automatically persisted to the data/data.txt file.
+
+**2. Recommendations:** recommend [userid] [productid]
+
+    -Provides up to 10 product recommendations based on the similarity algorithm.
+
+**3. Help:** help
+
+    -Displays the list of supported commands.
+
+
+
+## Example:
+
+**help**: as discraibed the command displays the list of supported commands: 
+   ![Help command](images_readme\help_image.jpeg)
+
+**add**: as discraibed the command add product id's to the users history: 
+   ![add command](images_readme\add_image.jpeg)
+   
+**reccomend**: displays up to 10 reccomendations based on a product id that the user provide and simillarities with other users(if exsist): 
+   ![recommend command](images_readme\recommend_image.jpeg)
