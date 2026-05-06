@@ -1,5 +1,4 @@
 
-//good readme
 # Recommendation System Using CLI:
 
 This project is a C++ command-line interface (CLI) application designed to manage users product history and to provide personalized product recommendations. It utilizes user product history to identify similarities between users and suggest relevant items based on it.
@@ -29,6 +28,7 @@ The system was built with a focus on SOLID principles and Loose Coupling to ensu
 ### Project Structure:
 
 
+```text
 Wolt/
 ├── data/               # Persistent data storage (users_db.txt)
 ├── src/                # All .cpp and .h source files
@@ -36,6 +36,7 @@ Wolt/
 ├── CMakeLists.txt      # Build system configuration
 ├── Dockerfile          # Configuration for Docker container
 └── README.md           # Project documentation
+```
 
 
 
@@ -88,10 +89,10 @@ The application remains endlessly active and accepts the following commands:
 ## Example:
 
 **help**: as discraibed the command displays the list of supported commands: 
-   ![Help command](images_readme\help_image.jpeg)
+   ![Help command](images_readme/help_image.jpeg)
 
 **add**: as discraibed the command add product id's to the users history: 
-   ![add command](images_readme\add_image.jpeg)
+   ![add command](images_readme/add_image.jpeg)
    
 **reccomend**: displays up to 10 reccomendations based on a product id that the user provide and simillarities with other users(if exsist): 
-   ![recommend command](images_readme\recommend_image.jpeg)
+   ![recommend command](images_readme/recommend_image.jpeg)
