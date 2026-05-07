@@ -4,16 +4,16 @@ FROM ubuntu:22.04
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update and install essential build tools and GTest development files
+# Update and install essential build tools, GTest, AND Python 3 for the client
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     git \
     libgtest-dev \
+    python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Compile Google Test (GTest) source code
-# Ubuntu provides the source in /usr/src/gtest; we must compile it to libraries
 RUN cd /usr/src/gtest && \
     cmake . && \
     make && \
@@ -25,10 +25,15 @@ WORKDIR /app
 # Copy all project files into the container
 COPY . .
 
-# Create a build directory and compile both the App and the Tests
+# Create a build directory and compile the Server and the Tests
 RUN mkdir -p build && cd build && \
     cmake .. && \
     make
 
-# Default command to run the main application
-CMD ["./build/ProductRecommendation"]
+# Expose the TCP port that the server will listen on
+# (Note: This documents the port, you still need to pass it to the app)
+EXPOSE 5555
+
+# Default command to run the Server with a port argument
+# Replace '5555' with your preferred default port
+CMD ["./build/ProductRecommendation", "5555"]
