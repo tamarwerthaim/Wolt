@@ -1,23 +1,24 @@
-#include "Recommend.h"
+#include "GET.h"
 #include <map>
 #include <algorithm>
 #include <sstream>
 
 // Constructor
-Recommend::Recommend(std::string in, IOutput* out, IUserRepo* repo) 
+GET::GET(std::string in, IOutput* out, IUserRepo* repo) 
     : input(in), output(out), users(repo) {
     
 }
 // execute the recommendation command - writing at most top 10 product recommendations 
 // to the givven product and user
-void Recommend::execute() {
+void GET::execute() {
     std::stringstream ss(input);
     int userID;
     int productID;
 
-    // 1. Try to read the two integers
-    if (!(ss >> userID >> productID)) {
-        // If we're here, the input wasn't 2 ints
+    // 1. Try to read the two integers or check if they are negative
+    if (!(ss >> userID >> productID) || userID < 0 || productID < 0) {
+        // If we're here, the input wasn't 2 ints or contained negative values
+        output->write("400 Bad Request\n");
         return; 
     }
 
@@ -25,11 +26,15 @@ void Recommend::execute() {
     std::string extra;
     if (ss >> extra) {
         // If we can still read something, it means there were more than 2 parameters
+        output->write("400 Bad Request\n");
         return;
     }
 
     // Get the recommendations for the user and product
     std::vector<Product> recommendationsList = getRecommendations(userID, productID);
+
+    // the request is valid, write the status line first
+    output->write("200 Ok\n\n");
 
     // Write the recommended product IDs to output
     for (size_t i = 0; i < recommendationsList.size(); ++i) {
@@ -45,12 +50,12 @@ void Recommend::execute() {
 }
 
 // Update the input parameters for the recommendation command
-void Recommend::setInput(std::string inp) { 
+void GET::setInput(std::string inp) { 
     this->input = inp;
 }
 
 // Main logic to get the recommendations for a user based on the product they watched
-std::vector<Product> Recommend::getRecommendations(int userId, int productId) {
+std::vector<Product> GET::getRecommendations(int userId, int productId) {
     std::vector<User*> allUsers = users->getUsers();
     
     // 1. Get the target user
@@ -66,7 +71,7 @@ std::vector<Product> Recommend::getRecommendations(int userId, int productId) {
 }
 
  // Calculates how many products two users have in common.
- int Recommend::calcSimilar(const User& target, const User& other, int productId) const {
+ int GET::calcSimilar(const User& target, const User& other, int productId) const {
     int commonCount = 0;
     // Compare every product from target with every product from other
     for (const auto& p : target.getProducts()) {
@@ -80,7 +85,7 @@ std::vector<Product> Recommend::getRecommendations(int userId, int productId) {
 }
 
  // Finds all users in the repo who watched this product.
-std::vector<User> Recommend::getUsersWithProduct(const Product& p) {
+std::vector<User> GET::getUsersWithProduct(const Product& p) {
     std::vector<User> result;
     // Get all users from the repository
     std::vector<User*> allUsers = users->getUsers(); 
@@ -95,7 +100,7 @@ std::vector<User> Recommend::getUsersWithProduct(const Product& p) {
 }
 
 // Logic for finding the user
-User* Recommend::findTargetUser(int userId, std::vector<User*>& allUsers) {
+User* GET::findTargetUser(int userId, std::vector<User*>& allUsers) {
     for (auto u : allUsers) {
         if (u->getID() == userId) return u;
     }
@@ -105,7 +110,7 @@ User* Recommend::findTargetUser(int userId, std::vector<User*>& allUsers) {
 
 
 // Logic for the scoring algorithm
-std::map<int, int> Recommend::calculateRawScores(const User& target, int productId) {
+std::map<int, int> GET::calculateRawScores(const User& target, int productId) {
     std::map<int, int> scores;
     std::vector<User> similarUsers = getUsersWithProduct(Product(productId));
 
@@ -131,7 +136,7 @@ std::map<int, int> Recommend::calculateRawScores(const User& target, int product
 }
 
 // Logic for sorting and limiting the list
-std::vector<Product> Recommend::sortAndLimit(const std::map<int, int>& scores) {
+std::vector<Product> GET::sortAndLimit(const std::map<int, int>& scores) {
     // Convert to vector for sorting
     std::vector<std::pair<int, int>> sortedList(scores.begin(), scores.end());
 

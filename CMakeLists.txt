@@ -25,10 +25,8 @@ add_executable(ProductRecommendation
     src/Help.cpp
     #delete!
     src/Add.cpp
-    #delete!
-    src/Recommend.cpp
     #src/Post.cpp      # Replaces Add.cpp logic
-    #src/Get.cpp       # Replaces Recommend.cpp logic
+    src/GET.cpp       
     #src/Patch.cpp     # New command
     #src/Delete.cpp    # New command
 )
@@ -56,9 +54,7 @@ add_executable(unit_tests
     #delete!
     src/Add.cpp
     #src/Post.cpp
-    #delete!
-    src/Recommend.cpp
-    #src/Get.cpp
+    src/GET.cpp
     #src/Patch.cpp
     #src/Delete.cpp
     # Test Files
@@ -70,7 +66,7 @@ add_executable(unit_tests
     tests/HelpTests.cpp
     tests/appTest.cpp
     #tests/PostTests.cpp    # New test file
-    #tests/GetTests.cpp     # New test file
+    tests/GETTest.cpp     # New test file
     #tests/PatchTests.cpp   # New test file
     #tests/DeleteTests.cpp  # New test file
     #tests/ServerTests.cpp # Add if you create server-specific tests

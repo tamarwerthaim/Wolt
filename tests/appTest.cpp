@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include "Add.h"
-#include "Recommend.h"
+#include "GET.h"
 #include "Help.h"
 #include "MemoryUsers.h"
 #include "IOutput.h"
@@ -33,7 +33,8 @@ protected:
     repo = new MemoryUsers("/app/data/terminal_test.txt");
 
     commands["add"] = new Add(*repo, ""); 
-    commands["recommend"] = new Recommend("", out, repo);
+    // CHANGE: Added "" back to match GET.h constructor signature
+    commands["GET"] = new GET("", out, repo); 
     commands["help"] = new Help(*out, "");
 }
 
@@ -69,8 +70,8 @@ TEST_F(TerminalSimulationTest, BasicFlow) {
     runCommand("add 2 10 999 30");
     
     out->clear();
-    runCommand("recommend 1 10");
-    EXPECT_EQ(out->capturedText, "30\n");
+    runCommand("GET 1 10");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n"); // UPDATED: Included status code
 }
 
 // Test: Check tie-breaker (smaller ID first)
@@ -80,8 +81,8 @@ TEST_F(TerminalSimulationTest, TieBreakerCheck) {
     runCommand("add 3 10 999 200");
     
     out->clear();
-    runCommand("recommend 1 10");
-    EXPECT_EQ(out->capturedText, "200 500\n");
+    runCommand("GET 1 10");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n200 500\n"); // UPDATED: Included status code
 }
 
 // Test: Check weights (influence of similar users)
@@ -91,8 +92,8 @@ TEST_F(TerminalSimulationTest, WeightsInfluence) {
     runCommand("add 3 10 20 400");    // Weight 1 (shares 20)
     
     out->clear();
-    runCommand("recommend 1 10");
-    EXPECT_EQ(out->capturedText, "300 400\n");
+    runCommand("GET 1 10");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n300 400\n"); // UPDATED: Included status code
 }
 
 // ... in MaxTenLimit test, make sure each user shares one extra product ...
@@ -103,11 +104,14 @@ TEST_F(TerminalSimulationTest, MaxTenLimit) {
         runCommand(cmd);
     }
     out->clear();
-    runCommand("recommend 1 100");
+    runCommand("GET 1 100");
     
     int count = 0;
     std::stringstream ss(out->capturedText);
     std::string temp;
+    // Skip status code
+    ss >> temp; // 200
+    ss >> temp; // Ok
     while(ss >> temp) count++;
     EXPECT_EQ(count, 10);
 }
@@ -121,9 +125,9 @@ TEST_F(TerminalSimulationTest, ExtraSpaces) {
     runCommand("add    6      100    999    200");
     
     out->clear();
-    runCommand("recommend      5       100");
+    runCommand("GET       5       100");
     // Now user 6 is similar (weight 1), so 200 is recommended
-    EXPECT_EQ(out->capturedText, "200\n");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n200\n"); // UPDATED: Included status code
 }
 
 // Test: Garbage text at the end
@@ -131,16 +135,16 @@ TEST_F(TerminalSimulationTest, TrailingGarbage) {
     runCommand("add 1 10 20");
     runCommand("add 2 10 30");
     out->clear();
-    runCommand("recommend 1 10 extra_stuff"); // Should fail and return
-    EXPECT_EQ(out->capturedText, "");
+    runCommand("GET 1 10 extra_stuff"); // Should fail and return
+    EXPECT_EQ(out->capturedText, "400 Bad Request\n"); // UPDATED: Expect error status
 }
 
 // Test: Letters instead of numbers
 TEST_F(TerminalSimulationTest, NonNumericInput) {
     out->clear();
     runCommand("add 1 abc 20"); 
-    runCommand("recommend 1 10");
-    EXPECT_EQ(out->capturedText, "\n");
+    runCommand("GET 1 10");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n\n"); // UPDATED: Included status code
 }
 
 // --- PERSISTENCE & SYSTEM TESTS ---
@@ -158,13 +162,14 @@ TEST_F(TerminalSimulationTest, PersistenceCheck) {
     runCommand("add 99 10 999 30"); 
     
     MemoryUsers repo2("/app/data/terminal_test.txt");    
-    Recommend recCmd("", out, &repo2);
+    // CHANGE: Added "" back to match GET.h constructor signature
+    GET getCmd("", out, &repo2); 
     
     out->clear();
-    recCmd.setInput(" 88 10");
-    recCmd.execute();
+    getCmd.setInput(" 88 10");
+    getCmd.execute();
     
-    EXPECT_EQ(out->capturedText, "30\n");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n"); // UPDATED: Included status code
 }
 
 TEST_F(TerminalSimulationTest, DataPersistenceAfterRestart) {
@@ -172,11 +177,12 @@ TEST_F(TerminalSimulationTest, DataPersistenceAfterRestart) {
     runCommand("add 2 100 999 300");
     
     MemoryUsers repo2("/app/data/terminal_test.txt");    
-    Recommend recCmd("", out, &repo2);
+    // CHANGE: Added "" back to match GET.h constructor signature
+    GET getCmd("", out, &repo2); 
     
     out->clear();
-    recCmd.setInput(" 1 100");
-    recCmd.execute();
+    getCmd.setInput(" 1 100");
+    getCmd.execute();
     
     EXPECT_NE(out->capturedText.find("300"), std::string::npos);
 }
@@ -187,8 +193,8 @@ TEST_F(TerminalSimulationTest, MessyWhitespace) {
     runCommand("   add    11      500    999    600");
     
     out->clear();
-    runCommand("    recommend      10       500   ");
-    EXPECT_EQ(out->capturedText, "600\n");
+    runCommand("    GET      10       500   ");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n600\n"); // UPDATED: Included status code
 }
 
 // test: garbage characters between parameters
@@ -207,10 +213,10 @@ TEST_F(TerminalSimulationTest, GarbageAfterCommand) {
     
     out->clear();
     // correct command + extra junk at the end
-    runCommand("recommend 1 100 some_extra_junk");
+    runCommand("GET 1 100 some_extra_junk");
     
-    // output should be empty because we return on extra garbage
-    EXPECT_EQ(out->capturedText, "");
+    // output should be error because we return on extra garbage
+    EXPECT_EQ(out->capturedText, "400 Bad Request\n"); // UPDATED: Expect error status
 }
 
 // test: garbage characters before the command name

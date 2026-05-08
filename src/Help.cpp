@@ -12,7 +12,7 @@ void Help::execute() {
 
     // print all commands
     output.write("add [userid] [productid1] [productid2] ...\n");
-    output.write("recommend [userid] [productid]\n");
+    output.write("GET [userid] [productid]\n");
     output.write("help\n");
 }
 
