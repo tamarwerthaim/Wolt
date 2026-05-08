@@ -1,5 +1,5 @@
-#ifndef RECOMMEND_H
-#define RECOMMEND_H
+#ifndef GET_H
+#define GET_H
 
 #include "ICommand.h"
 #include "IInput.h"
@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 
-class Recommend : public ICommand {
+class GET : public ICommand {
 private:
     // fields
     std::string input;
@@ -36,7 +36,7 @@ private:
 
 public:
     // Constructor
-    Recommend(std::string in, IOutput* out, IUserRepo* repo);
+    GET(std::string in, IOutput* out, IUserRepo* repo);
 
     // Inherited from ICommand
     void execute() override;

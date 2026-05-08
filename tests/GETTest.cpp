@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <fstream>
-#include "Recommend.h"
+#include "GET.h"
 #include "MemoryUsers.h"
 #include "User.h"
 #include "Product.h"
 
 // Tests for the recommendation engine logic
-class RecommendTest : public ::testing::Test {
+class GETTest : public ::testing::Test {
 protected:
     MemoryUsers* repo; // Changed to pointer to control initialization
 
@@ -27,7 +27,7 @@ protected:
 };
 
 // Basic test - check if scores and weight work for a similar user
-TEST_F(RecommendTest, BasicFlowFromAppendix) {
+TEST_F(GETTest, BasicFlowFromAppendix) {
     User* u1 = new User(1); 
     u1->addProduct(Product(100)); u1->addProduct(Product(101)); 
     u1->addProduct(Product(102)); u1->addProduct(Product(103));
@@ -42,7 +42,7 @@ TEST_F(RecommendTest, BasicFlowFromAppendix) {
     repo->addUser(u1);
     repo->addUser(u5);
 
-    Recommend cmd("1 104", nullptr, repo);
+    GET cmd("1 104", nullptr, repo);
     auto results = cmd.getRecommendations(1, 104); 
     
     ASSERT_FALSE(results.empty());
@@ -50,7 +50,7 @@ TEST_F(RecommendTest, BasicFlowFromAppendix) {
 }
 
 // Tie-breaker: if scores are the same, smaller ID should be first
-TEST_F(RecommendTest, TieBreakerSort) {
+TEST_F(GETTest, TieBreakerSort) {
     User* u1 = new User(1); u1->addProduct(Product(100)); u1->addProduct(Product(999));
     
     User* u2 = new User(2); u2->addProduct(Product(100)); u2->addProduct(Product(200)); u2->addProduct(Product(999));
@@ -58,7 +58,7 @@ TEST_F(RecommendTest, TieBreakerSort) {
 
     repo->addUser(u1); repo->addUser(u2); repo->addUser(u3);
 
-    Recommend cmd("1 999", nullptr, repo);
+    GET cmd("1 999", nullptr, repo);
     auto results = cmd.getRecommendations(1, 999);
 
     ASSERT_GE(results.size(), 2);
@@ -67,31 +67,31 @@ TEST_F(RecommendTest, TieBreakerSort) {
 }
 
 // No common products between users means no recommendations
-TEST_F(RecommendTest, NoSharedProductsEmptyResult) {
+TEST_F(GETTest, NoSharedProductsEmptyResult) {
     User* u1 = new User(1); u1->addProduct(Product(500));
     User* u2 = new User(2); u2->addProduct(Product(111)); 
 
     repo->addUser(u1); repo->addUser(u2);
 
-    Recommend cmd("1 500", nullptr, repo);
+    GET cmd("1 500", nullptr, repo);
     auto results = cmd.getRecommendations(1, 500);
 
     EXPECT_TRUE(results.empty());
 }
 
 // Case where the user ID isn't in the repository
-TEST_F(RecommendTest, UserNotFoundInRepo) {
+TEST_F(GETTest, UserNotFoundInRepo) {
     User* u1 = new User(1); u1->addProduct(Product(100));
     repo->addUser(u1);
 
-    Recommend cmd("99 100", nullptr, repo);
+    GET cmd("99 100", nullptr, repo);
     auto results = cmd.getRecommendations(99, 100); 
 
     EXPECT_TRUE(results.empty());
 }
 
 // Influence check: user with more common items counts more
-TEST_F(RecommendTest, WeightMathVerification) {
+TEST_F(GETTest, WeightMathVerification) {
     User* target = new User(1); 
     target->addProduct(Product(10)); target->addProduct(Product(20)); target->addProduct(Product(100));
 
@@ -104,7 +104,7 @@ TEST_F(RecommendTest, WeightMathVerification) {
 
     repo->addUser(target); repo->addUser(userA); repo->addUser(userB);
 
-    Recommend cmd("1 100", nullptr, repo);
+    GET cmd("1 100", nullptr, repo);
     auto results = cmd.getRecommendations(1, 100);
 
     ASSERT_GE(results.size(), 2);
@@ -112,7 +112,7 @@ TEST_F(RecommendTest, WeightMathVerification) {
 }
 
 // Checking the 10-limit and sorting when many users recommend items
-TEST_F(RecommendTest, MaxTenWithTieBreaker) {
+TEST_F(GETTest, MaxTenWithTieBreaker) {
     User* target = new User(1); 
     target->addProduct(Product(100));
     target->addProduct(Product(999)); 
@@ -126,7 +126,7 @@ TEST_F(RecommendTest, MaxTenWithTieBreaker) {
         repo->addUser(u);
     }
 
-    Recommend cmd("1 100", nullptr, repo);
+    GET cmd("1 100", nullptr, repo);
     auto results = cmd.getRecommendations(1, 100);
 
     ASSERT_EQ(results.size(), 10);
@@ -135,7 +135,7 @@ TEST_F(RecommendTest, MaxTenWithTieBreaker) {
 }
 
 // Filter check: don't recommend products the user already has
-TEST_F(RecommendTest, HighSimilarityButAlmostAllSeen) {
+TEST_F(GETTest, HighSimilarityButAlmostAllSeen) {
     User* target = new User(1);
     target->addProduct(10); target->addProduct(20); target->addProduct(30); target->addProduct(100);
 
@@ -145,7 +145,7 @@ TEST_F(RecommendTest, HighSimilarityButAlmostAllSeen) {
 
     repo->addUser(target); repo->addUser(similar);
 
-    Recommend cmd("1 100", nullptr, repo);
+    GET cmd("1 100", nullptr, repo);
     auto results = cmd.getRecommendations(1, 100);
 
     ASSERT_EQ(results.size(), 1);
@@ -153,7 +153,7 @@ TEST_F(RecommendTest, HighSimilarityButAlmostAllSeen) {
 }
 
 // All items offered are already seen - expecting empty results
-TEST_F(RecommendTest, TargetUserSawEverything) {
+TEST_F(GETTest, TargetUserSawEverything) {
     User* target = new User(1);
     target->addProduct(Product(10)); target->addProduct(Product(20)); target->addProduct(Product(100));
     repo->addUser(target);
@@ -162,28 +162,28 @@ TEST_F(RecommendTest, TargetUserSawEverything) {
     similar->addProduct(Product(100)); similar->addProduct(Product(10)); similar->addProduct(Product(20));
     repo->addUser(similar);
 
-    Recommend cmd("1 100", nullptr, repo);
+    GET cmd("1 100", nullptr, repo);
     auto results = cmd.getRecommendations(1, 100);
 
     EXPECT_TRUE(results.empty());
 }
 
 // Product 999 doesn't exist in any user list
-TEST_F(RecommendTest, OrphanProductContext) {
+TEST_F(GETTest, OrphanProductContext) {
     User* u1 = new User(1); u1->addProduct(Product(100));
     User* u2 = new User(2); u2->addProduct(Product(200));
     
     repo->addUser(u1);
     repo->addUser(u2);
 
-    Recommend cmd("1 999", nullptr, repo);
+    GET cmd("1 999", nullptr, repo);
     auto results = cmd.getRecommendations(1, 999);
 
     EXPECT_TRUE(results.empty());
 }
 
 // Duplicate test: handles adding the same user multiple times
-TEST_F(RecommendTest, IntegrityCheckDuplicateData) {
+TEST_F(GETTest, IntegrityCheckDuplicateData) {
     User* target = new User(1); 
     target->addProduct(Product(100));
     target->addProduct(Product(999)); 
@@ -199,7 +199,7 @@ TEST_F(RecommendTest, IntegrityCheckDuplicateData) {
     u2_b->addProduct(Product(100));
     repo->addUser(u2_b);
 
-    Recommend cmd("1 100", nullptr, repo);
+    GET cmd("1 100", nullptr, repo);
     auto results = cmd.getRecommendations(1, 100);
 
     ASSERT_FALSE(results.empty());
@@ -207,7 +207,7 @@ TEST_F(RecommendTest, IntegrityCheckDuplicateData) {
 }
 
 // Check if the parser handles many spaces between IDs correctly
-TEST_F(RecommendTest, InputWithMultipleSpaces) {
+TEST_F(GETTest, InputWithMultipleSpaces) {
     // Both users watch 104 (context) and 999 (shared anchor)
     User* u1 = new User(1); 
     u1->addProduct(Product(104)); 
@@ -222,7 +222,7 @@ TEST_F(RecommendTest, InputWithMultipleSpaces) {
     repo->addUser(u2);
 
     // This creates the command with the "spaced" string
-    Recommend cmd("1    104", nullptr, repo);
+    GET cmd("1    104", nullptr, repo);
     
     // We call the logic - weight will be 1
     auto results = cmd.getRecommendations(1, 104);
@@ -232,34 +232,34 @@ TEST_F(RecommendTest, InputWithMultipleSpaces) {
 }
 
 // Check that input with only one number is invalid
-TEST_F(RecommendTest, InvalidInputMissingId) {
+TEST_F(GETTest, InvalidInputMissingId) {
     // String has only userId, missing productId
-    Recommend cmd("1", nullptr, repo);
+    GET cmd("1", nullptr, repo);
     
     auto results = cmd.getRecommendations(0, 0); 
     EXPECT_TRUE(results.empty());
 }
 
 // Check that non-numeric input (letters) causes a failure
-TEST_F(RecommendTest, InvalidInputAlphaCharacters) {
+TEST_F(GETTest, InvalidInputAlphaCharacters) {
     // "abc" instead of a numeric ID
-    Recommend cmd("1 abc", nullptr, repo);
+    GET cmd("1 abc", nullptr, repo);
     
     auto results = cmd.getRecommendations(0, 0);
     EXPECT_TRUE(results.empty());
 }
 
 // Check that having more than 2 parameters is invalid
-TEST_F(RecommendTest, InvalidInputExtraData) {
-    Recommend cmd("1 100 200", nullptr, repo);
+TEST_F(GETTest, InvalidInputExtraData) {
+    GET cmd("1 100 200", nullptr, repo);
     
     auto results = cmd.getRecommendations(0, 0);
     EXPECT_TRUE(results.empty());
 }
 
 // Check that a completely empty string is handled safely
-TEST_F(RecommendTest, EmptyInputString) {
-    Recommend cmd("", nullptr, repo);
+TEST_F(GETTest, EmptyInputString) {
+    GET cmd("", nullptr, repo);
     
     auto results = cmd.getRecommendations(0, 0);
     EXPECT_TRUE(results.empty());
