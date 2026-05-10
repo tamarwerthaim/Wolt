@@ -64,7 +64,7 @@ add_executable(unit_tests
     tests/HelpTests.cpp
     tests/appTest.cpp
     tests/POSTTests.cpp    
-    tests/GETTest.cpp     # New test file
+    tests/GETTest.cpp    
     tests/PATCHTests.cpp  
     tests/DeleteTests.cpp
     #tests/ServerTests.cpp # Add if you create server-specific tests

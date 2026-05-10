@@ -29,6 +29,8 @@ void Delete::execute() {
     }
     // 3. If everything is valid, delete the specified products from the user's list
     deleteProducts(targetUser, productIds);
+    // Save the updated user data to the file after deletion
+    users->saveAllToFile();
     // 4. Return 204 No Content to indicate successful deletion
     output->write("204 No Content\n");
 }

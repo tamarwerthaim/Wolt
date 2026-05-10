@@ -1,5 +1,7 @@
 #include "APP.h"
 #include <sstream>
+#include <algorithm>
+#include <cctype>
 
 // The constructor injects all the dependencies
 App::App(IInput& in, IOutput& out, IUserRepo& rep, std::map<std::string, ICommand*> cmds)
@@ -25,47 +27,17 @@ void App::run() {
     }
 }
 
-
-
-
-// void App::processCommand(const std::string& line) {
-//     std::stringstream ss(line);
-//     std::string commandName;
-//     ss >> commandName;
-
-//     std::string params;
-//     std::getline(ss, params); 
-
-//     // הדפסת דיבאג - תראי את זה בטרמינל
-//     output.write("Attempting to run: [" + commandName + "]\n");
-
-//     if (commands.find(commandName) != commands.end()) {
-//         try {
-//             ICommand* cmd = commands[commandName];
-//             cmd->setInput(params);
-//             cmd->execute();
-//             output.write("Command executed successfully.\n");
-//         } catch (const std::exception& e) {
-//             output.write("Runtime Error: ");
-//             output.write(e.what());
-//             output.write("\n");
-//         } catch (...) {
-//             output.write("Unknown error occurred during execution.\n");
-//         }
-//     } else {
-//         output.write("Error: Command '" + commandName + "' not found in map. Check main.cpp registration!\n");
-//     }
-// }
-
-
-
-
 void App::processCommand(const std::string& line) {
     // Create a stream to parse the line
     std::stringstream ss(line);
     std::string commandName;
     // Read the command name (the first word)
     ss >> commandName;
+
+    // Convert the command name to uppercase to make it case-insensitive
+    for (auto & c : commandName) {
+        c = std::toupper(static_cast<unsigned char>(c));
+    }
 
     // Read the rest of the line as parameters (if any)
     std::string params;
@@ -77,7 +49,8 @@ void App::processCommand(const std::string& line) {
         cmd->setInput(params);
         cmd->execute();
     } catch (...) {
-        // If the command is not found continue without crashing
+        // if not found, we catch the exception and write a 400 Bad Request response
+        output.write("400 Bad Request\n");
     }
 }
 
