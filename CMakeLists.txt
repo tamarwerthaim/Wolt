@@ -28,7 +28,7 @@ add_executable(ProductRecommendation
     #src/Post.cpp      # Replaces Add.cpp logic
     src/GET.cpp       
     #src/Patch.cpp     # New command
-    #src/Delete.cpp    # New command
+    src/Delete.cpp
 )
 
 # Linking pthread is required for socket-based networking in Linux
@@ -56,7 +56,7 @@ add_executable(unit_tests
     #src/Post.cpp
     src/GET.cpp
     #src/Patch.cpp
-    #src/Delete.cpp
+    src/Delete.cpp
     # Test Files
     tests/UserTests.cpp
     tests/ProductTests.cpp
@@ -68,7 +68,7 @@ add_executable(unit_tests
     #tests/PostTests.cpp    # New test file
     tests/GETTest.cpp     # New test file
     #tests/PatchTests.cpp   # New test file
-    #tests/DeleteTests.cpp  # New test file
+    tests/DeleteTests.cpp
     #tests/ServerTests.cpp # Add if you create server-specific tests
 )
 
