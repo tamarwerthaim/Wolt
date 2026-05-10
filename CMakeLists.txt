@@ -25,7 +25,8 @@ add_executable(ProductRecommendation
     src/Help.cpp
     src/POST.cpp     
     src/GET.cpp       
-    #src/Patch.cpp     # New command
+    src/PATCH.cpp
+    src/BaseAddCommands.cpp     
     src/Delete.cpp
 )
 
@@ -51,7 +52,8 @@ add_executable(unit_tests
     src/Help.cpp
     src/POST.cpp
     src/GET.cpp
-    #src/Patch.cpp
+    src/PATCH.cpp
+    src/BaseAddCommands.cpp
     src/Delete.cpp
     # Test Files
     tests/UserTests.cpp
@@ -63,7 +65,7 @@ add_executable(unit_tests
     tests/appTest.cpp
     tests/POSTTests.cpp    
     tests/GETTest.cpp     # New test file
-    #tests/PatchTests.cpp   # New test file
+    tests/PATCHTests.cpp  
     tests/DeleteTests.cpp
     #tests/ServerTests.cpp # Add if you create server-specific tests
     tests/SocketIOTests.cpp
