@@ -8,10 +8,7 @@
 #include "User.h"
 #include "Product.h"
 
-/**
- * Human Note: Creating a small helper to catch what the server 
- * wants to send back to the client. This mimics our SocketIO behavior.
- */
+// Mock output class to capture the output for assertions
 class MockTerminalOutput : public IOutput {
 public:
     std::string lastMessage;
@@ -44,10 +41,10 @@ protected:
 
 TEST_F(DeleteCommandTest, StandardSuccessfulDelete) {
     // Adding a user with a few products first
-    User u(100);
-    u.addProduct(Product(10));
-    u.addProduct(Product(20));
-    repo->addUser(&u);
+    User* u = new User(100);
+    u->addProduct(Product(10));
+    u->addProduct(Product(20));
+    repo->addUser(u);
 
     Delete del(&out, repo);
     del.setInput("100 10"); // User 100 watched 10, now remove it
@@ -66,9 +63,9 @@ TEST_F(DeleteCommandTest, StandardSuccessfulDelete) {
 }
 
 TEST_F(DeleteCommandTest, DeleteMultipleProductsAtOnce) {
-    User u(1);
-    for(int id : {10, 20, 30, 40}) u.addProduct(Product(id));
-    repo->addUser(&u);
+    User* u = new User(1);
+    for(int id : {10, 20, 30, 40}) u->addProduct(Product(id));
+    repo->addUser(u);
 
     Delete del(&out, repo);
     del.setInput("1 10 20 30"); // Let's clear out 3 items in one go
@@ -94,9 +91,9 @@ TEST_F(DeleteCommandTest, UserDoesNotExist) {
 }
 
 TEST_F(DeleteCommandTest, UserExistsButDidNotWatchProduct) {
-    User u(1);
-    u.addProduct(Product(10));
-    repo->addUser(&u);
+    User* u = new User(1);
+    u->addProduct(Product(10));
+    repo->addUser(u);
 
     Delete del(&out, repo);
     del.setInput("1 99"); // User 1 exists, but never watched product 99
@@ -133,9 +130,9 @@ TEST_F(DeleteCommandTest, NegativeIdsAreInvalid) {
 }
 
 TEST_F(DeleteCommandTest, TrailingGarbageAfterIds) {
-    User u(1);
-    u.addProduct(Product(10));
-    repo->addUser(&u);
+    User* u = new User(1);
+    u->addProduct(Product(10));
+    repo->addUser(u);
 
     Delete del(&out, repo);
     del.setInput("1 10 someExtraText"); // IDs are okay but there is junk at the end
