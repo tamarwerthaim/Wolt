@@ -16,6 +16,9 @@ public:
 
     // Save all users to the file
     virtual void saveAllToFile() {}
+
+    // Get a user by their ID, or return nullptr if not found
+    virtual User* getUserById(int id) = 0;
 };
 
 #endif

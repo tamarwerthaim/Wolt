@@ -74,3 +74,15 @@ void MemoryUsers::saveAllToFile() {
         outFile << "\n";
     }
 }
+
+// Get a user by their ID, or return nullptr if not found
+User* MemoryUsers::getUserById(int id) {
+    // Iterate through the list of users to find a match by ID
+    for (User* user : users) {
+        if (user->getID() == id) {
+            return user;
+        }
+    }
+    // Return null if no user with the given ID is found
+    return nullptr;
+}
