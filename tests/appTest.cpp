@@ -3,7 +3,7 @@
 #include <sstream>
 #include <map>
 #include <string>
-#include "Add.h"
+#include "POST.h"
 #include "GET.h"
 #include "Help.h"
 #include "MemoryUsers.h"
@@ -32,7 +32,7 @@ protected:
     out = new TerminalOutput();
     repo = new MemoryUsers("/app/data/terminal_test.txt");
 
-    commands["add"] = new Add(*repo, ""); 
+    commands["POST"] = new POST(*repo, *out, "");
     // CHANGE: Added "" back to match GET.h constructor signature
     commands["GET"] = new GET("", out, repo); 
     commands["help"] = new Help(*out, "");
@@ -66,8 +66,8 @@ protected:
 // Test: Simple add and recommend flow
 TEST_F(TerminalSimulationTest, BasicFlow) {
     // Added '999' as a shared product so weight is 1
-    runCommand("add 1 10 999 20"); 
-    runCommand("add 2 10 999 30");
+    runCommand("POST 1 10 999 20"); 
+    runCommand("POST 2 10 999 30");
     
     out->clear();
     runCommand("GET 1 10");
@@ -76,9 +76,9 @@ TEST_F(TerminalSimulationTest, BasicFlow) {
 
 // Test: Check tie-breaker (smaller ID first)
 TEST_F(TerminalSimulationTest, TieBreakerCheck) {
-    runCommand("add 1 10 999");
-    runCommand("add 2 10 999 500");
-    runCommand("add 3 10 999 200");
+    runCommand("POST 1 10 999");
+    runCommand("POST 2 10 999 500");
+    runCommand("POST 3 10 999 200");
     
     out->clear();
     runCommand("GET 1 10");
@@ -87,9 +87,9 @@ TEST_F(TerminalSimulationTest, TieBreakerCheck) {
 
 // Test: Check weights (influence of similar users)
 TEST_F(TerminalSimulationTest, WeightsInfluence) {
-    runCommand("add 1 10 20 21");
-    runCommand("add 2 10 20 21 300"); // Weight 2 (shares 20, 21)
-    runCommand("add 3 10 20 400");    // Weight 1 (shares 20)
+    runCommand("POST 1 10 20 21");
+    runCommand("POST 2 10 20 21 300"); // Weight 2 (shares 20, 21)
+    runCommand("POST 3 10 20 400");    // Weight 1 (shares 20)
     
     out->clear();
     runCommand("GET 1 10");
@@ -98,9 +98,9 @@ TEST_F(TerminalSimulationTest, WeightsInfluence) {
 
 // ... in MaxTenLimit test, make sure each user shares one extra product ...
 TEST_F(TerminalSimulationTest, MaxTenLimit) {
-    runCommand("add 1 100 999"); // 999 is shared
+    runCommand("POST 1 100 999"); // 999 is shared
     for(int i = 2; i <= 15; ++i) {
-        std::string cmd = "add " + std::to_string(i) + " 100 999 " + std::to_string(1000 + i);
+        std::string cmd = "POST " + std::to_string(i) + " 100 999 " + std::to_string(1000 + i);
         runCommand(cmd);
     }
     out->clear();
@@ -121,8 +121,8 @@ TEST_F(TerminalSimulationTest, MaxTenLimit) {
 // Test: Extra spaces in input
 TEST_F(TerminalSimulationTest, ExtraSpaces) {
     // We add two users who share product 999 to create similarity
-    runCommand("add    5      100    999");
-    runCommand("add    6      100    999    200");
+    runCommand("POST    5      100    999");
+    runCommand("POST    6      100    999    200");
     
     out->clear();
     runCommand("GET       5       100");
@@ -132,8 +132,8 @@ TEST_F(TerminalSimulationTest, ExtraSpaces) {
 
 // Test: Garbage text at the end
 TEST_F(TerminalSimulationTest, TrailingGarbage) {
-    runCommand("add 1 10 20");
-    runCommand("add 2 10 30");
+    runCommand("POST 1 10 20");
+    runCommand("POST 2 10 30");
     out->clear();
     runCommand("GET 1 10 extra_stuff"); // Should fail and return
     EXPECT_EQ(out->capturedText, "400 Bad Request\n"); // UPDATED: Expect error status
@@ -142,7 +142,8 @@ TEST_F(TerminalSimulationTest, TrailingGarbage) {
 // Test: Letters instead of numbers
 TEST_F(TerminalSimulationTest, NonNumericInput) {
     out->clear();
-    runCommand("add 1 abc 20"); 
+    runCommand("POST 1 abc 20");
+    out->clear(); 
     runCommand("GET 1 10");
     EXPECT_EQ(out->capturedText, "200 Ok\n\n\n"); // UPDATED: Included status code
 }
@@ -158,8 +159,8 @@ TEST_F(TerminalSimulationTest, HelpCommand) {
 
 // Test: Data persists after "restart"
 TEST_F(TerminalSimulationTest, PersistenceCheck) {
-    runCommand("add 88 10 999");
-    runCommand("add 99 10 999 30"); 
+    runCommand("POST 88 10 999");
+    runCommand("POST 99 10 999 30"); 
     
     MemoryUsers repo2("/app/data/terminal_test.txt");    
     // CHANGE: Added "" back to match GET.h constructor signature
@@ -173,8 +174,8 @@ TEST_F(TerminalSimulationTest, PersistenceCheck) {
 }
 
 TEST_F(TerminalSimulationTest, DataPersistenceAfterRestart) {
-    runCommand("add 1 100 999");
-    runCommand("add 2 100 999 300");
+    runCommand("POST 1 100 999");
+    runCommand("POST 2 100 999 300");
     
     MemoryUsers repo2("/app/data/terminal_test.txt");    
     // CHANGE: Added "" back to match GET.h constructor signature
@@ -189,8 +190,8 @@ TEST_F(TerminalSimulationTest, DataPersistenceAfterRestart) {
 
 // test: handle spaces and tabs before, between and after
 TEST_F(TerminalSimulationTest, MessyWhitespace) {
-    runCommand("   add    10      500    999");
-    runCommand("   add    11      500    999    600");
+    runCommand("   POST    10      500    999");
+    runCommand("   POST    11      500    999    600");
     
     out->clear();
     runCommand("    GET      10       500   ");
@@ -200,7 +201,7 @@ TEST_F(TerminalSimulationTest, MessyWhitespace) {
 // test: garbage characters between parameters
 TEST_F(TerminalSimulationTest, GarbageBetweenParams) {
     // user 1, then junk '!!!', then product 100
-    runCommand("add 1 !!! 100"); 
+    runCommand("POST 1 !!! 100"); 
     
     // the command should fail because '!!!' is not an int
     EXPECT_TRUE(repo->getUsers().empty());
@@ -208,8 +209,8 @@ TEST_F(TerminalSimulationTest, GarbageBetweenParams) {
 
 // test: garbage characters after the command
 TEST_F(TerminalSimulationTest, GarbageAfterCommand) {
-    runCommand("add 1 100 200");
-    runCommand("add 2 100 300");
+    runCommand("POST 1 100 200");
+    runCommand("POST 2 100 300");
     
     out->clear();
     // correct command + extra junk at the end
@@ -223,7 +224,7 @@ TEST_F(TerminalSimulationTest, GarbageAfterCommand) {
 TEST_F(TerminalSimulationTest, GarbageBeforeCommand) {
     out->clear();
     // junk before 'add'
-    runCommand("??? add 1 100 200");
+    runCommand("??? POST 1 100 200");
     
     // system should not find command named "???"
     EXPECT_TRUE(repo->getUsers().empty());

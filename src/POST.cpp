@@ -1,33 +1,55 @@
-#include "Add.h"
+#include "POST.h"
 #include "Product.h"
 #include <algorithm> //std::find_if
 #include <set>
 #include <vector>
 #include <sstream>
 
-Add::Add(IUserRepo& repo, const std::string& input) : repo(repo), input(input) {}
+POST::POST(IUserRepo& repo, IOutput& output, const std::string& input) : repo(repo), output(output), input(input) {}
 
-void Add::execute() {
-    // Parse the input and validate it
+void POST::execute() {
+    // Check if the input format is valid
     AddCommandData data;
-    if (!parseAndValidate(data)) 
+    // Checking the logical structure and fill the 'data' struct with values.
+    if (!parseAndValidate(data)) {
+        output.write("400 Bad Request\n"); 
         return;
-    // Get the user (or create if not exist) and add the products
-    User& user = getOrCreateUser(data.userId);
-    // Add each product to the user
-    for (int pid : data.productIds) {
-        user.addProduct(Product(pid));
     }
-    // Save the updated user list to the file
+
+    // Try to find the user in the database
+    User* existingUser = findUser(data.userId);
+
+    // POST should only work if the user is new
+    if (existingUser == nullptr) {
+        createNewUser(data);
+        output.write("201 Created\n");
+    } else {
+        // If user already exists, it's an error for POST
+        output.write("404 Not Found\n");
+    }
+}
+
+
+void POST::createNewUser(const AddCommandData& data) {
+    // Create a new User object with the given ID
+    User* newUser = new User(data.userId);
+    
+    // Add all products from the input list to the user
+    for (int pid : data.productIds) {
+        newUser->addProduct(Product(pid));
+    }
+    
+    // Add the new user to the repository and save to file
+    repo.addUser(newUser);
     repo.saveAllToFile();
 }
 
 // Parses the input string and validates the data.
-void Add::setInput(std::string inp) { 
+void POST::setInput(std::string inp) { 
     this->input = inp;
 }
 
-bool Add::parseAndValidate(AddCommandData& outData) {
+bool POST::parseAndValidate(AddCommandData& outData) {
     // Stop if the string is empty
     if (input.empty()) return false;
 
@@ -55,7 +77,7 @@ bool Add::parseAndValidate(AddCommandData& outData) {
     return true;
 }
 
-User& Add::getOrCreateUser(int userId) {
+User* POST::findUser(int userId) {
     // Get all current users to check if our user already exists
     std::vector<User*> allUsers = repo.getUsers();
 
@@ -64,13 +86,8 @@ User& Add::getOrCreateUser(int userId) {
         return user->getID() == userId;
     });
 
-    // If we didn't find the user, create a new one and add it to the repo
-    if (iterator == allUsers.end()) {
-        User* newUser = new User(userId);
-        repo.addUser(newUser);
-        return *newUser;
-    }
-
+    // If we didn't find the user, return nullptr
+    if (iterator == allUsers.end()) return nullptr;
     // If found, return the existing user (dereference the iterator)
-    return **iterator;
+    return *iterator;
 }

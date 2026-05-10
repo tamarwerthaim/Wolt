@@ -1,19 +1,21 @@
-#ifndef ADD_H
-#define ADD_H
+#ifndef POST_H
+#define POST_H
 
 #include "ICommand.h"
 #include "IUserRepo.h"
-#include "IInput.h"
+#include "IOutput.h"
 #include "User.h"
 #include <vector>
 #include <set>
 #include <string>
 
-// This class handles the "add" command to link products to users
-class Add : public ICommand {
+// This class handles the "POST" command to link products to users
+class POST : public ICommand {
 private:
     // Reference to the database where users are stored
     IUserRepo& repo; 
+    // Reference to the output interface for sending responses back to the client
+    IOutput& output;
     // The string with the parameters (user ID and product IDs)  
     std::string input; 
 
@@ -26,13 +28,16 @@ private:
 
     // Extracts data from the string and checks if the input is valid
     bool parseAndValidate(AddCommandData& outData);
-    
-    // Finds the user in the repo or creates a new one if he doesn't exist
-    User& getOrCreateUser(int userId);
+
+    // Finds the user in the repo
+    User* findUser(int userId);
+
+    // Creates a new user
+    void createNewUser(const AddCommandData& data);
     
 public:
     // Constructor to initialize the repo and the input string
-    Add(IUserRepo& repo, const std::string& input);
+    POST(IUserRepo& repo, IOutput& output, const std::string& input);
 
     // The main function that runs the parsing and updates the user
     void execute() override;
