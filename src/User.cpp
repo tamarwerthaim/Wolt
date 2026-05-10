@@ -28,3 +28,10 @@ bool User::hasProduct(int id) const {
     }
     return false;
 }
+
+// Remove a product from the user's list by its ID
+void User::removeProduct(int productId) {
+    std::erase_if(productList, [productId](const Product& p) {
+        return p.getID() == productId;
+    });
+}

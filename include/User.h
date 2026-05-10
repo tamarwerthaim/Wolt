@@ -28,6 +28,9 @@ class User{
 
         //check if the product exist
         bool hasProduct(int id) const;
+
+        // Remove a product from the user's list by its ID
+        void removeProduct(int productId);
 };
 
 #endif

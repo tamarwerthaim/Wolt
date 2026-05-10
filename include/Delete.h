@@ -21,6 +21,16 @@ public:
 
     // Set the input parameters for the delete command
     void setInput(std::string inp) override;
+
+    // Helper function to parse the input string into a vector of integers
+    bool parseInput(std::vector<int>& params);
+
+    // Check if the user has all the specified product IDs
+    bool productExists(User* user, const std::vector<int>& productIds);
+
+    // Delete the specified products from the user's list
+    void deleteProducts(User* user, const std::vector<int>& productIds);
+
 };
 
 #endif
