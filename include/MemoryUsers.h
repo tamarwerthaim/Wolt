@@ -30,6 +30,9 @@ public:
     // Save all users to the file
     void saveAllToFile() override;
 
+    // Get a user by their ID, or return nullptr if not found
+    User* getUserById(int id) override;
+
 };
 
 #endif

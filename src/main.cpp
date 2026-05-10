@@ -3,7 +3,7 @@
 #include "MemoryUsers.h"  // The database for users
 #include "Add.h"         // The "Add" command
 #include "Help.h"        // The "Help" command
-#include "Recommend.h"   // The "Recommend" command
+#include "GET.h"   // The "GET" command
 #include <map>
 #include <string>
 
@@ -17,7 +17,7 @@ int main() {
     // Initialize the command map with our commands, injecting the necessary dependencies
     commandMap["add"] = new Add(repo, "");
     commandMap["help"] = new Help(console, "");
-    commandMap["recommend"] = new Recommend("", &console, &repo);
+    commandMap["GET"] = new GET("", &console, &repo);
     
     // Create the app with all dependencies injected
     App woltApp(console, console, repo, commandMap);
