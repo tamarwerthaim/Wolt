@@ -2,6 +2,7 @@
 #include "Console.h"     // Tool for input and output
 #include "MemoryUsers.h"  // The database for users
 #include "POST.h"         // The "POST" command
+#include "PATCH.h"     // The "PATCH" command
 #include "Help.h"        // The "Help" command
 #include "GET.h"   // The "GET" command
 #include <map>
@@ -16,6 +17,7 @@ int main() {
 
     // Initialize the command map with our commands, injecting the necessary dependencies
     commandMap["POST"] = new POST(repo, console, "");
+    commandMap["PATCH"] = new PATCH(repo, console, "");
     commandMap["help"] = new Help(console, "");
     commandMap["GET"] = new GET("", &console, &repo);
     

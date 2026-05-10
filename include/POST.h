@@ -9,41 +9,16 @@
 #include <set>
 #include <string>
 
+#include "BaseAddCommands.h"
+
 // This class handles the "POST" command to link products to users
-class POST : public ICommand {
-private:
-    // Reference to the database where users are stored
-    IUserRepo& repo; 
-    // Reference to the output interface for sending responses back to the client
-    IOutput& output;
-    // The string with the parameters (user ID and product IDs)  
-    std::string input; 
-
-    // A struct to keep the data we extract from the input string
-    struct AddCommandData {
-        int userId;
-        // Using a set to automatically ignore duplicate IDs
-        std::set<int> productIds; 
-    };
-
-    // Extracts data from the string and checks if the input is valid
-    bool parseAndValidate(AddCommandData& outData);
-
-    // Finds the user in the repo
-    User* findUser(int userId);
-
-    // Creates a new user
-    void createNewUser(const AddCommandData& data);
-    
+class POST : public BaseAddCommands {  
 public:
     // Constructor to initialize the repo and the input string
     POST(IUserRepo& repo, IOutput& output, const std::string& input);
 
     // The main function that runs the parsing and updates the user
     void execute() override;
-
-    // Set the input parameters for the add command
-    void setInput(std::string inp);
 };
 
 #endif
