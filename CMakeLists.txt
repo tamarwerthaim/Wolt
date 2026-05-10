@@ -15,7 +15,7 @@ include_directories(include)
 add_executable(ProductRecommendation 
     src/main.cpp 
     #src/Server.cpp
-    #src/SocketIO.cpp
+    src/SocketIO.cpp
     src/APP.cpp
     src/User.cpp 
     src/Product.cpp
@@ -47,7 +47,7 @@ add_executable(unit_tests
     src/MemoryUsers.cpp
     src/APP.cpp
     #src/Server.cpp
-    #src/SocketIO.cpp
+    src/SocketIO.cpp
     src/File.cpp
     src/Console.cpp
     src/Help.cpp
@@ -70,6 +70,7 @@ add_executable(unit_tests
     #tests/PatchTests.cpp   # New test file
     tests/DeleteTests.cpp
     #tests/ServerTests.cpp # Add if you create server-specific tests
+    tests/SocketIOTests.cpp
 )
 
 # Link tests with GTest and threading support

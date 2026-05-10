@@ -1,52 +1,51 @@
-#include <iostream>
-#include <cassert>
+#include <gtest/gtest.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <string>
 #include "SocketIO.h"
 
-void run_tests() {
+// הגדרת הטסט בפורמט של Google Test
+TEST(SocketIOTest, FullCommunicationFlow) {
     int sv[2];
-    // יצירת זוג סוקטים שמחוברים זה לזה בזיכרון
-    if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {
-        std::cerr << "Socketpair failed" << std::endl;
-        return;
-    }
+    
+    // 1. יצירת זוג סוקטים
+    ASSERT_NE(socketpair(AF_UNIX, SOCK_STREAM, 0, sv), -1) << "Socketpair creation failed";
 
-    SocketIO io(sv[0]); // אובייקט הבדיקה שלנו
-    int tester_fd = sv[1]; // הסוקט שדרכו נדמה את ה"לקוח"
+    SocketIO io(sv[0]);     // האובייקט שלך
+    int tester_fd = sv[1];  // ה"לקוח" המדומה
     char buf[1024];
+    int n;
 
     // --- טסט 1: כתיבה בסיסית והוספת \n ---
     io.write("Hello");
-    int n = read(tester_fd, buf, 1024);
-    buf[n] = '\0';
-    assert(std::string(buf) == "Hello\n");
-    std::cout << "Test 1 (Basic Write) Passed!" << std::endl;
+    n = read(tester_fd, buf, 1024);
+    if (n > 0) {
+        buf[n] = '\0';
+        EXPECT_EQ(std::string(buf), "Hello\n");
+    } else {
+        FAIL() << "Failed to read from tester_fd in Test 1";
+    }
 
-    // --- טסט 2: כתיבה עם \n קיים (מקרה קיצון) ---
+    // --- טסט 2: כתיבה עם \n קיים (מניעת כפל) ---
     io.write("Already\n");
     n = read(tester_fd, buf, 1024);
-    buf[n] = '\0';
-    assert(std::string(buf) == "Already\n"); // לא אמור להיות \n\n
-    std::cout << "Test 2 (Double Newline Avoidance) Passed!" << std::endl;
+    if (n > 0) {
+        buf[n] = '\0';
+        EXPECT_EQ(std::string(buf), "Already\n");
+    } else {
+        FAIL() << "Failed to read from tester_fd in Test 2";
+    }
 
-    // --- טסט 3: קריאה בסיסית עד ה-\n ---
+    // --- טסט 3: קריאה בסיסית מהסוקט ---
     std::string msg = "Command1\n";
     send(tester_fd, msg.c_str(), msg.length(), 0);
-    assert(io.read() == "Command1");
-    std::cout << "Test 3 (Basic Read) Passed!" << std::endl;
+    EXPECT_EQ(io.read(), "Command1");
 
-    // --- טסט 4: זיהוי ניתוק (מקרה קיצון) ---
-    close(tester_fd); // הלקוח מתנתק
-    io.read();        // מנסים לקרוא
-    assert(io.isFinished() == true);
-    std::cout << "Test 4 (Disconnect Detection) Passed!" << std::endl;
+    // --- טסט 4: זיהוי ניתוק ---
+    close(tester_fd); // סגירת הצד של הלקוח
+    io.read();        // ניסיון קריאה שאמור להיכשל
+    EXPECT_TRUE(io.isFinished());
 
+    // ניקוי
     close(sv[0]);
-    std::cout << "\nAll SocketIO tests passed successfully!" << std::endl;
-}
-
-int main() {
-    run_tests();
-    return 0;
 }
