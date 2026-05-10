@@ -20,6 +20,10 @@ public:
 
     // Set the input parameters for the help command
     void setInput(std::string inp);
+
+    // Helper function to display all available commands and their usage
+    void displayAllCommands();
+
 };
 
 #endif
