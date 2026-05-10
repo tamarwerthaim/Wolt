@@ -23,9 +23,7 @@ add_executable(ProductRecommendation
     src/File.cpp
     src/Console.cpp
     src/Help.cpp
-    #delete!
-    src/Add.cpp
-    #src/Post.cpp      # Replaces Add.cpp logic
+    src/POST.cpp     
     src/GET.cpp       
     #src/Patch.cpp     # New command
     src/Delete.cpp
@@ -51,9 +49,7 @@ add_executable(unit_tests
     src/File.cpp
     src/Console.cpp
     src/Help.cpp
-    #delete!
-    src/Add.cpp
-    #src/Post.cpp
+    src/POST.cpp
     src/GET.cpp
     #src/Patch.cpp
     src/Delete.cpp
@@ -65,7 +61,7 @@ add_executable(unit_tests
     tests/FileTests.cpp
     tests/HelpTests.cpp
     tests/appTest.cpp
-    #tests/PostTests.cpp    # New test file
+    tests/POSTTests.cpp    
     tests/GETTest.cpp     # New test file
     #tests/PatchTests.cpp   # New test file
     tests/DeleteTests.cpp

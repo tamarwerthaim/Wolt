@@ -14,10 +14,10 @@ class POST : public ICommand {
 private:
     // Reference to the database where users are stored
     IUserRepo& repo; 
-    // The string with the parameters (user ID and product IDs)  
-    std::string input; 
     // Reference to the output interface for sending responses back to the client
     IOutput& output;
+    // The string with the parameters (user ID and product IDs)  
+    std::string input; 
 
     // A struct to keep the data we extract from the input string
     struct AddCommandData {
@@ -30,14 +30,14 @@ private:
     bool parseAndValidate(AddCommandData& outData);
 
     // Finds the user in the repo
-    User* POST::findUser(int userId)
+    User* findUser(int userId);
 
     // Creates a new user
-    void createNewUser(const AddCommandData& data)
+    void createNewUser(const AddCommandData& data);
     
 public:
     // Constructor to initialize the repo and the input string
-    POST(IUserRepo& repo, const std::string& input);
+    POST(IUserRepo& repo, IOutput& output, const std::string& input);
 
     // The main function that runs the parsing and updates the user
     void execute() override;

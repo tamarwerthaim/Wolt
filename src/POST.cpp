@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 
-POST::POST(IUserRepo& repo, const std::string& input, IOutput& output) : repo(repo), input(input), output(output) {}
+POST::POST(IUserRepo& repo, IOutput& output, const std::string& input) : repo(repo), output(output), input(input) {}
 
 void POST::execute() {
     // Check if the input format is valid
@@ -28,6 +28,7 @@ void POST::execute() {
         output.write("404 Not Found\n");
     }
 }
+
 
 void POST::createNewUser(const AddCommandData& data) {
     // Create a new User object with the given ID
@@ -86,7 +87,7 @@ User* POST::findUser(int userId) {
     });
 
     // If we didn't find the user, return nullptr
-    if (it == allUsers.end()) return nullptr;
+    if (iterator == allUsers.end()) return nullptr;
     // If found, return the existing user (dereference the iterator)
     return *iterator;
 }

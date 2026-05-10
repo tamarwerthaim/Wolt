@@ -1,7 +1,7 @@
 #include "APP.h"
 #include "Console.h"     // Tool for input and output
 #include "MemoryUsers.h"  // The database for users
-#include "Add.h"         // The "Add" command
+#include "POST.h"         // The "POST" command
 #include "Help.h"        // The "Help" command
 #include "GET.h"   // The "GET" command
 #include <map>
@@ -15,7 +15,7 @@ int main() {
     std::map<std::string, ICommand*> commandMap;
 
     // Initialize the command map with our commands, injecting the necessary dependencies
-    commandMap["add"] = new Add(repo, "");
+    commandMap["POST"] = new POST(repo, console, "");
     commandMap["help"] = new Help(console, "");
     commandMap["GET"] = new GET("", &console, &repo);
     
