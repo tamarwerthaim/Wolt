@@ -1,15 +1,17 @@
 #include "Delete.h"
 
 // Constructor with dependency injection
-Delete::Delete(IOutput* output, IUserRepo* users) 
-    : output(output), users(users) {}
+Delete::Delete(IUserRepo* users) 
+    : users(users) {}
 
 void Delete::setInput(std::string inp) { 
     this->input = inp;
 }
 
 // Execute the delete command based on the input parameters
-void Delete::execute() {
+void Delete::execute(IOutput& out) {
+    // Set the output pointer for use in this function
+    this->output = &out;
     std:: vector<int> params;
     // 1. Parse the input into a vector of integers (user ID + product IDs)
     if (!parseInput(params)) {

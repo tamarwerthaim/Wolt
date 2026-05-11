@@ -15,11 +15,10 @@
 class PATCH : public BaseAddCommands {
 public:
     // Constructor passes everything to the base class
-    PATCH(IUserRepo& repo, IOutput& output, const std::string& input) 
-        : BaseAddCommands(repo, output, input) {}
+    PATCH(IUserRepo& repo);
 
     // The main logic for updating an existing user
-    void execute() override;
+    void execute(IOutput& output) override;
 };
 
 #endif

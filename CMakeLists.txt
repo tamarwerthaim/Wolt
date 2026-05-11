@@ -14,7 +14,7 @@ include_directories(include)
 # Added new Command classes (POST, GET, PATCH, DELETE) and Networking (Server, SocketIO)
 add_executable(ProductRecommendation 
     src/main.cpp 
-    #src/Server.cpp
+    src/Server.cpp
     src/SocketIO.cpp
     src/APP.cpp
     src/User.cpp 
@@ -45,7 +45,7 @@ add_executable(unit_tests
     src/Product.cpp
     src/MemoryUsers.cpp
     src/APP.cpp
-    #src/Server.cpp
+    src/Server.cpp
     src/SocketIO.cpp
     src/File.cpp
     src/Console.cpp
@@ -67,7 +67,7 @@ add_executable(unit_tests
     tests/GETTest.cpp    
     tests/PATCHTests.cpp  
     tests/DeleteTests.cpp
-    #tests/ServerTests.cpp # Add if you create server-specific tests
+    tests/ServerTests.cpp # Add if you create server-specific tests
     tests/SocketIOTests.cpp
 )
 

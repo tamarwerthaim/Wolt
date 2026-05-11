@@ -30,8 +30,8 @@ int main(int argc, char* argv[]) {
     commandMap["POST"] = new POST(repo);
     commandMap["PATCH"] = new PATCH(repo);
     commandMap["HELP"] = new Help();
-    commandMap["GET"] = new GET(repo);
-    commandMap["DELETE"] = new Delete(repo);
+    commandMap["GET"] = new GET(&repo);
+    commandMap["DELETE"] = new Delete(&repo);
     
     // Create the app with all dependencies injected
     App woltApp(repo, commandMap);

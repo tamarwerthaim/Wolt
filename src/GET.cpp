@@ -4,13 +4,14 @@
 #include <sstream>
 
 // Constructor
-GET::GET(std::string in, IOutput* out, IUserRepo* repo) 
-    : input(in), output(out), users(repo) {
+GET::GET(IUserRepo* repo) 
+    : users(repo) {
     
 }
 // execute the recommendation command - writing at most top 10 product recommendations 
 // to the givven product and user
-void GET::execute() {
+void GET::execute(IOutput& out) {
+    this->output = &out;
     std::stringstream ss(input);
     int userID;
     int productID;
