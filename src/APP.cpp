@@ -4,8 +4,8 @@
 #include <cctype>
 
 // The constructor injects all the dependencies
-App::App(IInput& in, IOutput& out, IUserRepo& rep, std::map<std::string, ICommand*> cmds)
-    : input(in), output(out), repo(rep), commands(cmds) {
+App::App(IUserRepo& rep, std::map<std::string, ICommand*> cmds)
+    : repo(rep), commands(cmds) {
     // Everything is initialized via the initializer list
 }
 
@@ -15,19 +15,19 @@ App::~App() {
 }
 
 //the main function - unning the app
-void App::run() {
-    // The main loop
-    while (true) {
+void App::run(IInput& input, IOutput& output) {
+    // The main loop - while the client connected
+    while (!input.isFinished()) {
         std::string line = input.read();
         
         // Skip empty lines to avoid unnecessary processing
         if (!line.empty()) {
-            processCommand(line);
+            processCommand(line, output);
         }
     }
 }
 
-void App::processCommand(const std::string& line) {
+void App::processCommand(const std::string& line, IOutput& output) {
     // Create a stream to parse the line
     std::stringstream ss(line);
     std::string commandName;
@@ -47,7 +47,7 @@ void App::processCommand(const std::string& line) {
         ICommand* cmd = commands.at(commandName);
         // Set the parameters for the command and execute it
         cmd->setInput(params);
-        cmd->execute();
+        cmd->execute(output);
     } catch (...) {
         // if not found, we catch the exception and write a 400 Bad Request response
         output.write("400 Bad Request\n");
