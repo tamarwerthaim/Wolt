@@ -4,6 +4,7 @@
 #include "Add.h"         // The "Add" command
 #include "Help.h"        // The "Help" command
 #include "GET.h"   // The "GET" command
+#include "Server.h"
 #include <map>
 #include <string>
 

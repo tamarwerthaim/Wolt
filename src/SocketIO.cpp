@@ -25,6 +25,28 @@ void SocketIO::write(const std::string& data) {
     }
 }
 
+//CHECK WITH OMER!!!!!!!
+
+// std::string SocketIO::read() {
+//     std::string result = "";
+//     char buffer;
+    
+//     // קריאה עד לתו ירידת שורה
+//     while (connected) {
+//         int bytesRead = recv(client_fd, &buffer, 1, 0);
+//         if (bytesRead <= 0) {
+//             connected = false;
+//             break;
+//         }
+//         if (buffer == '\n' || buffer == '\r') {
+//             if (result.empty()) continue; // דילוג על שורות ריקות
+//             break;
+//         }
+//         result += buffer;
+//     }
+//     return result;
+// }
+
 // implement read from IInput
 std::string SocketIO::read() {
     std::string result = ""; //save the input - we read every time one char and add it to the string

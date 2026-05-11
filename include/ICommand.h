@@ -6,7 +6,7 @@
 class ICommand {
 public:
     virtual ~ICommand() {} //destractor
-    //run command
+    //run command - get IOutput to get access to write
     virtual void execute() = 0;
     //set
     virtual void setInput(std::string inp) = 0; 
