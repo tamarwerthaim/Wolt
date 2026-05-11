@@ -6,8 +6,8 @@
 class ICommand {
 public:
     virtual ~ICommand() {} //destractor
-    //run command
-    virtual void execute() = 0;
+    //run command and where send the output
+    virtual void execute(IOutput& output) = 0;
     //set
     virtual void setInput(std::string inp) = 0; 
 };
