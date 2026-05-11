@@ -1,6 +1,8 @@
 #include "BaseAddCommands.h"
 #include <sstream>
+#include <algorithm>
 
+BaseAddCommands::BaseAddCommands(IUserRepo& r) : repo(r) {}
 // Helper method to parse the input string into the data struct
 bool BaseAddCommands::parseAndValidate(AddCommandData& outData) {
     // Stop if the string is empty

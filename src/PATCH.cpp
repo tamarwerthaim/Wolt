@@ -5,14 +5,17 @@
 #include <vector>
 #include <sstream>
 
-void PATCH::execute() {
+PATCH::PATCH(IUserRepo& repo) : BaseAddCommands(repo) {}
+
+void PATCH::execute(IOutput& out) {
+    this->output = &out;
     // Struct to hold the parsed user ID and product list
     AddCommandData data;
 
     // Check if the input format is valid and fill the 'data' struct
     // (This uses the logic from the base class)
     if (!parseAndValidate(data)) {
-        output.write("400 Bad Request\n");
+        output->write("400 Bad Request\n");
         return;
     }
 
@@ -25,9 +28,9 @@ void PATCH::execute() {
         addProductsToUser(existingUser, data);
         
         // According to requirements: return 204 for a successful update
-        output.write("204 No Content\n");
+        output->write("204 No Content\n");
     } else {
         // If the user is not found, return 404
-        output.write("404 Not Found\n");
+        output->write("404 Not Found\n");
     }
 }

@@ -15,10 +15,10 @@
 class POST : public BaseAddCommands {  
 public:
     // Constructor to initialize the repo and the input string
-    POST(IUserRepo& repo, IOutput& output, const std::string& input);
+    POST(IUserRepo& repo);
 
     // The main function that runs the parsing and updates the user
-    void execute() override;
+    void execute(IOutput& output) override;
 };
 
 #endif

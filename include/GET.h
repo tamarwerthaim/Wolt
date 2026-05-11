@@ -36,10 +36,10 @@ private:
 
 public:
     // Constructor
-    GET(std::string in, IOutput* out, IUserRepo* repo);
+    GET(IUserRepo* repo);
 
     // Inherited from ICommand
-    void execute() override;
+    void execute(IOutput& output) override;
 
     // Update the input parameters for the recommendation command
     void setInput(std::string inp);

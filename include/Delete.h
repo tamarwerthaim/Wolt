@@ -14,10 +14,10 @@ private:
 
 public:
     // Constructor with dependency injection
-    Delete(IOutput* output, IUserRepo* users);
+    Delete(IUserRepo* users);
 
     // Execute the delete command based on the input parameters
-    void execute() override;
+    void execute(IOutput& output) override;
 
     // Set the input parameters for the delete command
     void setInput(std::string inp) override;

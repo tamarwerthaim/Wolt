@@ -8,15 +8,15 @@
 class Help : public ICommand {
 private:
     // fields
-    IOutput& output;   
+    IOutput* output;   
     std::string input; 
 
 public:
     //constructor
-    Help(IOutput& output, const std::string& input);
+    Help();
 
     // Prints the required help strings to the output
-    void execute() override;
+    void execute(IOutput& output) override;
 
     // Set the input parameters for the help command
     void setInput(std::string inp);

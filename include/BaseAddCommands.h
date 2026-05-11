@@ -13,7 +13,7 @@ protected:
     // Reference to the database where users are stored
     IUserRepo& repo; 
     // Reference to the output interface for sending responses back to the client
-    IOutput& output;
+    IOutput* output;
     // The string with the parameters (user ID and product IDs)  
     std::string input; 
 
@@ -34,8 +34,7 @@ protected:
     void addProductsToUser(User* user, const AddCommandData& data);
 
 public:
-    BaseAddCommands(IUserRepo& r, IOutput& o, std::string i) 
-        : repo(r), output(o), input(i) {}
+    BaseAddCommands(IUserRepo& r);
     
     virtual ~BaseAddCommands() = default;
 
