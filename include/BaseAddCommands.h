@@ -4,6 +4,7 @@
 #include "ICommand.h"
 #include "IUserRepo.h"
 #include "IOutput.h"
+#include "CommandException.h"
 #include <set>
 #include <string>
 
@@ -23,7 +24,7 @@ protected:
     };
 
     // Extracts data from the string and checks if the input is valid
-    bool parseAndValidate(AddCommandData& outData);
+    void parseAndValidate(AddCommandData& outData);
 
     // Finds the user in the repo
     User* findUser(int userId);

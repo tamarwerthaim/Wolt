@@ -1,6 +1,7 @@
 #include "POST.h"
 #include "Product.h"
 #include <algorithm> //std::find_if
+#include "CommandException.h"
 #include <set>
 #include <vector>
 #include <sstream>
@@ -12,27 +13,20 @@ void POST::execute(IOutput& out) {
     AddCommandData data;
 
     // Check if the input format is valid and fill the 'data' struct with values
-    if (!parseAndValidate(data)) {
-        out.write("400 Bad Request\n"); 
-        return;
-    }
+    parseAndValidate(data);
 
     // Look for the user in the repository
     User* existingUser = findUser(data.userId);
 
-    // POST should only create a user if they are not in the system yet
-    if (existingUser == nullptr) {
-        // Create the new user and add them to the database
-        User* newUser = new User(data.userId);
-        repo.addUser(newUser); 
-        
-        // Use the base class method to add all products and save to file
-        addProductsToUser(newUser, data);
-        
-        // Return success status for creation
-        out.write("201 Created\n");
-    } else {
-        // If the user already exists, return 404 according to the project rules
-        out.write("404 Not Found\n");
+    // If the user already exists, we can't create it again, so we throw a logical error
+    if (existingUser != nullptr) {
+        throw LogicalErrorException();
     }
+
+    // If the user doesn't exist, we create a new user, add it to the repo, and add the products to it
+    User* newUser = new User(data.userId);
+    repo.addUser(newUser); 
+    addProductsToUser(newUser, data);
+    // Write a success message to the output
+    out.write("201 Created\n");
 }

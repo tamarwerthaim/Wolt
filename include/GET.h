@@ -7,6 +7,7 @@
 #include "IUserRepo.h"
 #include "User.h"
 #include "Product.h"
+#include "CommandException.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -41,7 +42,7 @@ public:
     void execute(IOutput& output) override;
 
     // Update the input parameters for the recommendation command
-    void setInput(std::string inp);
+    void setInput(std::string inp) override;
 
     // Main entry point for the algorithm logic used in tests
     std::vector<Product> getRecommendations(int userId, int productId);

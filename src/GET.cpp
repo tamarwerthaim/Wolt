@@ -1,5 +1,6 @@
 #include "GET.h"
 #include <map>
+#include "CommandException.h"
 #include <algorithm>
 #include <sstream>
 
@@ -18,16 +19,14 @@ void GET::execute(IOutput& out) {
     // 1. Try to read the two integers or check if they are negative
     if (!(ss >> userID >> productID) || userID < 0 || productID < 0) {
         // If we're here, the input wasn't 2 ints or contained negative values
-        out.write("400 Bad Request\n");
-        return; 
+        throw InvalidInputException();
     }
 
     // 2. make sure there's no "garbage" left at the end
     std::string extra;
     if (ss >> extra) {
         // If we can still read something, it means there were more than 2 parameters
-        out.write("400 Bad Request\n");
-        return;
+        throw InvalidInputException();
     }
 
     // Get the recommendations for the user and product
@@ -61,7 +60,9 @@ std::vector<Product> GET::getRecommendations(int userId, int productId) {
     // 1. Get the target user
     User* target = findTargetUser(userId, allUsers);
     // If user not found, return empty list
-    if (!target) return {}; 
+    if (!target) {
+        throw LogicalErrorException();
+    }; 
 
     // 2. Build the score map
     std::map<int, int> scores = calculateRawScores(*target, productId);
