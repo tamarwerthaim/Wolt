@@ -11,7 +11,6 @@ GET::GET(IUserRepo* repo)
 // execute the recommendation command - writing at most top 10 product recommendations 
 // to the givven product and user
 void GET::execute(IOutput& out) {
-    this->output = &out;
     std::stringstream ss(input);
     int userID;
     int productID;
@@ -19,7 +18,7 @@ void GET::execute(IOutput& out) {
     // 1. Try to read the two integers or check if they are negative
     if (!(ss >> userID >> productID) || userID < 0 || productID < 0) {
         // If we're here, the input wasn't 2 ints or contained negative values
-        output->write("400 Bad Request\n");
+        out.write("400 Bad Request\n");
         return; 
     }
 
@@ -27,7 +26,7 @@ void GET::execute(IOutput& out) {
     std::string extra;
     if (ss >> extra) {
         // If we can still read something, it means there were more than 2 parameters
-        output->write("400 Bad Request\n");
+        out.write("400 Bad Request\n");
         return;
     }
 
@@ -35,19 +34,19 @@ void GET::execute(IOutput& out) {
     std::vector<Product> recommendationsList = getRecommendations(userID, productID);
 
     // the request is valid, write the status line first
-    output->write("200 Ok\n\n");
+    out.write("200 Ok\n\n");
 
     // Write the recommended product IDs to output
     for (size_t i = 0; i < recommendationsList.size(); ++i) {
         // Write the product ID - convert to string first
-        output->write(std::to_string(recommendationsList[i].getID()));
+        out.write(std::to_string(recommendationsList[i].getID()));
         
         // Add a space only if it's not the last element
         if (i < recommendationsList.size() - 1) {
-            output->write(" ");
+            out.write(" ");
         }
     }
-    output->write("\n");
+    out.write("\n");
 }
 
 // Update the input parameters for the recommendation command

@@ -15,7 +15,6 @@ class GET : public ICommand {
 private:
     // fields
     std::string input;
-    IOutput* output;
     IUserRepo* users;
 
     // Finds user in the repo

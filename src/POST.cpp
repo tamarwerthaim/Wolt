@@ -8,13 +8,12 @@
 POST::POST(IUserRepo& repo) : BaseAddCommands(repo) {}
 
 void POST::execute(IOutput& out) {
-        this->output = &out;
     // Struct to hold the parsed user ID and product list
     AddCommandData data;
 
     // Check if the input format is valid and fill the 'data' struct with values
     if (!parseAndValidate(data)) {
-        output->write("400 Bad Request\n"); 
+        out.write("400 Bad Request\n"); 
         return;
     }
 
@@ -31,9 +30,9 @@ void POST::execute(IOutput& out) {
         addProductsToUser(newUser, data);
         
         // Return success status for creation
-        output->write("201 Created\n");
+        out.write("201 Created\n");
     } else {
         // If the user already exists, return 404 according to the project rules
-        output->write("404 Not Found\n");
+        out.write("404 Not Found\n");
     }
 }

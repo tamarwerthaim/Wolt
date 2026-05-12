@@ -12,8 +12,6 @@ class BaseAddCommands : public ICommand {
 protected:
     // Reference to the database where users are stored
     IUserRepo& repo; 
-    // Reference to the output interface for sending responses back to the client
-    IOutput* output;
     // The string with the parameters (user ID and product IDs)  
     std::string input; 
 

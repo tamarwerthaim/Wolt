@@ -7,8 +7,7 @@
 
 class Help : public ICommand {
 private:
-    // fields
-    //IOutput* output;   
+    // fields  
     std::string input; 
 
 public:

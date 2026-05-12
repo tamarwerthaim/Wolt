@@ -11,12 +11,11 @@ void Delete::setInput(std::string inp) {
 // Execute the delete command based on the input parameters
 void Delete::execute(IOutput& out) {
     // Set the output pointer for use in this function
-    this->output = &out;
     std:: vector<int> params;
     // 1. Parse the input into a vector of integers (user ID + product IDs)
     if (!parseInput(params)) {
     // If parsing failed, it means the input was not in the correct format
-    output->write("400 Bad Request\n");
+    out.write("400 Bad Request\n");
         return;
     }
     int userId = params[0];
@@ -26,7 +25,7 @@ void Delete::execute(IOutput& out) {
     // 2. Check if the user exists and if they have all the specified product IDs
     if (!targetUser || !productExists(targetUser, productIds)) {
         // If the user doesn't exist or doesn't have the specified products, return 404
-        output->write("404 Not Found\n");
+        out.write("404 Not Found\n");
         return;
     }
     // 3. If everything is valid, delete the specified products from the user's list
@@ -34,7 +33,7 @@ void Delete::execute(IOutput& out) {
     // Save the updated user data to the file after deletion
     users->saveAllToFile();
     // 4. Return 204 No Content to indicate successful deletion
-    output->write("204 No Content\n");
+    out.write("204 No Content\n");
 }
 
 // Helper function to parse the input string into a vector of integers

@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 
+/**
+ * Mock object to capture messages sent by the command.
+ * Helps us verify exactly what the user would see in their terminal/socket.
+ */
 class MockOutput : public IOutput {
 public:
     std::vector<std::string> capturedMessages;
@@ -13,71 +17,78 @@ public:
     }
 };
 
-// Test: Help command should be able to create an instance
+// --- INSTANTIATION TESTS ---
+
 TEST(HelpTest, ShouldBeAbleToCreateInstance) {
-    MockOutput mock;
     std::string input = "";
-    Help* command = new Help(mock, input);
+    // Constructor now only takes the input string
+    Help* command = new Help(input);
     ASSERT_NE(command, nullptr);
     delete command;
 }
 
-// Test: Help command should write to output when executed
+// --- FUNCTIONAL TESTS ---
+
 TEST(HelpTest, ShouldWriteToOutputWhenExecuted) {
     MockOutput mock;
-    Help command(mock, "");
-    command.execute();
+    Help command(""); 
+    command.execute(mock);
     EXPECT_FALSE(mock.capturedMessages.empty());
 }
 
-// Test: Help command should print the correct format for all commands
-TEST(HelpTest, ShouldPrintCorrectFormat) {
+TEST(HelpTest, ShouldPrintCorrectFormatInAlphabeticalOrder) {
     MockOutput mock;
-    Help command(mock, "");
+    Help command(""); 
 
-    command.execute();
+    command.execute(mock);
 
-    // We expect exactly 5 lines of output for the 5 commands
+    // We expect exactly 5 separate write calls based on the implementation
     ASSERT_EQ(mock.capturedMessages.size(), 5);
+    
+    // Verifying alphabetical order as required by the assignment
     EXPECT_EQ(mock.capturedMessages[0], "DELETE, arguments: [userid] [productid1] [productid2] ...\n");
     EXPECT_EQ(mock.capturedMessages[1], "GET, arguments: [userid] [productid]\n");
     EXPECT_EQ(mock.capturedMessages[2], "PATCH, arguments: [userid] [productid1] [productid2] ...\n");
     EXPECT_EQ(mock.capturedMessages[3], "POST, arguments: [userid] [productid1] [productid2] ...\n");
+    
+    // The help command itself always appears last
     EXPECT_EQ(mock.capturedMessages[4], "help\n");
 }
 
-// Test: Help command should ignore extra parameters and return 400 Bad Request
-TEST(HelpTest, ShouldIgnoreWhenInputContainsNumbersAfterCommand) {
+// --- INPUT VALIDATION TESTS (400 Bad Request) ---
+
+TEST(HelpTest, ShouldReturnBadRequestIfExtraParametersProvided) {
     MockOutput mock;
-    std::string inputWithNumbers = "23"; 
-    Help command(mock, inputWithNumbers);
+    // Input contains extra junk after the command name
+    std::string inputWithParams = " 123"; 
+    Help command(inputWithParams);
 
-    command.execute();
+    command.execute(mock);
 
-    // Should return exactly one error message
+    // Any non-empty parameters should trigger 400 Bad Request
     ASSERT_EQ(mock.capturedMessages.size(), 1);
     EXPECT_EQ(mock.capturedMessages[0], "400 Bad Request\n");
 }
 
-// Test: Help command should ignore extra garbage text and return 400 Bad Request
-TEST(HelpTest, ShouldIgnoreWhenInputContainsGarbageText) {
+TEST(HelpTest, ShouldReturnBadRequestOnGarbageText) {
     MockOutput mock;
-    std::string garbageInput = "he23lp";
-    Help command(mock, garbageInput);
+    std::string garbageInput = " some_random_text_here";
+    Help command(garbageInput);
 
-    command.execute();
+    command.execute(mock);
 
     ASSERT_EQ(mock.capturedMessages.size(), 1);
     EXPECT_EQ(mock.capturedMessages[0], "400 Bad Request\n");
 }
 
-// Test: Help command should ignore extra whitespace but still work
-TEST(HelpTest, ShouldIgnoreIfCommandNameIsMergedWithNumbers) {
+TEST(HelpTest, ShouldWorkFineWithOnlyWhitespace) {
     MockOutput mock;
-    Help command(mock, "23"); 
+    // Trailing spaces or tabs should be ignored and treated as a valid call
+    Help command("   \t  "); 
     
-    command.execute();
+    command.execute(mock);
     
-    ASSERT_EQ(mock.capturedMessages.size(), 1);
-    EXPECT_EQ(mock.capturedMessages[0], "400 Bad Request\n");
+    // Should successfully show all 5 lines of help
+    EXPECT_EQ(mock.capturedMessages.size(), 5);
+    EXPECT_EQ(mock.capturedMessages[4], "help\n");
 }
