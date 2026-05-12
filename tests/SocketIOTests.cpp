@@ -4,7 +4,6 @@
 #include <string>
 #include "SocketIO.h"
 
-// הגדרת הטסט בפורמט של Google Test
 TEST(SocketIOTest, FullCommunicationFlow) {
     int sv[2];
     

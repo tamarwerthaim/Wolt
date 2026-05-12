@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "Help.h"
 #include "IOutput.h"
+#include "CommandException.h"
 #include <vector>
 #include <string>
 
@@ -63,11 +64,8 @@ TEST(HelpTest, ShouldReturnBadRequestIfExtraParametersProvided) {
     std::string inputWithParams = " 123"; 
     Help command(inputWithParams);
 
-    command.execute(mock);
-
-    // Any non-empty parameters should trigger 400 Bad Request
-    ASSERT_EQ(mock.capturedMessages.size(), 1);
-    EXPECT_EQ(mock.capturedMessages[0], "400 Bad Request\n");
+    // Any non-empty parameters should trigger InvalidInputException (400)
+    EXPECT_THROW(command.execute(mock), InvalidInputException);
 }
 
 TEST(HelpTest, ShouldReturnBadRequestOnGarbageText) {
@@ -75,10 +73,7 @@ TEST(HelpTest, ShouldReturnBadRequestOnGarbageText) {
     std::string garbageInput = " some_random_text_here";
     Help command(garbageInput);
 
-    command.execute(mock);
-
-    ASSERT_EQ(mock.capturedMessages.size(), 1);
-    EXPECT_EQ(mock.capturedMessages[0], "400 Bad Request\n");
+    EXPECT_THROW(command.execute(mock), InvalidInputException);
 }
 
 TEST(HelpTest, ShouldWorkFineWithOnlyWhitespace) {

@@ -7,6 +7,7 @@
 #include "User.h"
 #include "Product.h"
 #include "IOutput.h"
+#include "CommandException.h"
 
 /**
  * Human Note: Simple mock to capture status codes and 
@@ -151,7 +152,6 @@ TEST_F(GETTest, ValidExecutionProtocol) {
     cmd.setInput("1 100");
     cmd.execute(out);
 
-    // Should see the new protocol status line
     EXPECT_TRUE(out.captured.find("200 Ok") != std::string::npos);
     EXPECT_TRUE(out.captured.find("300") != std::string::npos);
 }
@@ -162,7 +162,7 @@ TEST_F(GETTest, InputWithMultipleSpaces) {
     repo->addUser(u1); repo->addUser(u2);
 
     GET cmd(repo);
-    cmd.setInput("1    100"); // Messy spaces
+    cmd.setInput("1    100"); 
     cmd.execute(out);
 
     EXPECT_TRUE(out.captured.find("200 Ok") != std::string::npos);
@@ -171,26 +171,20 @@ TEST_F(GETTest, InputWithMultipleSpaces) {
 
 TEST_F(GETTest, InvalidInputMissingId) {
     GET cmd(repo);
-    cmd.setInput("1"); // Missing product ID
-    cmd.execute(out);
-    
-    EXPECT_EQ(out.captured, "400 Bad Request\n");
+    cmd.setInput("1"); 
+    EXPECT_THROW(cmd.execute(out), InvalidInputException);
 }
 
 TEST_F(GETTest, InvalidInputAlphaCharacters) {
     GET cmd(repo);
     cmd.setInput("1 abc"); 
-    cmd.execute(out);
-    
-    EXPECT_EQ(out.captured, "400 Bad Request\n");
+    EXPECT_THROW(cmd.execute(out), InvalidInputException);
 }
 
 TEST_F(GETTest, InvalidInputExtraData) {
     GET cmd(repo);
-    cmd.setInput("1 100 200"); // Too many params
-    cmd.execute(out);
-    
-    EXPECT_EQ(out.captured, "400 Bad Request\n");
+    cmd.setInput("1 100 200"); 
+    EXPECT_THROW(cmd.execute(out), InvalidInputException);
 }
 
 TEST_F(GETTest, OrphanProductContextEmptyResult) {
@@ -198,19 +192,14 @@ TEST_F(GETTest, OrphanProductContextEmptyResult) {
     repo->addUser(u1);
 
     GET cmd(repo);
-    cmd.setInput("1 999"); // No one saw 999
+    cmd.setInput("1 999"); 
     cmd.execute(out);
 
-    // Should be valid (200) but no products listed
     EXPECT_TRUE(out.captured.find("200 Ok") != std::string::npos);
 }
 
 TEST_F(GETTest, UserNotFoundInRepoProtocol) {
     GET cmd(repo);
     cmd.setInput("99 100");
-    cmd.execute(out);
-
-    // If user not found, we return 200 Ok with empty list 
-    // (Since the request format was valid)
-    EXPECT_TRUE(out.captured.find("200 Ok") != std::string::npos);
+    EXPECT_THROW(cmd.execute(out), LogicalErrorException);
 }

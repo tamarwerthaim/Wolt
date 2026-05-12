@@ -11,7 +11,7 @@
 #include "Delete.h"
 #include "MemoryUsers.h"
 #include "IOutput.h"
-
+#include "CommandException.h" 
 
 class TerminalOutput : public IOutput {
 public:
@@ -60,10 +60,16 @@ protected:
         // Emulating the App::processCommand logic (uppercase and execute with output)
         for (auto & c : cmdName) c = std::toupper(static_cast<unsigned char>(c));
 
-        if (commands.count(cmdName)) {
-            commands[cmdName]->setInput(params); 
-            commands[cmdName]->execute(*out);
-        } else {
+        try {
+            if (commands.count(cmdName)) {
+                commands[cmdName]->setInput(params); 
+                commands[cmdName]->execute(*out);
+            } else {
+                out->write("400 Bad Request\n");
+            }
+        } catch (const CommandException& e) {
+            out->write(e.what());
+        } catch (...) {
             out->write("400 Bad Request\n");
         }
     }
@@ -72,13 +78,11 @@ protected:
 // --- CORE LOGIC TESTS ---
 
 TEST_F(TerminalSimulationTest, BasicFlowPostAndGet) {
-    // Adding users using the new POST command
     runCommand("POST 1 10 999 20"); 
     runCommand("POST 2 10 999 30");
     
     out->clear();
     runCommand("GET 1 10");
-    // Should return 200 Ok with a double newline before the result
     EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n");
 }
 
@@ -86,12 +90,10 @@ TEST_F(TerminalSimulationTest, FullCycleWithDelete) {
     runCommand("POST 1 10 999 20");
     runCommand("POST 2 10 999 30");
     
-    // Now delete user 2's watch history of product 999
     out->clear();
     runCommand("DELETE 2 999");
     EXPECT_EQ(out->capturedText, "204 No Content\n");
 
-    // After deletion, user 2 shouldn't be similar to user 1 anymore
     out->clear();
     runCommand("GET 1 10");
     EXPECT_EQ(out->capturedText, "200 Ok\n\n\n"); 
@@ -117,7 +119,7 @@ TEST_F(TerminalSimulationTest, UnknownCommandReturns400) {
 
 TEST_F(TerminalSimulationTest, InvalidGetInputReturns400) {
     out->clear();
-    runCommand("GET 1 abc"); // Non-numeric input
+    runCommand("GET 1 abc"); 
     EXPECT_EQ(out->capturedText, "400 Bad Request\n");
 }
 
@@ -131,7 +133,7 @@ TEST_F(TerminalSimulationTest, TrailingGarbageOnDelete) {
 // --- SYSTEM & WHITESPACE TESTS ---
 
 TEST_F(TerminalSimulationTest, CaseInsensitivityCheck) {
-    runCommand("post 1 10 999 20"); // Testing lower case
+    runCommand("post 1 10 999 20"); 
     out->clear();
     runCommand("get 1 10");
     EXPECT_TRUE(out->capturedText.find("200 Ok") != std::string::npos);
@@ -149,7 +151,6 @@ TEST_F(TerminalSimulationTest, MessyWhitespaceHandling) {
 TEST_F(TerminalSimulationTest, HelpCommandOutput) {
     out->clear();
     runCommand("HELP");
-    // Just verify it's not empty and contains our protocol words
     EXPECT_FALSE(out->capturedText.empty());
     EXPECT_TRUE(out->capturedText.find("DELETE") != std::string::npos);
 }
@@ -158,13 +159,17 @@ TEST_F(TerminalSimulationTest, PersistenceCheck) {
     runCommand("POST 88 10 999");
     runCommand("POST 99 10 999 30"); 
     
-    // Create a second repo instance reading the same file
     MemoryUsers repo2("/app/data/terminal_test.txt");    
     GET getCmd(&repo2); 
     
     out->clear();
     getCmd.setInput(" 88 10");
-    getCmd.execute(*out);
+    
+    try {
+        getCmd.execute(*out);
+    } catch (const CommandException& e) {
+        out->write(e.what());
+    }
     
     EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n");
 }
