@@ -1,4 +1,12 @@
-FROM python:3.9-slim
+# use any python version from python 3.
+FROM python:3
+
 WORKDIR /app
+
+# Copy the client script into the container
 COPY client.py .
-CMD ["python", "client.py", "server", "5555"]
+
+# Install Python dependencies
+RUN pip install --no-cache-dir requests
+
+ENTRYPOINT ["python", "client.py"]
