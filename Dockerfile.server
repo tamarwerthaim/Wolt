@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y \
     cmake \
     git \
     libgtest-dev \
-    python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Compile Google Test (GTest) source code
