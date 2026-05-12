@@ -2,18 +2,18 @@
 #define HELP_H
 
 #include "ICommand.h"
-#include "IOutput.h"
+//#include "IOutput.h"
 #include <string>
 
 class Help : public ICommand {
 private:
     // fields
-    IOutput* output;   
+    //IOutput* output;   
     std::string input; 
 
 public:
     //constructor
-    Help();
+    Help(const std::string& input = "");
 
     // Prints the required help strings to the output
     void execute(IOutput& output) override;
@@ -22,7 +22,7 @@ public:
     void setInput(std::string inp);
 
     // Helper function to display all available commands and their usage
-    void displayAllCommands();
+    void displayAllCommands(IOutput& output);
 
 };
 

@@ -1,7 +1,8 @@
 #include "Help.h"
+#include "IOutput.h"
 
 //constructor
-Help::Help() {}
+Help::Help(const std::string& input) : input(input) {}
 
 void Help::execute(IOutput& out) {
     this->output = &out;
