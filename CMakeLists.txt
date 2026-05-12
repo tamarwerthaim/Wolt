@@ -26,7 +26,8 @@ add_executable(ProductRecommendation
     src/POST.cpp     
     src/GET.cpp       
     src/PATCH.cpp
-    src/BaseAddCommands.cpp     
+    src/BaseAddCommands.cpp  
+    src/CommandException.cpp   
     src/Delete.cpp
 )
 
@@ -54,6 +55,7 @@ add_executable(unit_tests
     src/GET.cpp
     src/PATCH.cpp
     src/BaseAddCommands.cpp
+    src/CommandException.cpp
     src/Delete.cpp
     # Test Files
     tests/UserTests.cpp

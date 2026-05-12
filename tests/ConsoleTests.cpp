@@ -35,7 +35,6 @@ protected:
 TEST_F(ConsoleTest, WriteBasicMessage) {
     Console c;
     c.write("Hello World");
-    // Removed \n because your Console::write doesn't add it
     EXPECT_EQ(test_output.str(), "Hello World");
 }
 
@@ -46,7 +45,6 @@ TEST_F(ConsoleTest, ReadBasicInput) {
     EXPECT_EQ(result, "Hello");
 }
 
-// input with more than one spaces
 TEST_F(ConsoleTest, ReadInputWithSpaces) {
     Console c;
     simulateInput("Add Pizza 10\n");
@@ -54,11 +52,9 @@ TEST_F(ConsoleTest, ReadInputWithSpaces) {
     EXPECT_EQ(result, "Add Pizza 10");
 }
 
-// empty message
 TEST_F(ConsoleTest, WriteEmptyMessage) {
     Console c;
     c.write("");
-    // If write is empty and doesn't add a newline, output should be empty
     EXPECT_EQ(test_output.str(), "");
 }
 
@@ -69,16 +65,13 @@ TEST_F(ConsoleTest, ReadEmptyLine) {
     EXPECT_TRUE(result.empty());
 }
 
-// special chars
 TEST_F(ConsoleTest, SpecialCharacters) {
     Console c;
     std::string special = "!@#$%^&*()_+";
     c.write(special);
-    // Expecting only the special string without a newline
     EXPECT_EQ(test_output.str(), special);
 }
 
-// long input
 TEST_F(ConsoleTest, LongInput) {
     Console c;
     std::string longStr(1000, 'a');

@@ -26,5 +26,5 @@ void PATCH::execute(IOutput& out) {
 
     // If the user exists, we add the new products to their list and write a success message
     addProductsToUser(existingUser, data);
-    output.write("204 No Content\n");
+    out.write("204 No Content\n");
 }

@@ -4,6 +4,7 @@
 #include "Product.h"
 #include "IUserRepo.h"
 #include "IOutput.h"
+#include "CommandException.h"
 #include <vector>
 #include <string>
 
@@ -60,10 +61,9 @@ TEST(PATCHTest, FailWhenUserNotFound) {
     // Command: Try to patch user 999 (doesn't exist)
     PATCH command(repo); 
     command.setInput("999 101");
-    command.execute(out);
-
-    // Verify: According to requirements, should return 404
-    EXPECT_EQ(out.lastMessage, "404 Not Found\n");
+    
+    // Verify: Now throws LogicalErrorException (404)
+    EXPECT_THROW(command.execute(out), LogicalErrorException);
 }
 
 // Invalid input format (e.g., characters instead of IDs)
@@ -75,9 +75,9 @@ TEST(PATCHTest, Return400ForInvalidInput) {
     // Command: Input contains letters
     PATCH command(repo); 
     command.setInput("1 10a 102");
-    command.execute(out);
-
-    EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
+    
+    // Verify: Now throws InvalidInputException (400)
+    EXPECT_THROW(command.execute(out), InvalidInputException);
 }
 
 // Empty input string
@@ -87,9 +87,8 @@ TEST(PATCHTest, Return400ForEmptyInput) {
     
     PATCH command(repo); 
     command.setInput("");
-    command.execute(out);
-
-    EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
+    
+    EXPECT_THROW(command.execute(out), InvalidInputException);
 }
 
 // Missing product IDs (only user ID provided)
@@ -100,9 +99,8 @@ TEST(PATCHTest, Return400IfNoProductsProvided) {
 
     PATCH command(repo); 
     command.setInput("10");
-    command.execute(out);
-
-    EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
+    
+    EXPECT_THROW(command.execute(out), InvalidInputException);
 }
 
 // Handling duplicate products in the input string

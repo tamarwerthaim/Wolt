@@ -1,6 +1,7 @@
 #include "APP.h"
 #include <sstream>
 #include <algorithm>
+#include "CommandException.h"
 #include <cctype>
 
 // The constructor injects all the dependencies
