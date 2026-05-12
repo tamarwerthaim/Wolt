@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./data:/app/data
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    depends_on:
+      - server
+    stdin_open: true 
+    tty: true
