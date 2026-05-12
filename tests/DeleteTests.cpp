@@ -8,7 +8,10 @@
 #include "User.h"
 #include "Product.h"
 
-// Mock output class to capture the output for assertions
+/**
+ * Human Note: Simple mock output to catch the server's responses.
+ * We need to verify exact strings like "204 No Content".
+ */
 class MockTerminalOutput : public IOutput {
 public:
     std::string lastMessage;
@@ -25,7 +28,7 @@ protected:
     const std::string testDb = "delete_test_db.txt";
 
     void SetUp() override {
-        // Clean start for every test
+        // Clean start for the database file in every test
         std::ofstream ofs(testDb, std::ios::trunc);
         ofs.close();
         repo = new MemoryUsers(testDb);
@@ -40,20 +43,22 @@ protected:
 // --- SUCCESS CASES (204 No Content) ---
 
 TEST_F(DeleteCommandTest, StandardSuccessfulDelete) {
-    // Adding a user with a few products first
+    // Setting up a user with some history
     User* u = new User(100);
     u->addProduct(Product(10));
     u->addProduct(Product(20));
     repo->addUser(u);
 
-    Delete del(&out, repo);
-    del.setInput("100 10"); // User 100 watched 10, now remove it
-    del.execute();
+    // Constructor only takes the repo now
+    Delete del(repo);
+    del.setInput("100 10"); 
+    // Injecting the output at execution time
+    del.execute(out);
 
-    // The assignment is very specific: must be exactly "204 No Content"
+    // Requirement: Must be exactly "204 No Content"
     EXPECT_EQ(out.lastMessage, "204 No Content\n");
 
-    // Double check the DB: user should still have 20 but NOT 10
+    // Verify the state: User exists but product 10 is gone
     User* updatedUser = nullptr;
     for(auto user : repo->getUsers()) if(user->getID() == 100) updatedUser = user;
     
@@ -67,13 +72,13 @@ TEST_F(DeleteCommandTest, DeleteMultipleProductsAtOnce) {
     for(int id : {10, 20, 30, 40}) u->addProduct(Product(id));
     repo->addUser(u);
 
-    Delete del(&out, repo);
-    del.setInput("1 10 20 30"); // Let's clear out 3 items in one go
-    del.execute();
+    Delete del(repo);
+    del.setInput("1 10 20 30"); 
+    del.execute(out);
 
     EXPECT_EQ(out.lastMessage, "204 No Content\n");
     
-    // Only product 40 should remain
+    // Only product 40 should remain in the set
     User* check = repo->getUsers()[0];
     EXPECT_EQ(check->getProducts().size(), 1);
     EXPECT_TRUE(check->hasProduct(40));
@@ -81,63 +86,63 @@ TEST_F(DeleteCommandTest, DeleteMultipleProductsAtOnce) {
 
 // --- LOGIC ERRORS (404 Not Found) ---
 
-TEST_F(DeleteCommandTest, UserDoesNotExist) {
-    Delete del(&out, repo);
-    del.setInput("555 10"); // We haven't added user 555 yet
-    del.execute();
+TEST_F(DeleteCommandTest, UserDoesNotExistInSystem) {
+    Delete del(repo);
+    del.setInput("555 10"); // User 555 is missing from DB
+    del.execute(out);
 
-    // Protocol says: structure is fine but data doesn't exist -> 404
+    // If the ID is valid but the entity is missing -> 404
     EXPECT_EQ(out.lastMessage, "404 Not Found\n");
 }
 
-TEST_F(DeleteCommandTest, UserExistsButDidNotWatchProduct) {
+TEST_F(DeleteCommandTest, UserFoundButProductMissing) {
     User* u = new User(1);
     u->addProduct(Product(10));
     repo->addUser(u);
 
-    Delete del(&out, repo);
-    del.setInput("1 99"); // User 1 exists, but never watched product 99
-    del.execute();
+    Delete del(repo);
+    del.setInput("1 99"); // Product 99 was never watched by User 1
+    del.execute(out);
 
     EXPECT_EQ(out.lastMessage, "404 Not Found\n");
 }
 
 // --- SYNTAX ERRORS (400 Bad Request) ---
 
-TEST_F(DeleteCommandTest, MissingProductArgument) {
-    Delete del(&out, repo);
-    del.setInput("1"); // We got a UserID but no ProductID to delete
-    del.execute();
+TEST_F(DeleteCommandTest, MissingProductParameter) {
+    Delete del(repo);
+    del.setInput("1"); // Only userID provided, missing products
+    del.execute(out);
 
-    // Syntax is wrong -> 400
+    // Malformed command -> 400
     EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
 }
 
-TEST_F(DeleteCommandTest, AlphabeticalGarbageInput) {
-    Delete del(&out, repo);
-    del.setInput("1 abc"); // 'abc' is not a valid product ID
-    del.execute();
-
-    EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
-}
-
-TEST_F(DeleteCommandTest, NegativeIdsAreInvalid) {
-    Delete del(&out, repo);
-    del.setInput("-5 10"); // Can't have a negative UserID
-    del.execute();
+TEST_F(DeleteCommandTest, NonNumericInputHandling) {
+    Delete del(repo);
+    del.setInput("1 abc"); // Letters are invalid for IDs
+    del.execute(out);
 
     EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
 }
 
-TEST_F(DeleteCommandTest, TrailingGarbageAfterIds) {
+TEST_F(DeleteCommandTest, NegativeIdsAreBlocked) {
+    Delete del(repo);
+    del.setInput("-5 10"); 
+    del.execute(out);
+
+    EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
+}
+
+TEST_F(DeleteCommandTest, TrailingGarbageAfterValidIds) {
     User* u = new User(1);
     u->addProduct(Product(10));
     repo->addUser(u);
 
-    Delete del(&out, repo);
-    del.setInput("1 10 someExtraText"); // IDs are okay but there is junk at the end
-    del.execute();
+    Delete del(repo);
+    del.setInput("1 10 someExtraText"); 
+    del.execute(out);
 
-    // Any non-compliant string format should trigger 400
+    // Extra text at the end of the line makes it a Bad Request
     EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
 }

@@ -43,8 +43,9 @@ TEST(PATCHTest, UpdateExistingUserSuccessfully) {
     repo.addUser(new User(1));
     
     // Command: PATCH user 1 with products 101 and 102
-    PATCH command(repo, out, "1 101 102"); 
-    command.execute();
+    PATCH command(repo); 
+    command.setInput("1 101 102");
+    command.execute(out);
 
     // Verify: Should return 204 and user should have 2 products
     EXPECT_EQ(out.lastMessage, "204 No Content\n");
@@ -57,8 +58,9 @@ TEST(PATCHTest, FailWhenUserNotFound) {
     PatchMockOutput out;
     
     // Command: Try to patch user 999 (doesn't exist)
-    PATCH command(repo, out, "999 101"); 
-    command.execute();
+    PATCH command(repo); 
+    command.setInput("999 101");
+    command.execute(out);
 
     // Verify: According to requirements, should return 404
     EXPECT_EQ(out.lastMessage, "404 Not Found\n");
@@ -71,8 +73,9 @@ TEST(PATCHTest, Return400ForInvalidInput) {
     repo.addUser(new User(1));
 
     // Command: Input contains letters
-    PATCH command(repo, out, "1 10a 102"); 
-    command.execute();
+    PATCH command(repo); 
+    command.setInput("1 10a 102");
+    command.execute(out);
 
     EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
 }
@@ -82,8 +85,9 @@ TEST(PATCHTest, Return400ForEmptyInput) {
     PatchFakeRepo repo;
     PatchMockOutput out;
     
-    PATCH command(repo, out, ""); 
-    command.execute();
+    PATCH command(repo); 
+    command.setInput("");
+    command.execute(out);
 
     EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
 }
@@ -94,8 +98,9 @@ TEST(PATCHTest, Return400IfNoProductsProvided) {
     PatchMockOutput out;
     repo.addUser(new User(10));
 
-    PATCH command(repo, out, "10"); 
-    command.execute();
+    PATCH command(repo); 
+    command.setInput("10");
+    command.execute(out);
 
     EXPECT_EQ(out.lastMessage, "400 Bad Request\n");
 }
@@ -107,8 +112,9 @@ TEST(PATCHTest, ShouldIgnoreDuplicateProductsInInput) {
     repo.addUser(new User(5));
 
     // Input has product 100 twice
-    PATCH command(repo, out, "5 100 100"); 
-    command.execute();
+    PATCH command(repo); 
+    command.setInput("5 100 100");
+    command.execute(out);
 
     // Verify: 204 returned, but only 1 product added (due to set)
     EXPECT_EQ(out.lastMessage, "204 No Content\n");
@@ -125,8 +131,9 @@ TEST(PATCHTest, MergeProductsWithExistingList) {
     repo.addUser(u);
 
     // PATCH adds product 60
-    PATCH command(repo, out, "1 60"); 
-    command.execute();
+    PATCH command(repo); 
+    command.setInput("1 60");
+    command.execute(out);
 
     // Total products should now be 2 (50 and 60)
     EXPECT_EQ(repo.getUserById(1)->getProducts().size(), 2);

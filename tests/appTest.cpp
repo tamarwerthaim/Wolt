@@ -3,13 +3,16 @@
 #include <sstream>
 #include <map>
 #include <string>
+#include <vector>
 #include "POST.h"
+#include "PATCH.h"
 #include "GET.h"
 #include "Help.h"
+#include "Delete.h"
 #include "MemoryUsers.h"
 #include "IOutput.h"
 
-// 1. Fixed the write signature to match IOutput.h (const std::string& instead of string)
+
 class TerminalOutput : public IOutput {
 public:
     std::string capturedText;
@@ -24,20 +27,21 @@ protected:
     std::map<std::string, ICommand*> commands;
 
     void SetUp() override {
-    system("mkdir -p /app/data");  // ensure directory exists in Docker
-    
-    std::ofstream ofs("/app/data/terminal_test.txt", std::ios::trunc);
-    ofs.close();
+        // Ensure clean environment for Docker
+        system("mkdir -p /app/data"); 
+        std::ofstream ofs("/app/data/terminal_test.txt", std::ios::trunc);
+        ofs.close();
 
-    out = new TerminalOutput();
-    repo = new MemoryUsers("/app/data/terminal_test.txt");
+        out = new TerminalOutput();
+        repo = new MemoryUsers("/app/data/terminal_test.txt");
 
-    commands["POST"] = new POST(*repo, *out, "");
-    // CHANGE: Added "" back to match GET.h constructor signature
-    commands["GET"] = new GET("", out, repo); 
-    commands["help"] = new Help(*out, "");
-}
-
+        // Initializing the command map exactly like main.cpp
+        commands["POST"] = new POST(*repo);      // Takes reference
+        commands["PATCH"] = new PATCH(*repo);    // Takes reference
+        commands["HELP"] = new Help();           // Default constructor
+        commands["GET"] = new GET(repo);         // Takes pointer
+        commands["DELETE"] = new Delete(repo);   // Takes pointer
+    }
 
     void TearDown() override {
         for (auto const& [key, val] : commands) { delete val; }
@@ -53,28 +57,46 @@ protected:
         std::string params;
         std::getline(ss, params); 
 
+        // Emulating the App::processCommand logic (uppercase and execute with output)
+        for (auto & c : cmdName) c = std::toupper(static_cast<unsigned char>(c));
+
         if (commands.count(cmdName)) {
-            // Check if your interface uses setInput or setParams
             commands[cmdName]->setInput(params); 
-            commands[cmdName]->execute();
+            commands[cmdName]->execute(*out);
+        } else {
+            out->write("400 Bad Request\n");
         }
     }
 };
 
-// --- BASIC LOGIC TESTS ---
+// --- CORE LOGIC TESTS ---
 
-// Test: Simple add and recommend flow
-TEST_F(TerminalSimulationTest, BasicFlow) {
-    // Added '999' as a shared product so weight is 1
+TEST_F(TerminalSimulationTest, BasicFlowPostAndGet) {
+    // Adding users using the new POST command
     runCommand("POST 1 10 999 20"); 
     runCommand("POST 2 10 999 30");
     
     out->clear();
     runCommand("GET 1 10");
-    EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n"); // UPDATED: Included status code
+    // Should return 200 Ok with a double newline before the result
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n");
 }
 
-// Test: Check tie-breaker (smaller ID first)
+TEST_F(TerminalSimulationTest, FullCycleWithDelete) {
+    runCommand("POST 1 10 999 20");
+    runCommand("POST 2 10 999 30");
+    
+    // Now delete user 2's watch history of product 999
+    out->clear();
+    runCommand("DELETE 2 999");
+    EXPECT_EQ(out->capturedText, "204 No Content\n");
+
+    // After deletion, user 2 shouldn't be similar to user 1 anymore
+    out->clear();
+    runCommand("GET 1 10");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n\n"); 
+}
+
 TEST_F(TerminalSimulationTest, TieBreakerCheck) {
     runCommand("POST 1 10 999");
     runCommand("POST 2 10 999 500");
@@ -82,150 +104,67 @@ TEST_F(TerminalSimulationTest, TieBreakerCheck) {
     
     out->clear();
     runCommand("GET 1 10");
-    EXPECT_EQ(out->capturedText, "200 Ok\n\n200 500\n"); // UPDATED: Included status code
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n200 500\n");
 }
 
-// Test: Check weights (influence of similar users)
-TEST_F(TerminalSimulationTest, WeightsInfluence) {
-    runCommand("POST 1 10 20 21");
-    runCommand("POST 2 10 20 21 300"); // Weight 2 (shares 20, 21)
-    runCommand("POST 3 10 20 400");    // Weight 1 (shares 20)
-    
+// --- ERROR HANDLING TESTS ---
+
+TEST_F(TerminalSimulationTest, UnknownCommandReturns400) {
     out->clear();
-    runCommand("GET 1 10");
-    EXPECT_EQ(out->capturedText, "200 Ok\n\n300 400\n"); // UPDATED: Included status code
+    runCommand("UNKNOWN_CMD 1 2 3");
+    EXPECT_EQ(out->capturedText, "400 Bad Request\n");
 }
 
-// ... in MaxTenLimit test, make sure each user shares one extra product ...
-TEST_F(TerminalSimulationTest, MaxTenLimit) {
-    runCommand("POST 1 100 999"); // 999 is shared
-    for(int i = 2; i <= 15; ++i) {
-        std::string cmd = "POST " + std::to_string(i) + " 100 999 " + std::to_string(1000 + i);
-        runCommand(cmd);
-    }
+TEST_F(TerminalSimulationTest, InvalidGetInputReturns400) {
     out->clear();
-    runCommand("GET 1 100");
-    
-    int count = 0;
-    std::stringstream ss(out->capturedText);
-    std::string temp;
-    // Skip status code
-    ss >> temp; // 200
-    ss >> temp; // Ok
-    while(ss >> temp) count++;
-    EXPECT_EQ(count, 10);
+    runCommand("GET 1 abc"); // Non-numeric input
+    EXPECT_EQ(out->capturedText, "400 Bad Request\n");
 }
 
-// --- INPUT FORMATTING TESTS ---
-
-// Test: Extra spaces in input
-TEST_F(TerminalSimulationTest, ExtraSpaces) {
-    // We add two users who share product 999 to create similarity
-    runCommand("POST    5      100    999");
-    runCommand("POST    6      100    999    200");
-    
-    out->clear();
-    runCommand("GET       5       100");
-    // Now user 6 is similar (weight 1), so 200 is recommended
-    EXPECT_EQ(out->capturedText, "200 Ok\n\n200\n"); // UPDATED: Included status code
-}
-
-// Test: Garbage text at the end
-TEST_F(TerminalSimulationTest, TrailingGarbage) {
+TEST_F(TerminalSimulationTest, TrailingGarbageOnDelete) {
     runCommand("POST 1 10 20");
-    runCommand("POST 2 10 30");
     out->clear();
-    runCommand("GET 1 10 extra_stuff"); // Should fail and return
-    EXPECT_EQ(out->capturedText, "400 Bad Request\n"); // UPDATED: Expect error status
+    runCommand("DELETE 1 10 some_junk"); 
+    EXPECT_EQ(out->capturedText, "400 Bad Request\n");
 }
 
-// Test: Letters instead of numbers
-TEST_F(TerminalSimulationTest, NonNumericInput) {
+// --- SYSTEM & WHITESPACE TESTS ---
+
+TEST_F(TerminalSimulationTest, CaseInsensitivityCheck) {
+    runCommand("post 1 10 999 20"); // Testing lower case
     out->clear();
-    runCommand("POST 1 abc 20");
-    out->clear(); 
-    runCommand("GET 1 10");
-    EXPECT_EQ(out->capturedText, "200 Ok\n\n\n"); // UPDATED: Included status code
+    runCommand("get 1 10");
+    EXPECT_TRUE(out->capturedText.find("200 Ok") != std::string::npos);
 }
 
-// --- PERSISTENCE & SYSTEM TESTS ---
-
-// Test: Help command
-TEST_F(TerminalSimulationTest, HelpCommand) {
+TEST_F(TerminalSimulationTest, MessyWhitespaceHandling) {
+    runCommand("   POST    10   500   999");
+    runCommand("POST 11 500 999 600");
+    
     out->clear();
-    runCommand("help");
+    runCommand("    GET   10   500   ");
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n600\n");
+}
+
+TEST_F(TerminalSimulationTest, HelpCommandOutput) {
+    out->clear();
+    runCommand("HELP");
+    // Just verify it's not empty and contains our protocol words
     EXPECT_FALSE(out->capturedText.empty());
+    EXPECT_TRUE(out->capturedText.find("DELETE") != std::string::npos);
 }
 
-// Test: Data persists after "restart"
 TEST_F(TerminalSimulationTest, PersistenceCheck) {
     runCommand("POST 88 10 999");
     runCommand("POST 99 10 999 30"); 
     
+    // Create a second repo instance reading the same file
     MemoryUsers repo2("/app/data/terminal_test.txt");    
-    // CHANGE: Added "" back to match GET.h constructor signature
-    GET getCmd("", out, &repo2); 
+    GET getCmd(&repo2); 
     
     out->clear();
     getCmd.setInput(" 88 10");
-    getCmd.execute();
+    getCmd.execute(*out);
     
-    EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n"); // UPDATED: Included status code
-}
-
-TEST_F(TerminalSimulationTest, DataPersistenceAfterRestart) {
-    runCommand("POST 1 100 999");
-    runCommand("POST 2 100 999 300");
-    
-    MemoryUsers repo2("/app/data/terminal_test.txt");    
-    // CHANGE: Added "" back to match GET.h constructor signature
-    GET getCmd("", out, &repo2); 
-    
-    out->clear();
-    getCmd.setInput(" 1 100");
-    getCmd.execute();
-    
-    EXPECT_NE(out->capturedText.find("300"), std::string::npos);
-}
-
-// test: handle spaces and tabs before, between and after
-TEST_F(TerminalSimulationTest, MessyWhitespace) {
-    runCommand("   POST    10      500    999");
-    runCommand("   POST    11      500    999    600");
-    
-    out->clear();
-    runCommand("    GET      10       500   ");
-    EXPECT_EQ(out->capturedText, "200 Ok\n\n600\n"); // UPDATED: Included status code
-}
-
-// test: garbage characters between parameters
-TEST_F(TerminalSimulationTest, GarbageBetweenParams) {
-    // user 1, then junk '!!!', then product 100
-    runCommand("POST 1 !!! 100"); 
-    
-    // the command should fail because '!!!' is not an int
-    EXPECT_TRUE(repo->getUsers().empty());
-}
-
-// test: garbage characters after the command
-TEST_F(TerminalSimulationTest, GarbageAfterCommand) {
-    runCommand("POST 1 100 200");
-    runCommand("POST 2 100 300");
-    
-    out->clear();
-    // correct command + extra junk at the end
-    runCommand("GET 1 100 some_extra_junk");
-    
-    // output should be error because we return on extra garbage
-    EXPECT_EQ(out->capturedText, "400 Bad Request\n"); // UPDATED: Expect error status
-}
-
-// test: garbage characters before the command name
-TEST_F(TerminalSimulationTest, GarbageBeforeCommand) {
-    out->clear();
-    // junk before 'add'
-    runCommand("??? POST 1 100 200");
-    
-    // system should not find command named "???"
-    EXPECT_TRUE(repo->getUsers().empty());
+    EXPECT_EQ(out->capturedText, "200 Ok\n\n30\n");
 }

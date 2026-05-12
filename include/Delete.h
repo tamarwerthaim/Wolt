@@ -8,7 +8,6 @@
 
 class Delete : public ICommand {
 private:
-    IOutput* output;   
     IUserRepo* users;  
     std::string input;
 
