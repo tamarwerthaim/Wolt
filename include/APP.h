@@ -17,7 +17,7 @@ class App {
         std::map<std::string, ICommand*> commands;
 
         //take care on line - get line, find the command, check and call to the fit func
-        void App::processCommand(const std::string& line, IOutput& output);
+        void processCommand(const std::string& line, IOutput& output);
         //clean the memmory at the end
         void cleanup();
 
