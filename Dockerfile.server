@@ -1,38 +1,33 @@
-# Use an official Ubuntu as a parent image
-FROM ubuntu:22.04
+# Use the official GCC image as a base
+FROM gcc:latest
 
-# Avoid interactive prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Install CMake and GTest
+RUN apt-get update && apt-get install -y cmake libgtest-dev
 
-# Update and install essential build tools, GTest, AND Python 3 for the client
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    libgtest-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Compile Google Test (GTest) source code
-RUN cd /usr/src/gtest && \
-    cmake . && \
-    make && \
-    cp lib/*.a /usr/lib
-
-# Set the working directory inside the container
-WORKDIR /app
+# Set a generic and consistent working directory
+WORKDIR /usr/src/app
 
 # Copy all project files into the container
 COPY . .
 
-# Create a build directory and compile the Server and the Tests
-RUN mkdir -p build && cd build && \
-    cmake .. && \
-    make
+# Ensure the data directory is available inside container and can be mounted from host
+RUN mkdir -p data && chmod 777 data
+VOLUME ["/usr/src/app/data"]
 
-# Expose the TCP port that the server will listen on
-# (Note: This documents the port, you still need to pass it to the app)
-EXPOSE 5555
+# Clean and Build:
+# 1. Remove the 'build' folder (in case local artifacts from Windows/Mac were copied)
+# 2. Configure the project (-S specifies source, -B specifies build directory)
+# 3. Compile the project
+# 4. Run tests
+RUN rm -rf build && \
+    cmake -S . -B build && \
+    cmake --build build && \
+    ctest --output-on-failure
 
-# Default command to run the Server with a port argument
-# Replace '5555' with your preferred default port
-CMD ["./build/ProductRecommendation", "5555"]
+RUN ln -s /usr/src/app/build/runTests /usr/local/bin/tests
+
+# Move to the directory where the executable was created
+WORKDIR /usr/src/app
+
+# Default command to run the application
+ENTRYPOINT ["./build/ProductRecommendation"]
