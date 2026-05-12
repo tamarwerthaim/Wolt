@@ -44,12 +44,18 @@ void App::processCommand(const std::string& line, IOutput& output) {
     std::getline(ss, params); 
 
     try {
+        // Check if the command exists in our map
+        if (commands.find(commandName) == commands.end()) {
+            throw InvalidInputException();
+        }
+        // If it exists, get the command object
         ICommand* cmd = commands.at(commandName);
         // Set the parameters for the command and execute it
         cmd->setInput(params);
         cmd->execute(output);
+    } catch (const CommandException& e) {
+        output.write(e.what());
     } catch (...) {
-        // if not found, we catch the exception and write a 400 Bad Request response
         output.write("400 Bad Request\n");
     }
 }

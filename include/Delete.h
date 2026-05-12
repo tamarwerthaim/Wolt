@@ -4,6 +4,7 @@
 #include "ICommand.h"
 #include "IOutput.h"
 #include "IUserRepo.h"
+#include "CommandException.h"
 #include <string>
 
 class Delete : public ICommand {
@@ -22,7 +23,7 @@ public:
     void setInput(std::string inp) override;
 
     // Helper function to parse the input string into a vector of integers
-    bool parseInput(std::vector<int>& params);
+    void parseInput(std::vector<int>& params);
 
     // Check if the user has all the specified product IDs
     bool productExists(User* user, const std::vector<int>& productIds);

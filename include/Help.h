@@ -18,7 +18,7 @@ public:
     void execute(IOutput& output) override;
 
     // Set the input parameters for the help command
-    void setInput(std::string inp);
+    void setInput(std::string inp) override;
 
     // Helper function to display all available commands and their usage
     void displayAllCommands(IOutput& output);

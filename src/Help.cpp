@@ -1,5 +1,6 @@
 #include "Help.h"
 #include "IOutput.h"
+#include "CommandException.h"
 
 //constructor
 Help::Help(const std::string& input) : input(input) {}
@@ -7,8 +8,7 @@ Help::Help(const std::string& input) : input(input) {}
 void Help::execute(IOutput& out) {
     // Ignore the command if there are extra parameters or invalid text after "help"
     if (!input.empty() && input.find_first_not_of(" \t\n\r") != std::string::npos) {
-        out.write("400 Bad Request\n");
-        return;
+        throw InvalidInputException();
     }
     // Display the help information for all commands
     displayAllCommands(out);
