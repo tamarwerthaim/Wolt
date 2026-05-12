@@ -36,16 +36,28 @@ void GET::execute(IOutput& out) {
     out.write("200 Ok\n\n");
 
     // Write the recommended product IDs to output
+    std::string finalOutput = "";
     for (size_t i = 0; i < recommendationsList.size(); ++i) {
         // Write the product ID - convert to string first
-        out.write(std::to_string(recommendationsList[i].getID()));
-        
+        finalOutput += std::to_string(recommendationsList[i].getID());
         // Add a space only if it's not the last element
         if (i < recommendationsList.size() - 1) {
-            out.write(" ");
+            finalOutput += " ";
         }
     }
-    out.write("\n");
+    finalOutput += "\n";
+    out.write(finalOutput);
+
+    // for (size_t i = 0; i < recommendationsList.size(); ++i) {
+    //     // Write the product ID - convert to string first
+    //     out.write(std::to_string(recommendationsList[i].getID()));
+        
+    //     // Add a space only if it's not the last element
+    //     if (i < recommendationsList.size() - 1) {
+    //         out.write(" ");
+    //     }
+    // }
+    // out.write("\n");
 }
 
 // Update the input parameters for the recommendation command
