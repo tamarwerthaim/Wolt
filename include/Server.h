@@ -9,6 +9,7 @@
 
 class Server {
 private:
+    // fields 
     int port;
     std::string ip;
     int server_fd;    

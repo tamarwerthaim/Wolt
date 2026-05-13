@@ -87,19 +87,11 @@ void Server::start(App& app) {
 
         std::cout << "New client connected! (FD: " << client_fd << ")" << std::endl;
 
-
-        // create instanse of SocketIO and bring him client_fd
-        //SocketIO* io = new SocketIO(client_fd);
-
         //save on heap so if delete automaticly when the loop end
         SocketIO io(client_fd);
        
         // run and send io to input and output
         app.run(io, io);
-
-
-        // clean at the end of conversation
-        //delete io;
 
         //close conversation
         close(client_fd);
@@ -111,9 +103,11 @@ void Server::start(App& app) {
 // end listenning
 void Server::stop() {
     running = false;
+    // Close the listening socket if it's open
     if (server_fd != -1) {
         close(server_fd);
         server_fd = -1;
     }
+    //print message
     std::cout << "Server stopped." << std::endl;
 }

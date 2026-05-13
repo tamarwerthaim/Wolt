@@ -29,14 +29,15 @@ protected:
     // Finds the user in the repo
     User* findUser(int userId);
 
-    // TODO
+    // Adds the specified products to the user's account and saves the changes to the repository.
     void addProductsToUser(User* user, const AddCommandData& data);
 
 public:
+    // Constructor with dependency injection
     BaseAddCommands(IUserRepo& r);
-    
+    // Virtual destructor to allow proper cleanup in derived classes
     virtual ~BaseAddCommands() = default;
-
+    // The execute method will be implemented in the derived classes
     void setInput(std::string inp);
 };
 

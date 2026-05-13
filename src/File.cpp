@@ -8,14 +8,16 @@ File::File(const std::string& path) : filePath(path), inputStream(path) {}
 
 //implement read from IInput
 std::string File::read() {
-    std::string line; //variable for thr line
+    //variable for thr line
+    std::string line; 
     
     // check if we succeeded to open the file, and save the next line to "inputStream"
     if (inputStream.is_open() && std::getline(inputStream, line)) {
         return line;
     }
 
-    return ""; // if we dont succeeded to open
+    // if we dont succeeded to open
+    return ""; 
 }
 //implement isFinish from IInput - return true if we finish the input or we cant open
 bool File::isFinished() {

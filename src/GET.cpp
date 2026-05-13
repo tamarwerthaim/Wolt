@@ -16,13 +16,13 @@ void GET::execute(IOutput& out) {
     int userID;
     int productID;
 
-    // 1. Try to read the two integers or check if they are negative
+    // Try to read the two integers or check if they are negative
     if (!(ss >> userID >> productID) || userID < 0 || productID < 0) {
         // If we're here, the input wasn't 2 ints or contained negative values
         throw InvalidInputException();
     }
 
-    // 2. make sure there's no "garbage" left at the end
+    // make sure there's no "garbage" left at the end
     std::string extra;
     if (ss >> extra) {
         // If we can still read something, it means there were more than 2 parameters
@@ -47,17 +47,6 @@ void GET::execute(IOutput& out) {
     }
     finalOutput += "\n";
     out.write(finalOutput);
-
-    // for (size_t i = 0; i < recommendationsList.size(); ++i) {
-    //     // Write the product ID - convert to string first
-    //     out.write(std::to_string(recommendationsList[i].getID()));
-        
-    //     // Add a space only if it's not the last element
-    //     if (i < recommendationsList.size() - 1) {
-    //         out.write(" ");
-    //     }
-    // }
-    // out.write("\n");
 }
 
 // Update the input parameters for the recommendation command
@@ -69,17 +58,17 @@ void GET::setInput(std::string inp) {
 std::vector<Product> GET::getRecommendations(int userId, int productId) {
     std::vector<User*> allUsers = users->getUsers();
     
-    // 1. Get the target user
+    // Get the target user
     User* target = findTargetUser(userId, allUsers);
     // If user not found, return empty list
     if (!target) {
         throw LogicalErrorException();
     }; 
 
-    // 2. Build the score map
+    // Build the score map
     std::map<int, int> scores = calculateRawScores(*target, productId);
 
-    // 3. Sort them and return the top 10
+    // Sort them and return the top 10
     return sortAndLimit(scores);
 }
 
@@ -127,6 +116,7 @@ std::map<int, int> GET::calculateRawScores(const User& target, int productId) {
     std::map<int, int> scores;
     std::vector<User> similarUsers = getUsersWithProduct(Product(productId));
 
+    // For each similar user, calculate their weight and add to the scores of the products they watched
     for (const auto& other : similarUsers) {
         if (other.getID() == target.getID()) 
             continue;

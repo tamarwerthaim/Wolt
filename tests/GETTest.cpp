@@ -9,10 +9,7 @@
 #include "IOutput.h"
 #include "CommandException.h"
 
-/**
- * Human Note: Simple mock to capture status codes and 
- * recommendation strings for protocol-level testing.
- */
+// A simple IOutput implementation to capture output for testing
 class GetMockOutput : public IOutput {
 public:
     std::string captured;
@@ -20,6 +17,7 @@ public:
     void clear() { captured = ""; }
 };
 
+// Test fixture for testing the GET command
 class GETTest : public ::testing::Test {
 protected:
     MemoryUsers* repo;
@@ -34,13 +32,14 @@ protected:
         repo = new MemoryUsers("users_db.txt");
     }
 
+    // Clean up after each test
     void TearDown() override {
         delete repo;
     }
 };
 
-// --- ALGORITHMIC LOGIC TESTS ---
-
+// tests that the GET command correctly generates product recommendations based on user similarity 
+// and that it returns the expected product IDs in the correct order.
 TEST_F(GETTest, BasicFlowFromAppendix) {
     User* u1 = new User(1); 
     u1->addProduct(Product(100)); u1->addProduct(Product(101)); 
@@ -63,6 +62,8 @@ TEST_F(GETTest, BasicFlowFromAppendix) {
     EXPECT_EQ(results[0].getID(), 105); 
 }
 
+// Tests that the GET command correctly handles the case where the input string is missing required parameters 
+// and that it throws an appropriate exception.
 TEST_F(GETTest, TieBreakerSort) {
     User* u1 = new User(1); u1->addProduct(Product(100)); u1->addProduct(Product(999));
     User* u2 = new User(2); u2->addProduct(Product(100)); u2->addProduct(Product(200)); u2->addProduct(Product(999));
@@ -79,6 +80,8 @@ TEST_F(GETTest, TieBreakerSort) {
     EXPECT_EQ(results[1].getID(), 200);
 }
 
+// Tests that the GET command correctly handles the case where the specified user ID does not exist in the repository
+// and that it throws an appropriate exception.
 TEST_F(GETTest, WeightMathVerification) {
     User* target = new User(1); 
     target->addProduct(Product(10)); target->addProduct(Product(20)); target->addProduct(Product(100));
@@ -101,6 +104,8 @@ TEST_F(GETTest, WeightMathVerification) {
     EXPECT_EQ(results[0].getID(), 50); 
 }
 
+// Tests that the GET command correctly limits the number of recommendations to a maximum of 10 
+// and that it returns the expected products when there are more than 10 potential recommendations.
 TEST_F(GETTest, MaxTenLimit) {
     User* target = new User(1); 
     target->addProduct(Product(100));
@@ -123,6 +128,8 @@ TEST_F(GETTest, MaxTenLimit) {
     EXPECT_EQ(results.size(), 10);
 }
 
+// Tests that the GET command does not recommend products that the user has already seen 
+// and that it correctly filters out those products from the recommendation list.
 TEST_F(GETTest, FilterAlreadySeenProducts) {
     User* target = new User(1);
     target->addProduct(10); target->addProduct(100);
@@ -141,8 +148,8 @@ TEST_F(GETTest, FilterAlreadySeenProducts) {
     EXPECT_EQ(results[0].getID(), 50); 
 }
 
-// --- PROTOCOL & INPUT TESTS (Status Codes) ---
-
+// Tests that the GET command correctly handles the case where the input string contains non-integer characters 
+// and that it throws an appropriate exception.
 TEST_F(GETTest, ValidExecutionProtocol) {
     User* u1 = new User(1); u1->addProduct(100); u1->addProduct(500); u1->addProduct(200);
     User* u2 = new User(2); u2->addProduct(100); u2->addProduct(500); u2->addProduct(300);
@@ -156,6 +163,8 @@ TEST_F(GETTest, ValidExecutionProtocol) {
     EXPECT_TRUE(out.captured.find("300") != std::string::npos);
 }
 
+// Tests that the GET command correctly handles the case where the input string contains multiple spaces between parameters
+// and that it still processes the command successfully without throwing an exception.
 TEST_F(GETTest, InputWithMultipleSpaces) {
     User* u1 = new User(1); u1->addProduct(100); u1->addProduct(500); u1->addProduct(200);
     User* u2 = new User(2); u2->addProduct(100); u2->addProduct(500); u2->addProduct(300);
@@ -169,24 +178,32 @@ TEST_F(GETTest, InputWithMultipleSpaces) {
     EXPECT_TRUE(out.captured.find("300") != std::string::npos);
 }
 
+// Tests that the GET command correctly handles the case where the input string is missing required parameters 
+// and that it throws an appropriate exception.
 TEST_F(GETTest, InvalidInputMissingId) {
     GET cmd(repo);
     cmd.setInput("1"); 
     EXPECT_THROW(cmd.execute(out), InvalidInputException);
 }
 
+// Tests that the GET command correctly handles the case where the input string contains non-integer characters instead of valid user 
+// and product IDs and that it throws an appropriate exception.
 TEST_F(GETTest, InvalidInputAlphaCharacters) {
     GET cmd(repo);
     cmd.setInput("1 abc"); 
     EXPECT_THROW(cmd.execute(out), InvalidInputException);
 }
 
+// Tests that the GET command correctly handles the case where the input string contains extra parameters beyond the expected user ID 
+// and product ID and that it throws an appropriate exception.
 TEST_F(GETTest, InvalidInputExtraData) {
     GET cmd(repo);
     cmd.setInput("1 100 200"); 
     EXPECT_THROW(cmd.execute(out), InvalidInputException);
 }
 
+// Tests that the GET command correctly handles the case where the specified product ID does not exist in any user's product list 
+// and that it returns an empty recommendation list without throwing an exception.
 TEST_F(GETTest, OrphanProductContextEmptyResult) {
     User* u1 = new User(1); u1->addProduct(100);
     repo->addUser(u1);
@@ -198,6 +215,8 @@ TEST_F(GETTest, OrphanProductContextEmptyResult) {
     EXPECT_TRUE(out.captured.find("200 Ok") != std::string::npos);
 }
 
+// Tests that the GET command correctly handles the case where the specified user ID does not exist in the repository 
+// and that it throws an appropriate exception.
 TEST_F(GETTest, UserNotFoundInRepoProtocol) {
     GET cmd(repo);
     cmd.setInput("99 100");

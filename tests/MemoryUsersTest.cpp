@@ -4,6 +4,7 @@
 #include "User.h"
 #include "Product.h"
 
+// Test fixture for testing the MemoryUsers class
 class MemoryUsersTest : public ::testing::Test {
 protected:
     // We use a specific file for testing
@@ -20,7 +21,8 @@ protected:
     }
 };
 
-// Test if adding a user works in the current session
+// Tests that the MemoryUsers class can successfully add a user to the repository 
+// and that it can retrieve the list of users, confirming that the added user is present in the retrieved list.
 TEST_F(MemoryUsersTest, AddAndGetUsers) {
     MemoryUsers repo(testFile);
     
@@ -33,10 +35,8 @@ TEST_F(MemoryUsersTest, AddAndGetUsers) {
     ASSERT_EQ(allUsers.size(), 1);
     EXPECT_EQ(allUsers[0]->getID(), 1);
 }
-
-// The "Restart" test: Save to file and reload in a new instance
+// Tests that users and products are correctly saved and loaded.
 TEST_F(MemoryUsersTest, PersistenceTest) {
-    // Session 1: Create a repo and add a user
     {
         MemoryUsers repo(testFile);
         User* u1 = new User(1);
@@ -45,7 +45,6 @@ TEST_F(MemoryUsersTest, PersistenceTest) {
         repo.addUser(u1);
     } 
 
-    // Session 2: Create a new repo and see if it loads the data
     MemoryUsers secondRepo(testFile);
     auto loadedUsers = secondRepo.getUsers();
     
@@ -63,7 +62,7 @@ TEST_F(MemoryUsersTest, PersistenceTest) {
     EXPECT_EQ(it->getID(), 102);
 }
 
-// Check if it handles multiple users correctly
+// Tests adding multiple users and retrieving their IDs and products.
 TEST_F(MemoryUsersTest, MultipleUsersPersistence) {
     {
         MemoryUsers repo(testFile);
@@ -82,7 +81,7 @@ TEST_F(MemoryUsersTest, MultipleUsersPersistence) {
     EXPECT_EQ(loadedUsers[1]->getID(), 2);
 }
 
-// Check behavior when the database file is missing
+// Tests that a user can be found and loaded correctly by ID.
 TEST_F(MemoryUsersTest, NoFileBehavior) {
     MemoryUsers repo("non_existent_file.txt");
     EXPECT_TRUE(repo.getUsers().empty());

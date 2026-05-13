@@ -14,11 +14,7 @@ COPY . .
 RUN mkdir -p data && chmod 777 data
 VOLUME ["/usr/src/app/data"]
 
-# Clean and Build:
-# 1. Remove the 'build' folder (in case local artifacts from Windows/Mac were copied)
-# 2. Configure the project (-S specifies source, -B specifies build directory)
-# 3. Compile the project
-# 4. Run tests
+# Build the application and run tests
 RUN rm -rf build && \
     cmake -S . -B build && \
     cmake --build build && \

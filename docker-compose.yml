@@ -8,6 +8,9 @@ services:
       - "${PORT:-8080}:${PORT:-8080}"
     volumes:
       - ./data:/usr/src/app/data
+    # Allocate a pseudo-terminal for proper output buffering
+    stdin_open: true
+    tty: true
     # Default argument passed to the server's main function
     command: ["${PORT:-8080}"]
 
