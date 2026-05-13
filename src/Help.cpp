@@ -15,15 +15,27 @@ void Help::execute(IOutput& out) {
 }
 
 // Helper function to display all available commands and their usage
-void Help::displayAllCommands(IOutput& out) {
-    // printing by alphabetical order
-    out.write("DELETE, arguments: [userid] [productid1] [productid2] ...\n");
-    out.write("GET, arguments: [userid] [productid]\n");
-    out.write("PATCH, arguments: [userid] [productid1] [productid2] ...\n");
-    out.write("POST, arguments: [userid] [productid1] [productid2] ...\n");
+// void Help::displayAllCommands(IOutput& out) {
+//     // printing by alphabetical order
+//     out.write("DELETE, arguments: [userid] [productid1] [productid2] ...\n");
+//     out.write("GET, arguments: [userid] [productid]\n");
+//     out.write("PATCH, arguments: [userid] [productid1] [productid2] ...\n");
+//     out.write("POST, arguments: [userid] [productid1] [productid2] ...\n");
     
-    // help command appears last and has no "arguments" tag
-    out.write("help\n");  
+//     // help command appears last and has no "arguments" tag
+//     out.write("help\n");  
+// }
+
+// תיקון ב-Wolt/src/Help.cpp
+void Help::displayAllCommands(IOutput& out) {
+    std::string helpMessage = "";
+    helpMessage += "DELETE, arguments: [userid] [productid1] [productid2] ...\n";
+    helpMessage += "GET, arguments: [userid] [productid]\n";
+    helpMessage += "PATCH, arguments: [userid] [productid1] [productid2] ...\n";
+    helpMessage += "POST, arguments: [userid] [productid1] [productid2] ...\n";
+    helpMessage += "help\n";
+    
+    out.write(helpMessage);
 }
 
 // Set the input parameters for the help command

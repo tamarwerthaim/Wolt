@@ -22,9 +22,10 @@ void App::run(IInput& input, IOutput& output) {
         std::string line = input.read();
         
         // Skip empty lines to avoid unnecessary processing
-        if (!line.empty()) {
-            processCommand(line, output);
-        }
+        // if (!line.empty()) {
+        //     processCommand(line, output);
+        // }
+        processCommand(line, output);
     }
 }
 
