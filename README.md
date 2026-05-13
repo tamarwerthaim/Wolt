@@ -102,17 +102,17 @@ The application accepts the following commands:
 ## Example:
 
 **HELP**: as described, the command displays the list of all supported commands and their arguments: 
-   ![Help command](images_readme\help_img.png)
+   ![Help command](images_readme/help_img.png)
 
 **POST**: as described, the command adds new product IDs to a user's history and persists the data:
-   ![POST command](images_readme\post_img.png)
+   ![POST command](images_readme/post_img.png)
 
 **GET**: as described, it displays up to 10 recommendations based on a product ID and similarities with other users: 
-   ![GET command](images_readme\get_img.png)  
+   ![GET command](images_readme/get_img.png)  
 
 **PATCH**: as described, the command updates a user's history by adding new product IDs to their existing list:
-   ![PATCH command](images_readme\patch_img.png)
+   ![PATCH command](images_readme/patch_img.png)
 
 **DELETE**: as described, the command removes a specific user or specific products from a user's history:
-   ![DELETE command](images_readme\delete_img.png)
+   ![DELETE command](images_readme/delete_img.png)
 
