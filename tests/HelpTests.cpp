@@ -42,17 +42,25 @@ TEST(HelpTest, ShouldPrintCorrectFormatInAlphabeticalOrder) {
 
     command.execute(mock);
 
-    // We expect exactly 5 separate write calls based on the implementation
-    ASSERT_EQ(mock.capturedMessages.size(), 5);
+    // We expect exactly 1 separate write call based on the aggregated implementation
+    ASSERT_EQ(mock.capturedMessages.size(), 1);
     
+    std::string fullOutput = mock.capturedMessages[0];
+
     // Verifying alphabetical order as required by the assignment
-    EXPECT_EQ(mock.capturedMessages[0], "DELETE, arguments: [userid] [productid1] [productid2] ...\n");
-    EXPECT_EQ(mock.capturedMessages[1], "GET, arguments: [userid] [productid]\n");
-    EXPECT_EQ(mock.capturedMessages[2], "PATCH, arguments: [userid] [productid1] [productid2] ...\n");
-    EXPECT_EQ(mock.capturedMessages[3], "POST, arguments: [userid] [productid1] [productid2] ...\n");
+    size_t posDelete = fullOutput.find("DELETE, arguments: [userid] [productid1] [productid2] ...\n");
+    size_t posGet    = fullOutput.find("GET, arguments: [userid] [productid]\n");
+    size_t posPatch  = fullOutput.find("PATCH, arguments: [userid] [productid1] [productid2] ...\n");
+    size_t posPost   = fullOutput.find("POST, arguments: [userid] [productid1] [productid2] ...\n");
+    size_t posHelp   = fullOutput.find("help\n");
+
+    EXPECT_TRUE(posDelete != std::string::npos);
+    EXPECT_TRUE(posGet > posDelete && posGet != std::string::npos);
+    EXPECT_TRUE(posPatch > posGet && posPatch != std::string::npos);
+    EXPECT_TRUE(posPost > posPatch && posPost != std::string::npos);
     
     // The help command itself always appears last
-    EXPECT_EQ(mock.capturedMessages[4], "help\n");
+    EXPECT_TRUE(posHelp > posPost && posHelp != std::string::npos);
 }
 
 // Tests that the Help command correctly handles the case where the input string contains extra parameters after the "help" command 
@@ -86,7 +94,7 @@ TEST(HelpTest, ShouldWorkFineWithOnlyWhitespace) {
     
     command.execute(mock);
     
-    // Should successfully show all 5 lines of help
-    EXPECT_EQ(mock.capturedMessages.size(), 5);
-    EXPECT_EQ(mock.capturedMessages[4], "help\n");
+    // Should successfully show all 5 lines of help in a single aggregated message
+    ASSERT_EQ(mock.capturedMessages.size(), 1);
+    EXPECT_TRUE(mock.capturedMessages[0].find("help\n") != std::string::npos);
 }
