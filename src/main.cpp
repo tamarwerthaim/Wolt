@@ -2,11 +2,11 @@
 #include "Server.h"
 #include "Console.h"    
 #include "MemoryUsers.h"  // The database for users
-#include "POST.h"         // The "POST" command
-#include "PATCH.h"     // The "PATCH" command
-#include "Help.h"        // The "Help" command
-#include "GET.h"   // The "GET" command
-#include "Delete.h" // The "DELETE" command
+#include "POST.h"         
+#include "PATCH.h"     
+#include "Help.h"        
+#include "GET.h"   
+#include "Delete.h" 
 #include <map>
 #include <string>
 #include <iostream>
@@ -39,8 +39,10 @@ int main(int argc, char* argv[]) {
     // create network
     try {
         Server server(port);
-        server.start(woltApp); // server run the app for all client
+        // server run the app for all client
+        server.start(woltApp); 
     } catch (const std::exception& e) {
+        // If there's an error starting the server, print it and exit
         std::cerr << e.what() << std::endl;
         return 1;
     }

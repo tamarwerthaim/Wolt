@@ -52,12 +52,15 @@ User* BaseAddCommands::findUser(int userId) {
     return *iterator;
 }
 
+// Adds the specified products to the user's account and saves the changes to the repository.
 void BaseAddCommands::addProductsToUser(User* user, const AddCommandData& data) {
     if (user == nullptr) return;
 
+    // Add each product ID from the data to the user's product list
     for (int pid : data.productIds) {
         user->addProduct(Product(pid));
     }
+    //save all users to the file to persist the changes
     repo.saveAllToFile();
 }
 

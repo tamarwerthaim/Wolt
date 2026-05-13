@@ -25,9 +25,7 @@ protected:
     }
 };
 
-// --- Basic flow tests ---
-
-// 1. Check if the write function actually creates a file and saves the data
+// tests that the File class can successfully write a line to a new file and that the content is correctly stored.
 TEST_F(FileTest, WriteCreatesFileAndStoresData) {
     File f(testFileName);
     f.write("Hello Wolt");
@@ -40,7 +38,7 @@ TEST_F(FileTest, WriteCreatesFileAndStoresData) {
     EXPECT_EQ(content, "Hello Wolt");
 }
 
-// 2. Make sure we can read a line from an existing file
+// tests that the File class can read a line from a file and that it correctly returns the content of the line.
 TEST_F(FileTest, ReadReturnsCorrectLine) {
     createTestFile("First Line\nSecond Line");
     File f(testFileName);
@@ -48,7 +46,7 @@ TEST_F(FileTest, ReadReturnsCorrectLine) {
     EXPECT_EQ(f.read(), "First Line");
 }
 
-// 3. Test the "bookmark" effect - reading multiple lines one after another
+// tests that the File class can read multiple lines sequentially and that it correctly updates its internal state to return the next line on each read call.
 TEST_F(FileTest, ReadSequentiallyMovesBookmark) {
     createTestFile("Line A\nLine B\nLine C");
     File f(testFileName);
@@ -58,9 +56,7 @@ TEST_F(FileTest, ReadSequentiallyMovesBookmark) {
     EXPECT_EQ(f.read(), "Line C");
 }
 
-// --- Edge cases and error handling ---
-
-// 4. What happens if we try to read a file that doesn't even exist?
+// tests that the File class correctly handles the case where it tries to read from a file that does not exist and returns an empty string.
 TEST_F(FileTest, ReadNonExistentFileReturnsEmptyString) {
     File f("i_do_not_exist.txt");
     
@@ -69,7 +65,8 @@ TEST_F(FileTest, ReadNonExistentFileReturnsEmptyString) {
     EXPECT_TRUE(f.isFinished()); 
 }
 
-// 5. Verify that isFinished() correctly detects the end of the file
+// tests that the File class correctly identifies when it has reached the end of the file 
+// and that subsequent calls to read return an empty string.
 TEST_F(FileTest, IsFinishedReturnsTrueAtEndOfFile) {
     createTestFile("Only One Line");
     File f(testFileName);
@@ -80,7 +77,8 @@ TEST_F(FileTest, IsFinishedReturnsTrueAtEndOfFile) {
     EXPECT_TRUE(f.isFinished());
 }
 
-// 6. Check that writing doesn't delete old data (Append mode)
+// tests that the File class can successfully append a line to an existing file without overwriting the previous content 
+// and that both lines are correctly stored in the file.
 TEST_F(FileTest, WriteAppendsAndDoesNotOverwrite) {
     createTestFile("Existing Content\n");
     File f(testFileName);
@@ -96,7 +94,8 @@ TEST_F(FileTest, WriteAppendsAndDoesNotOverwrite) {
     EXPECT_EQ(line2, "New Content");
 }
 
-// 7. Make sure empty lines in the middle of a file don't break anything
+// tests that the File class correctly handles empty lines in the file and that it returns an empty string
+// for those lines when read is called.
 TEST_F(FileTest, HandleEmptyLinesCorrectly) {
     createTestFile("Line 1\n\nLine 3");
     File f(testFileName);

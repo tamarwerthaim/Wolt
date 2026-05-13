@@ -5,10 +5,7 @@
 #include <vector>
 #include <string>
 
-/**
- * Mock object to capture messages sent by the command.
- * Helps us verify exactly what the user would see in their terminal/socket.
- */
+// A simple IOutput implementation to capture output for testing
 class MockOutput : public IOutput {
 public:
     std::vector<std::string> capturedMessages;
@@ -18,8 +15,8 @@ public:
     }
 };
 
-// --- INSTANTIATION TESTS ---
-
+//tests that the Help command can be instantiated without throwing an exception 
+//and that the resulting object is not a null pointer.
 TEST(HelpTest, ShouldBeAbleToCreateInstance) {
     std::string input = "";
     // Constructor now only takes the input string
@@ -28,8 +25,8 @@ TEST(HelpTest, ShouldBeAbleToCreateInstance) {
     delete command;
 }
 
-// --- FUNCTIONAL TESTS ---
-
+// Tests that the Help command correctly writes the expected help information to the output when executed 
+//and that it includes all the required lines of help text in the correct format.
 TEST(HelpTest, ShouldWriteToOutputWhenExecuted) {
     MockOutput mock;
     Help command(""); 
@@ -37,6 +34,8 @@ TEST(HelpTest, ShouldWriteToOutputWhenExecuted) {
     EXPECT_FALSE(mock.capturedMessages.empty());
 }
 
+// Tests that the Help command correctly formats the help information for all available commands 
+// and that it lists the commands in alphabetical order as required by the assignment.
 TEST(HelpTest, ShouldPrintCorrectFormatInAlphabeticalOrder) {
     MockOutput mock;
     Help command(""); 
@@ -56,8 +55,8 @@ TEST(HelpTest, ShouldPrintCorrectFormatInAlphabeticalOrder) {
     EXPECT_EQ(mock.capturedMessages[4], "help\n");
 }
 
-// --- INPUT VALIDATION TESTS (400 Bad Request) ---
-
+// Tests that the Help command correctly handles the case where the input string contains extra parameters after the "help" command 
+// and that it throws an appropriate exception indicating a bad request.
 TEST(HelpTest, ShouldReturnBadRequestIfExtraParametersProvided) {
     MockOutput mock;
     // Input contains extra junk after the command name
@@ -68,6 +67,8 @@ TEST(HelpTest, ShouldReturnBadRequestIfExtraParametersProvided) {
     EXPECT_THROW(command.execute(mock), InvalidInputException);
 }
 
+// Tests that the Help command correctly handles the case where the input string contains non-integer characters
+// instead of valid command parameters and that it throws an appropriate exception indicating a bad request.
 TEST(HelpTest, ShouldReturnBadRequestOnGarbageText) {
     MockOutput mock;
     std::string garbageInput = " some_random_text_here";
@@ -76,6 +77,8 @@ TEST(HelpTest, ShouldReturnBadRequestOnGarbageText) {
     EXPECT_THROW(command.execute(mock), InvalidInputException);
 }
 
+// Tests that the Help command correctly handles the case where the input string contains only whitespace characters 
+// and that it still executes successfully without throwing an exception, treating it as a valid call to display the help information.
 TEST(HelpTest, ShouldWorkFineWithOnlyWhitespace) {
     MockOutput mock;
     // Trailing spaces or tabs should be ignored and treated as a valid call

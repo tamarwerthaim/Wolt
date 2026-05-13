@@ -8,7 +8,9 @@
 // Base exception class
 class CommandException : public std::exception {
 public:
+    // Virtual destructor to allow proper cleanup in derived classes
     virtual ~CommandException() {}
+    // Pure virtual function to get the error message, must be implemented by derived classes
     virtual const char* what() const noexcept override = 0;
 };
 

@@ -11,8 +11,6 @@
 class App {
     private:
     //field:
-        //IInput& input;
-        //IOutput& output;
         IUserRepo& repo;
         std::map<std::string, ICommand*> commands;
 

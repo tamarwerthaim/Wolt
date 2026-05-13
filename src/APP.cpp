@@ -20,11 +20,7 @@ void App::run(IInput& input, IOutput& output) {
     // The main loop - while the client connected
     while (!input.isFinished()) {
         std::string line = input.read();
-        
-        // Skip empty lines to avoid unnecessary processing
-        // if (!line.empty()) {
-        //     processCommand(line, output);
-        // }
+        // Process the command from the input line
         processCommand(line, output);
     }
 }
@@ -58,6 +54,7 @@ void App::processCommand(const std::string& line, IOutput& output) {
     } catch (const CommandException& e) {
         output.write(e.what());
     } catch (...) {
+        // Catch any other unexpected exceptions
         output.write("400 Bad Request\n");
     }
 }
