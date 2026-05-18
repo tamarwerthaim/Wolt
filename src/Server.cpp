@@ -73,7 +73,6 @@ void Server::start(App& app) {
 
         //if we fail
         if (client_fd < 0) {
-            if (running) std::cerr << "Accept failed" << std::endl;
             continue; //wait for the next client
         }
 

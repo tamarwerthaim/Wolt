@@ -33,20 +33,19 @@ void GET::execute(IOutput& out) {
     std::vector<Product> recommendationsList = getRecommendations(userID, productID);
 
     // the request is valid, write the status line first
-    out.write("200 Ok\n\n");
+    std::string fullResponse = "200 Ok\n\n";
 
     // Write the recommended product IDs to output
-    std::string finalOutput = "";
     for (size_t i = 0; i < recommendationsList.size(); ++i) {
         // Write the product ID - convert to string first
-        finalOutput += std::to_string(recommendationsList[i].getID());
+        fullResponse += std::to_string(recommendationsList[i].getID());
         // Add a space only if it's not the last element
         if (i < recommendationsList.size() - 1) {
-            finalOutput += " ";
+            fullResponse += " ";
         }
     }
-    finalOutput += "\n";
-    out.write(finalOutput);
+    fullResponse += "\n";
+    out.write(fullResponse);
 }
 
 // Update the input parameters for the recommendation command
