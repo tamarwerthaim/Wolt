@@ -1,5 +1,6 @@
 #include "Delete.h"
 #include "CommandException.h"
+#include <set>
 
 // Constructor with dependency injection
 Delete::Delete(IUserRepo* users) : users(users) {}
@@ -49,11 +50,15 @@ void Delete::parseInput(std::vector<int>& params) {
 
 // Check if the user has all the specified product IDs
 bool Delete::productExists(User* user, const std::vector<int>& productIds) {
+    // Use a set to track seen product IDs
+    std::set<int> seenProducts;
     for (int pid : productIds) {
-        if (!user->hasProduct(pid)) {\
-            // If any product ID is not found, return false
+        if (seenProducts.count(pid) > 0 || !user->hasProduct(pid)) {
+            // If any product ID is already seen or not found, return false
             return false;
         }
+        // Mark this product ID as seen
+        seenProducts.insert(pid);
     }
     // All product IDs were found
     return true;
