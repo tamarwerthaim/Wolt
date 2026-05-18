@@ -8,9 +8,6 @@ services:
       - "${PORT:-8080}:${PORT:-8080}"
     volumes:
       - ./data:/usr/src/app/data
-    # Allocate a pseudo-terminal for proper output buffering
-    stdin_open: true
-    tty: true
     # Default argument passed to the server's main function
     command: ["${PORT:-8080}"]
 
@@ -19,23 +16,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.client
-    depends_on:
-      - server
-    # Allows interactive command input from the terminal
+    # Do not auto-start the server when running the client.
+    # The client should fail if the server is not already active.
     stdin_open: true
     tty: true
     # Default arguments: [server_address] [port]
-    command: ["server", "${PORT:-8080}"]
-    environment:
-      - SERVER_HOST=server
-      - SERVER_PORT=${PORT:-8080}
-  # Tests Service
-  # tests:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   # אנחנו דורסים את ה-ENTRYPOINT של ה-Dockerfile כדי להריץ רק טסטים
-  #   entrypoint: ["ctest"]
-  #   working_dir: /usr/src/app/build
-  #   volumes:
-  #     - ./data:/usr/src/app/data
+    command: ["${SERVER_IP:-server}", "${PORT:-8080}"]
+  
