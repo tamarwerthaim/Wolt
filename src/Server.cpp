@@ -48,10 +48,6 @@ void Server::createSocket() {
     if (listen(server_fd, 5) < 0) {
         throw std::runtime_error("Error: Listen failed.");
     }
-
-
-    //print message
-    std::cout << "Server initialized on " << ip << ":" << port << std::endl;
 }
 
 
@@ -62,10 +58,7 @@ void Server::start(App& app) {
         createSocket();
     }
 
-
     running = true; //sign we running
-    std::cout << "Server is now accepting connections..." << std::endl;
-
 
     //run until we close the listening
     while (running) {
@@ -84,9 +77,6 @@ void Server::start(App& app) {
             continue; //wait for the next client
         }
 
-
-        std::cout << "New client connected! (FD: " << client_fd << ")" << std::endl;
-
         //save on heap so if delete automaticly when the loop end
         SocketIO io(client_fd);
        
@@ -95,7 +85,6 @@ void Server::start(App& app) {
 
         //close conversation
         close(client_fd);
-        std::cout << "Client disconnected." << std::endl;
     }
 }
 
@@ -108,6 +97,4 @@ void Server::stop() {
         close(server_fd);
         server_fd = -1;
     }
-    //print message
-    std::cout << "Server stopped." << std::endl;
 }
