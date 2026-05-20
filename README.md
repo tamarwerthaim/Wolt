@@ -1,5 +1,7 @@
 # Product Management REST API Server
 
+> 📌 **Assignment Note:** The main branch for this part of the assignment is `wolt-part2`.
+
 This project is a C++ REST API server application designed to manage user product history. It provides HTTP-like endpoints to add, retrieve, update, and delete user product data, with persistent storage and a socket-based command architecture. A Python client is included for easy interaction with the server.
 
 ## Architecture & Design Principles
