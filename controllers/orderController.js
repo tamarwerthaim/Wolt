@@ -1,141 +1,132 @@
-import { sendToCpp } from '../services/socket.js';
+import { sendToCpp } from '../services/socket.js'; 
+import orderModel from '../models/orderModel.js';
 
-// array to hold orders in memory 
-let orders = [];
+class OrderController {
 
+    // GET /api/orders - Returns the list of orders for the logged in user.
+    static async getAllOrders(req, res) {
+        try {
+            // get user ID from request headers
+            const userId = req.headers['user-id'] || req.headers['authorization'];
 
-// POST /api/orders - Creates a new order.
-export async function createOrder(req, res) {
-    try {
-        // get user ID from request headers and product ID from request body
-        const userId = req.headers['user-id'] || req.headers['authorization'];
-        const { productId } = req.body;
+            // validate that user ID is provided
+            if (!userId) {
+                return res.status(400).json({ error: 'User ID header is required' });
+            }
 
-        // validate that both user ID and product ID are provided
-        if (!userId || !productId) {
-            return res.status(400).json({ error: 'User ID and Product ID are required' });
+            // get all orders from the model and filter them by user ID
+            const allOrders = orderModel.findAll();
+            const userOrders = allOrders.filter(order => order.userId === userId);
+
+            return res.status(200).json(userOrders);
+
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
         }
+    }
 
-        // command format to send to C++ server for adding an order to existing user
-        const cppCommand = `PATCH ${userId} ${productId}\n`;
+    // GET /api/orders/:id - Gives the order details
+    static async getOrderById(req, res) {
+        try {
+            // extract the order ID from the request parameters
+            const { id } = req.params;
+            
+            // use the orderModel to find the order by its ID 
+            // findById should return the order object if found, or null if not found
+            const order = orderModel.findById(id);
 
-        // send the command to the C++ server in socket and wait for the response
-        const cppResponse = await sendToCpp(cppCommand);
+            // if the order is not found, return a 404 status with an error message
+            if (!order) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
 
-        // if the user didnt exist
-        if (cppResponse.includes("404 Not Found")) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(200).json(order);
+
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
         }
+    }
 
-        // create a new order object and add it to the in-memory orders array
-        const newOrder = {
-            id: Date.now().toString(),
-            userId: userId,
-            productId: productId,
-            createdAt: new Date()
-        };
-        orders.push(newOrder);
+    // 3. POST /api/orders - Creates a new order.
+    static async createOrder(req, res) {
+        try {
+            // get user ID from request headers and product ID from request body
+            const userId = req.headers['user-id'] || req.headers['authorization'];
+            // extract restaurantId and items from the request body, which are required to create a new order
+            const { restaurantId, items } = req.body;
 
-        // return the newly created order with status 201
-        return res.status(201).json(newOrder);
+            // validate that user ID, restaurant ID, and items array are provided in the request
+            if (!userId) {
+                return res.status(400).json({ error: 'User ID header is required' });
+            }
+            if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
+                return res.status(400).json({ error: 'Restaurant ID and a non-empty items array are required' });
+            }
 
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
+            for (const item of items) {
+                // command format to send to C++ server for adding an order to existing user
+                const cppCommand = `PATCH ${userId} ${item.productId}\n`;
+                // send the command to the C++ server in socket and wait for the response
+                const cppResponse = await sendToCpp(cppCommand);
+
+                // if the user didnt exist
+                if (cppResponse.includes("404 Not Found")) {
+                    return res.status(404).json({ error: "User not found" });
+                }
+            }
+
+            // create a new order using the orderModel's create function
+            const newOrder = orderModel.create({ userId, restaurantId, items });
+
+            return res.status(201).json(newOrder);
+
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
+    // 4. PATCH /api/orders/:id - Updating the private invitation
+    static async updateOrder(req, res) {
+        try {
+            // extract the order ID from the request parameters
+            const { id } = req.params;
+            
+            // use the orderModel to update the order with the given ID using the data from the request body
+            const updatedOrder = orderModel.update(id, req.body);
+
+            // if the order is not found, return a 404 status with an error message
+            if (!updatedOrder) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            return res.status(204).send();
+
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
+    // 5. DELETE /api/orders/:id - Deleting an order.
+    static async deleteOrder(req, res) {
+        try {
+            // extract the order ID from the request parameters
+            const { id } = req.params;
+            
+            // call the delete function of the orderModel 
+            const wasDeleted = orderModel.delete(id);
+
+            // if the order was not found and therefore not deleted, return a 404 status with an error message
+            if (!wasDeleted) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            return res.status(204).send();
+
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
     }
 }
 
-
-//GET /api/orders - Returns the list of orders for the logged in user.
-export async function getOrders(req, res) {
-    try {
-        // get user ID from request headers
-        const userId = req.headers['user-id'] || req.headers['authorization'];
-
-        // validate that user ID is provided
-        if (!userId) {
-            return res.status(400).json({ error: 'User ID header is required' });
-        }
-
-        // filter the in-memory orders array to return only orders that belong to the logged in user
-        const userOrders = orders.filter(order => order.userId === userId);
-        return res.status(200).json(userOrders);
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-
-// GET /api/orders/:id - Gives the order details
-export async function getOrderById(req, res) {
-    try {
-        // get the order ID from the request URL parameters
-        const { id } = req.params;
-        // find the order in the in-memory orders array by its ID
-        const order = orders.find(o => o.id === id);
-
-        // if the order is not found, return a 404 error
-        if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        // if the order is found, return it with status 200
-        return res.status(200).json(order);
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-
- // PATCH /api/orders/:id - Updating the private invitation
-export async function updateOrder(req, res) {
-    try {
-        // get the order ID from the request URL parameters
-        const { id } = req.params;
-        // find the index of the order in the in-memory orders array by its ID
-        const orderIndex = orders.findIndex(o => o.id === id);
-
-        // if the order is not found, return a 404 error
-        if (orderIndex === -1) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        /* update the order object with the new data from the request body
-        * ...orders[orderIndex] creates a copy of the existing order object
-        * ...req.body creates a copy of the new data from the request body 
-        * and overwrites any existing fields in the order object with the new values
-        */
-        orders[orderIndex] = { ...orders[orderIndex], ...req.body };
-
-        // return the updated order with status 204
-        return res.status(204).send();
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-// DELETE /api/orders/:id - Deleting an order
-export async function deleteOrder(req, res) {
-    try {
-        // get the order ID from the request URL parameters
-        const { id } = req.params;
-        // find the index of the order in the in-memory orders array by its ID
-        const orderIndex = orders.findIndex(o => o.id === id);
-
-        // if the order is not found, return a 404 error
-        if (orderIndex === -1) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        // remove 1 element from the orders array at the index of the order to be deleted
-        orders.splice(orderIndex, 1);
-
-        // return a 204 status with no content to indicate successful deletion
-        return res.status(204).send();
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-}
+// export the OrderController class so it can be used in other parts of the application, such as in route handlers
+export default OrderController;
