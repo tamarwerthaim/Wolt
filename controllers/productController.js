@@ -1,4 +1,5 @@
 import ProductModel from '../models/productModel.js';
+import * as userModel from '../models/userModel.js'
 import { sendToCpp } from '../services/socket.js';
 
 class ProductController {
@@ -33,13 +34,21 @@ class ProductController {
         if (userId) {
             // we use a try-catch block to handle any potential errors when communicating with the C++ server, so that our server doesn't crash if the C++ server is down
             try {
-                // construct the command to send to the C++ server, including the product id (pld) and user id
-                //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                const command = `PATCH ${userId} ${pld}\n`;
-                // send the command to the C++ server and wait for the response
-                const cppResponse = await sendToCpp(command);
-                // log the response from the C++ server for debugging purposes
-                console.log("C++ Server Response:", cppResponse);
+                const user = userModel.findUserById(userId);
+                if (user) {
+                    // if user is not exist make post else patch
+                    const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
+                    const command = `${commandType} ${userId} ${pld}\n`;
+                    // send the command to the C++ server and wait for the response
+                    const cppResponse = await sendToCpp(command);
+                    // log the response from the C++ server for debugging purposes
+                    console.log("C++ Server Response:", cppResponse);
+                    // if created
+                    if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
+                        // update that created in Cpp
+                        user.isSyncedWithCpp = true;
+                    }
+                }
             //if there is an error
             } catch (error) {
                 // log the error message to the console, but don't crash the server

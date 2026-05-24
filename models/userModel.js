@@ -15,7 +15,8 @@ export const saveUser = (userData) => {
         password: userData.password,
         name: userData.name,
         phone: userData.phone,
-        address: userData.address
+        address: userData.address,
+        isSyncedWithCpp: false
     };
     users.push(newUser);
     return newUser;
