@@ -7,14 +7,16 @@ app.use(express.json());
 
 // import routes
 // const restaurantRouter = require('./routes/restaurantRouter');
-// const userRouter = require('./routes/userRouter');
+const userRouter = require('./routes/userRouter');
+//const tokenRouter = require('./routes/tokenRouter');
 // const productRouter = require('./routes/productRouter');
 // const orderRouter = require('./routes/orderRouter');
 // const searchRouter = require('./routes/searchRouter');
 
 // connect URL paths to routers
 // app.use('/api/restaurants', restaurantRouter);
-// app.use('/api/users', userRouter);
+app.use('/api/users', userRouter);
+//app.use('/api/tokens', tokenRouter);
 // app.use('/api/products', productRouter);
 // app.use('/api/orders', orderRouter);
 // app.use('/api/search', searchRouter);
