@@ -1,5 +1,5 @@
 import * as userModel from '../models/userModel.js';
-import { sendToCpp } from '../services/socket.js';
+import { sendToCpp } from '../socket.js';
 
 // Handle user sign-up registration and C++ synchronization
 export const registerUser = async (req, res) => {
