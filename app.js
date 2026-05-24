@@ -7,7 +7,7 @@ import userRouter from './routes/userRoute.js';
 import tokenRouter from './routes/tokenRoute.js';
 import productRouter from './routes/productRoutes.js';
 import searchRouter from './routes/searchRouter.js';
-// import orderRouter from './routes/orderRoute.js';
+import orderRouter from './routes/orderRoute.js';
 
 const app = express();
 
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use('/api/restaurants', restaurantRouter);
 app.use('/api/users', userRouter);
 app.use('/api/tokens', tokenRouter);
-// app.use('/api/orders', orderRouter);
+app.use('/api/orders', orderRouter);
 app.use('/api/restaurants/:id/products', productRouter);
 app.use('/api/search', searchRouter);
 
