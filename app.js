@@ -1,5 +1,5 @@
 // import express and create an instance of it. app will be our server.
-const express = require('express');
+import express from 'express';
 const app = express();
 
 // app will use express.json() middleware to parse JSON request bodies
@@ -21,8 +21,8 @@ app.use(express.json());
 
 // TODO- delete
 app.get('/ping', (req, res) => {
-    res.status(200).send('pong! השרת של תמר עובד בהצלחה!');
+    res.status(200).send('Server worked successfully! Well done Roni, Moriya and Tamar! 👑❤️');
 });
 
-// ready for delivery
-module.exports = app;
+// export the app instance 
+export default app;
