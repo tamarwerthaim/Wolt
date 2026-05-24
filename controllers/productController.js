@@ -1,6 +1,6 @@
 import ProductModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js'
-import { sendToCpp } from '../services/socket.js';
+import { sendToCpp } from '../socket.js';
 
 class ProductController {
     //pull all products from a restaurant's menu
