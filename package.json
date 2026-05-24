@@ -1,7 +1,7 @@
 {
   "name": "wolt",
   "version": "1.0.0",
-  "description": "> 📌 **Assignment Note:** The main branch for this part of the assignment is `wolt-part2`.",
+  "description": "> **Assignment Note:** The main branch for this part of the assignment is `wolt-part2`.",
   "main": "main.js",
   "directories": {
     "test": "tests"
