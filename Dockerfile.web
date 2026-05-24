@@ -1,0 +1,17 @@
+# Use an official, lightweight Node.js base image
+FROM node:20-alpine
+
+# Set the working directory inside the container
+WORKDIR /usr/src/app
+
+# Copy dependency configuration files first to leverage Docker layer caching
+COPY package*.json ./
+
+# Install application dependencies for production only (skips devDependencies)
+RUN npm install --omit=dev
+
+# Copy the rest of the Node.js application source code into the container
+COPY . .
+
+# Default execution command to start the Express server (matching your main.js entrypoint)
+CMD ["node", "main.js"]

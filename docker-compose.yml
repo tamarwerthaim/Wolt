@@ -22,4 +22,18 @@ services:
     tty: true
     # Default arguments: [server_address] [port]
     command: ["${SERVER_IP:-server}", "${PORT:-8080}"]
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "${WEB_PORT:-3000}:${WEB_PORT:-3000}"
+    environment:
+    # The internal port where Express will listen
+      - PORT=${WEB_PORT:-3000}
+    # The host/IP address of the C++ server
+      - CPP_SERVER_HOST=${SERVER_IP:-server}
+    # The port of the C++ server
+      - CPP_SERVER_PORT=${PORT:-8080}
   
