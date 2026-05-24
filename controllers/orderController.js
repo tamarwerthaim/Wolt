@@ -1,5 +1,6 @@
 import { sendToCpp } from '../services/socket.js'; 
 import orderModel from '../models/orderModel.js';
+import * as userModel from '../models/userModel.js';
 
 class OrderController {
 
@@ -62,16 +63,21 @@ class OrderController {
             if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
                 return res.status(400).json({ error: 'Restaurant ID and a non-empty items array are required' });
             }
+            const user = userModel.findUserById(userId);
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
 
             for (const item of items) {
-                // command format to send to C++ server for adding an order to existing user
-                const cppCommand = `PATCH ${userId} ${item.productId}\n`;
+                const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
+                const cppCommand = `${commandType} ${userId} ${item.productId}\n`;
                 // send the command to the C++ server in socket and wait for the response
                 const cppResponse = await sendToCpp(cppCommand);
 
-                // if the user didnt exist
-                if (cppResponse.includes("404 Not Found")) {
-                    return res.status(404).json({ error: "User not found" });
+                if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
+                    user.isSyncedWithCpp = true; // user created
+                } else if (cppResponse.includes("404 Not Found")) {
+                    return res.status(404).json({ error: "User not found in recommendation system" });
                 }
             }
 

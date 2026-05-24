@@ -13,15 +13,6 @@ export const registerUser = async (req, res) => {
     try {
         // Call the model layer to save the user
         const newUser = userModel.saveUser({ username, password, name, phone, address });
-        // Sync immediately with the C++ server using the requested POST command format
-        try {
-            // Tell C++ server about the new user
-            const initCommand = `POST ${newUser.id}`;
-            await sendToCpp(initCommand);
-        } catch (socketError) {
-            // Log socket errors but keep registration alive
-            console.error("Failed to initialize user in C++ server:", socketError.message);
-        }
         const { password, ...profileData } = newUser;
         return res.status(201).json(profileData);
         } catch (error) {
