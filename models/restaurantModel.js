@@ -1,5 +1,5 @@
-//for creating id
-const { v4: uuidv4 } = require('uuid');
+//restaurantModel.js - this file defines the RestaurantModel class, which provides methods for managing restaurant data in memory. It includes methods for creating, reading, updating, and deleting restaurants. Each restaurant has a unique id, a name, and a menu (which is an array of dishes). The model uses the uuid library to generate unique ids for new restaurants.
+import { v4 as uuidv4 } from 'uuid';
 
 //for storing restaurants in memory
 let restaurants = []; 
@@ -57,4 +57,4 @@ class RestaurantModel {
     }
 }
 //export the RestaurantModel class so it can be used in other parts of the application
-module.exports = RestaurantModel;
+export default RestaurantModel;
