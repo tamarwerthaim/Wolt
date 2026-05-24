@@ -1,7 +1,8 @@
 import * as userModel from '../models/userModel.js';
+import { sendToCpp } from '../socket.js';
 
-// Handle user sign-up registration
-export const registerUser = (req, res) => {
+// Handle user sign-up registration and C++ synchronization
+export const registerUser = async (req, res) => {
     const { username, password, name, phone, address } = req.body;
 
     // Reject request if any required registration field is missing
@@ -15,17 +16,17 @@ export const registerUser = (req, res) => {
         return res.status(400).json({ error: "Username already taken" });
     }
 
-    // Construct the standard user object layout
-    const newUser = {
-        id: Date.now().toString(),
-        username,
-        password,
-        name,
-        phone,
-        address
-    };
+    // Save user via model and get the created object with its new ID
+    const newUser = userModel.saveUser({ username, password, name, phone, address });
 
-    userModel.saveUser(newUser);
+    // Sync immediately with the C++ server using the requested POST command format
+    try {
+        const initCommand = `POST ${newUser.id}\n`;
+        await sendToCpp(initCommand);
+    } catch (socketError) {
+        console.error("Failed to initialize user in C++ server:", socketError.message);
+    }
+
     return res.status(201).json(newUser);
 };
 

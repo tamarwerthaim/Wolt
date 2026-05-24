@@ -3,8 +3,16 @@ const users = [];
 
 // Insert a new user into the shared array
 export const saveUser = (userData) => {
-    users.push(userData);
-    return userData;
+    const newUser = {
+        id: Date.now().toString(),
+        username: userData.username,
+        password: userData.password,
+        name: userData.name,
+        phone: userData.phone,
+        address: userData.address
+    };
+    users.push(newUser);
+    return newUser;
 };
 
 // Search for a user by their unique auto-generated ID
