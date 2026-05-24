@@ -2,12 +2,12 @@
 import express from 'express';
 
 // import routes
-import restaurantRouter from './routes/restaurantRoutes.js';
-import userRouter from './routes/userRoute.js';
-import tokenRouter from './routes/tokenRoute.js';
-import productRouter from './routes/productRoutes.js';
-import searchRouter from './routes/searchRouter.js';
-import orderRouter from './routes/orderRoute.js';
+import restaurantRoutes from './routes/restaurantRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import tokenRoutes from './routes/tokenRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 const app = express();
 
@@ -15,12 +15,12 @@ const app = express();
 app.use(express.json());
 
 // connect URL paths to routers
-app.use('/api/restaurants', restaurantRouter);
-app.use('/api/users', userRouter);
-app.use('/api/tokens', tokenRouter);
-app.use('/api/orders', orderRouter);
-app.use('/api/restaurants/:id/products', productRouter);
-app.use('/api/search', searchRouter);
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/tokens', tokenRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/restaurants/:id/products', productRoutes);
+app.use('/api/search', searchRoutes);
 
 // TODO- delete
 app.get('/ping', (req, res) => {
