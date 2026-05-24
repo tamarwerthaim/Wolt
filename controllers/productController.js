@@ -1,5 +1,5 @@
 import ProductModel from '../models/productModel.js';
-import { sendToCpp } from '../services/socketClient.js';
+import { sendToCpp } from '../services/socket.js';
 
 class ProductController {
     //pull all products from a restaurant's menu
@@ -34,7 +34,8 @@ class ProductController {
             // we use a try-catch block to handle any potential errors when communicating with the C++ server, so that our server doesn't crash if the C++ server is down
             try {
                 // construct the command to send to the C++ server, including the product id (pld) and user id
-                const command = `VIEW_PRODUCT ${pld} ${userId}\n`;
+                //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                const command = `PATCH ${userId} ${pld}\n`;
                 // send the command to the C++ server and wait for the response
                 const cppResponse = await sendToCpp(command);
                 // log the response from the C++ server for debugging purposes

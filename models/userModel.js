@@ -1,10 +1,16 @@
 // In-memory data store for volatile user records
 const users = [];
+let nextUserId = 1
 
 // Insert a new user into the shared array
 export const saveUser = (userData) => {
+    //check if the username already exist in the system
+    const existingUser = users.find(user => user.username === userData.username);
+    if (existingUser) {
+        throw new Error("Username already taken");
+    }
     const newUser = {
-        id: Date.now().toString(),
+        id: (nextUserId++).toString(),
         username: userData.username,
         password: userData.password,
         name: userData.name,
