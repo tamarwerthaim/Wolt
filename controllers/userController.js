@@ -1,5 +1,5 @@
 import * as userModel from '../models/userModel.js';
-import { sendToCpp } from '../socket.js';
+import { sendToCpp } from 'services/socket.js';
 
 // Handle user sign-up registration and C++ synchronization
 export const registerUser = async (req, res) => {
@@ -10,24 +10,24 @@ export const registerUser = async (req, res) => {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Enforce username uniqueness constraint
-    const existingUser = userModel.findUserByUsername(username);
-    if (existingUser) {
-        return res.status(400).json({ error: "Username already taken" });
-    }
-
-    // Save user via model and get the created object with its new ID
-    const newUser = userModel.saveUser({ username, password, name, phone, address });
-
-    // Sync immediately with the C++ server using the requested POST command format
     try {
-        const initCommand = `POST ${newUser.id}\n`;
-        await sendToCpp(initCommand);
-    } catch (socketError) {
-        console.error("Failed to initialize user in C++ server:", socketError.message);
+        // Call the model layer to save the user
+        const newUser = userModel.saveUser({ username, password, name, phone, address });
+        // Sync immediately with the C++ server using the requested POST command format
+        try {
+            // Tell C++ server about the new user
+            const initCommand = `POST ${newUser.id}`;
+            await sendToCpp(initCommand);
+        } catch (socketError) {
+            // Log socket errors but keep registration alive
+            console.error("Failed to initialize user in C++ server:", socketError.message);
+        }
+        const { password, ...profileData } = newUser;
+        return res.status(201).json(profileData);
+        } catch (error) {
+        // Any error thrown from the model is treated as a bad input constraint (400 Bad Request)
+        return res.status(400).json({ error: "Username already taken"});
     }
-
-    return res.status(201).json(newUser);
 };
 
 // Handle fetching public profile information by ID

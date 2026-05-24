@@ -18,12 +18,17 @@ export function sendToCpp(dataToSend) {
         });
 
         // listen for data (response) from the C++ server
-        client.on('data', (data) => {
-            // once we receive data from the C++ server, we resolve the promise with that data and close the connection
-            resolve(data.toString());
-            client.destroy(); 
+        client.on('data', (chunk) => {
+            // Append the incoming data chunk to the response buffer
+            responseData += chunk.toString();
+            // The C++ server always terminates its official response with a newline character
+            if (responseData.endsWith('\n')) {
+                // Resolve the promise with the complete and trimmed response data
+                resolve(responseData.trim()); 
+                // Close the socket connection now that the data is fully received
+                client.destroy(); 
+            }
         });
-
         // handle any errors that occur during the connection or communication with the C++ server
         client.on('error', (err) => {
             reject(err);
