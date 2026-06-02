@@ -47,7 +47,7 @@ class ProductController {
                     const intProductId = getIntId(pld);
                     // if user is not exist make post else patch
                     const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                    const command = `${commandType} ${intUserId} ${intProductId}\n`;
+                    const command = `${commandType} ${intUserId} ${intProductId}`;
                     // send the command to the C++ server and wait for the response
                     const cppResponse = await sendToCpp(command);
                     // log the response from the C++ server for debugging purposes
