@@ -1,4 +1,5 @@
-import { IdGenerator } from '../tools.js';
+//import { IdGenerator } from '../idMapper.js';
+import { v4 as uuidv4 } from 'uuid';
 // In-memory data store for volatile user records
 const users = [];
 
@@ -10,7 +11,7 @@ export const saveUser = (userData) => {
         throw new Error("Username already taken");
     }
     const newUser = {
-        id: IdGenerator(),
+        id: uuidv4(),
         username: userData.username,
         password: userData.password,
         name: userData.name,

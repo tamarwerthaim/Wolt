@@ -1,4 +1,4 @@
-import { IdGenerator } from '../tools.js';
+import { v4 as uuidv4 } from 'uuid';
 
 //for storing orders in memory
 let orders = [];
@@ -18,7 +18,7 @@ class OrderModel {
     static create(orderData) {
         // create a new order object with a unique id and the provided data
         const newOrder = {
-            id: IdGenerator(),
+            id: uuidv4(),
             userId: orderData.userId,
             restaurantId: orderData.restaurantId,
             items: orderData.items, // array of { productId, quantity }

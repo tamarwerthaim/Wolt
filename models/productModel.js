@@ -1,4 +1,4 @@
-import { IdGenerator } from '../tools.js';
+import { v4 as uuidv4 } from 'uuid';
 import RestaurantModel from './restaurantModel.js'; // import the RestaurantModel to interact with the restaurant data
 
 class ProductModel {
@@ -30,7 +30,7 @@ class ProductModel {
 
         // create a new product object with a unique id and the provided data
         const newProduct = {
-            id: IdGenerator(),
+            id: uuidv4(),
             name: productData.name,
             price: productData.price,
             description: productData.description
