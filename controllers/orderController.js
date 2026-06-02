@@ -1,6 +1,7 @@
 import { sendToCpp } from '../socket.js'; 
 import orderModel from '../models/orderModel.js';
 import * as userModel from '../models/userModel.js';
+import { getIntId } from '../idMapper.js';
 
 class OrderController {
 
@@ -69,9 +70,12 @@ class OrderController {
             }
 
             for (const item of items) {
+                // convert the string IDs to integers
+                const intUserId = getIntId(userId);
+                const intProductId = getIntId(item.productId);
                 // determine the command type (POST for first interaction, PATCH for subsequent updates) and construct the command string to send to the C++ server
                 const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                const cppCommand = `${commandType} ${userId} ${item.productId}\n`;
+                const cppCommand = `${commandType} ${intUserId} ${intProductId}\n`;
                 // send the command to the C++ server in socket and wait for the response
                 const cppResponse = await sendToCpp(cppCommand);
 
@@ -122,9 +126,12 @@ class OrderController {
 
                 // loop through each item in the items array from the request body and send the appropriate command to the C++ server based on whether this is the user's first interaction or a subsequent update
                 for (const item of req.body.items) {
+                    // convert the string IDs to integers
+                    const intUserId = getIntId(userId);
+                    const intProductId = getIntId(item.productId);
                     // determine the command type (POST for first interaction- incase, PATCH for subsequent updates) and construct the command string to send to the C++ server
                     const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                    const cppCommand = `${commandType} ${userId} ${item.productId}\n`;
+                    const cppCommand = `${commandType} ${intUserId} ${intProductId}\n`;
                 
                     // send the command to the C++ server in socket and wait for the response
                     const cppResponse = await sendToCpp(cppCommand);

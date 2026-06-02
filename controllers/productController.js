@@ -1,20 +1,26 @@
 import ProductModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js'
 import { sendToCpp } from '../socket.js';
+import { getIntId } from '../idMapper.js';
 
 class ProductController {
     //pull all products from a restaurant's menu
     static async getAllProducts(req, res) {
-        const { id } = req.params; // the id of the restaurant from the URL
-        // use the ProductModel to get the menu of the restaurant with the given id
-        const menu = ProductModel.findAll(id);
-        
-        // if the restaurant is not found, the model will return null
-        if (!menu) {
-            return res.status(404).json({ error: "Restaurant not found" });
+        try {
+            const { id } = req.params; // the id of the restaurant from the URL
+            // use the ProductModel to get the menu of the restaurant with the given id
+            const menu = ProductModel.findAll(id);
+            
+            // if the restaurant is not found, the model will return null
+            if (!menu) {
+                return res.status(404).json({ error: "Restaurant not found" });
+            }
+            
+            res.status(200).json(menu);
+        } catch (error) {
+            // For any unexpected error, return a 500 Internal Server Error response
+            return res.status(500).json({ error: "Internal server error" });
         }
-        
-        res.status(200).json(menu);
     }
 
     // pull a specific product + report to the recommendation server (cpp)
@@ -36,9 +42,12 @@ class ProductController {
             try {
                 const user = userModel.findUserById(userId);
                 if (user) {
+                    // convert the string IDs to integers
+                    const intUserId = getIntId(userId);
+                    const intProductId = getIntId(pld);
                     // if user is not exist make post else patch
                     const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                    const command = `${commandType} ${userId} ${pld}\n`;
+                    const command = `${commandType} ${intUserId} ${intProductId}\n`;
                     // send the command to the C++ server and wait for the response
                     const cppResponse = await sendToCpp(command);
                     // log the response from the C++ server for debugging purposes
