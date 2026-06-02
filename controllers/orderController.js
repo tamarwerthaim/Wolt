@@ -75,7 +75,7 @@ class OrderController {
                 const intProductId = getIntId(item.productId);
                 // determine the command type (POST for first interaction, PATCH for subsequent updates) and construct the command string to send to the C++ server
                 const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                const cppCommand = `${commandType} ${intUserId} ${intProductId}\n`;
+                const cppCommand = `${commandType} ${intUserId} ${intProductId}`;
                 // send the command to the C++ server in socket and wait for the response
                 const cppResponse = await sendToCpp(cppCommand);
 
@@ -131,7 +131,7 @@ class OrderController {
                     const intProductId = getIntId(item.productId);
                     // determine the command type (POST for first interaction- incase, PATCH for subsequent updates) and construct the command string to send to the C++ server
                     const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                    const cppCommand = `${commandType} ${intUserId} ${intProductId}\n`;
+                    const cppCommand = `${commandType} ${intUserId} ${intProductId}`;
                 
                     // send the command to the C++ server in socket and wait for the response
                     const cppResponse = await sendToCpp(cppCommand);
