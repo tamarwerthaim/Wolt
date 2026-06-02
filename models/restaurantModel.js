@@ -1,5 +1,5 @@
 //restaurantModel.js - this file defines the RestaurantModel class, which provides methods for managing restaurant data in memory. It includes methods for creating, reading, updating, and deleting restaurants. Each restaurant has a unique id, a name, and a menu (which is an array of dishes).
-import { IdGenerator } from '../tools.js';
+import { v4 as uuidv4 } from 'uuid';
 
 //for storing restaurants in memory
 let restaurants = []; 
@@ -18,11 +18,16 @@ class RestaurantModel {
         return restaurants.find(r => r.id === id);
     }
 
+    // find restaurent by name 
+    static findByName(name) {
+    return restaurants.find(restaurant => restaurant.name.toLowerCase() === name.toLowerCase());
+}
+
     //create a new restaurant
     static create(restaurantData) {
         //create a new restaurant object with a unique id
         const newRestaurant = {
-            id: IdGenerator(), 
+            id: uuidv4(), 
             name: restaurantData.name,
             menu: [] 
         };

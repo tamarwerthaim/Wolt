@@ -34,6 +34,14 @@ class RestaurantController {
         if (!name) {
             return res.status(400).json({ error: "Name is required" });
         }
+
+        //check if a restaurant with the same name already exists 
+        const existingRestaurant = RestaurantModel.findByName ? RestaurantModel.findByName(name) : null;
+    
+        // if a restaurant with the same name already exists, return a 400 status with an error message to prevent duplicate restaurant names
+        if (existingRestaurant) {
+            return res.status(400).json({ error: "Restaurant with this name already exists" });
+        }
         
         //create a new restaurant using the model and store the result in newRestaurant
         const newRestaurant = RestaurantModel.create({ name });
@@ -49,6 +57,17 @@ class RestaurantController {
         //extract the id from the request parameters and the name from the request body
         const { id } = req.params;
         const { name } = req.body;
+
+        //validate that the name is provided
+        if (name) {
+            //check if a restaurant with the same name already exists
+            const existing = RestaurantModel.findByName(name);
+            //if a restaurant with the same name exists and it's not the restaurant we're trying to update, return a 400 status with an error message to prevent duplicate restaurant names
+            if (existing && existing.id !== id) {
+                return res.status(400).json({ error: "Restaurant with this name already exists" });
+            }
+        }
+
         //use the model to update the restaurant with the given id and new name, and store the result in updatedRestaurant
         const updatedRestaurant = RestaurantModel.update(id, { name });
         
