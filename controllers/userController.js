@@ -12,7 +12,7 @@ export const registerUser = async (req, res) => {
     try {
         // Call the model layer to save the user
         const newUser = userModel.saveUser({ username, password, name, phone, address });
-        const { password, ...profileData } = newUser;
+        const { password: savedPassword, ...profileData } = newUser;
         return res.status(201).json(profileData);
         } catch (error) {
         // Any error thrown from the model is treated as a bad input constraint (400 Bad Request)
