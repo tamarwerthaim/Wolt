@@ -1,6 +1,6 @@
+import { IdGenerator } from '../tools.js';
 // In-memory data store for volatile user records
 const users = [];
-let nextUserId = 1
 
 // Insert a new user into the shared array
 export const saveUser = (userData) => {
@@ -10,7 +10,7 @@ export const saveUser = (userData) => {
         throw new Error("Username already taken");
     }
     const newUser = {
-        id: (nextUserId++).toString(),
+        id: IdGenerator(),
         username: userData.username,
         password: userData.password,
         name: userData.name,
