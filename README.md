@@ -90,4 +90,75 @@ The application accepts the following REST API endpoints. All data is returned i
 
 ## Execution Examples
 
-*(Add images of requests and responses here, e.g., Postman or cURL screenshots, as required by the assignment).*
+### Users & Authentication
+
+**POST `/api/users`**: Registers a new user with signup details provided as a JSON payload in the request body:
+   ![Register User](images_readme/users-POST.png)
+
+**GET `/api/users/:id`**: Displays the profile details of a specific user matching the provided ID:
+   ![Get User Profile](images_readme/users-ID-GET.png)
+
+**POST `/api/tokens`**: Authenticates credentials, returning the user's unique ID upon successful login:
+   ![User Authentication Token](images_readme/tokens-POST.png)
+
+---
+
+### Restaurants & Menu
+
+**GET `/api/restaurants`**: Displays a comprehensive list of all active restaurants currently available in the system:
+   ![Get All Restaurants](images_readme/rastaurants-GET.png)
+
+**POST `/api/restaurants`**: Creates and stores a new restaurant instance in the database memory:
+   ![Create Restaurant](images_readme/restaurants-POST.png)
+
+**GET `/api/restaurants/:id`**: Retrieves detailed structural profile properties and metadata for a specific restaurant ID:
+   ![Get Restaurant Details](images_readme/restaurants-ID-GET.png)
+
+**PATCH `/api/restaurants/:id`**: Modifies or updates editable details of an existing restaurant record:
+   ![Update Restaurant](images_readme/restaurants-ID-PATCH.png)
+
+**DELETE `/api/restaurants/:id`**: Permanently purges and deletes a specific restaurant entry from the system:
+   ![Delete Restaurant](images_readme/restaurants-ID-DELETE1.png)
+   ![Delete Restaurant](images_readme/restaurants-ID-DELETE2.png)
+
+**GET `/api/restaurants/:id/products`**: Lists all food menu products associated with the given restaurant ID:
+   ![Get Restaurant Menu Products](images_readme/products-GET.png)
+
+**POST `/api/restaurants/:id/products`**: Inserts a new menu product item directly under a targeted restaurant's ID:
+   ![Add Product to Menu](images_readme/products-POST.png)
+
+**GET `/api/restaurants/:id/products/:pId`**: Displays information for a single specific product and synchronizes the real-time interaction to the C++ server:
+   ![Get Product Details](images_readme/products-ID-GET.png)
+
+**PATCH `/api/restaurants/:id/products/:pId`**: Updates the price, description, or configuration fields of an existing menu item:
+   ![Update Product Details](images_readme/products-ID-PATCH.png)
+
+**DELETE `/api/restaurants/:id/products/:pId`**: Remotely wipes out and clears a specific product option from the chosen restaurant menu:
+   ![Delete Product from Menu](images_readme/products-ID-DELETE1.png)
+   ![Delete Product from Menu](images_readme/products-ID-DELETE2.png)
+
+---
+
+### Orders
+
+**POST `/api/orders`**: Dispatches a new customer transaction request, recording items and routing telemetry to the C++ engine:
+   ![Create New Order](images_readme/orders-POST.png)
+
+**GET `/api/orders`**: Pulls up the complete private order placement ledger history associated with the current user-id session:
+   ![Get User Order History](images_readme/orders-GET.png)
+
+**GET `/api/orders/:id`**: Resolves the exact checkout details and cost pricing breakdown belonging to a single unique order ID:
+   ![Get Order Receipt Details](images_readme/get_order_details.png)
+
+**PATCH `/api/orders/:id`**: Alters current order milestones or changes delivery staging states:
+   ![Update Order Status](images_readme/update_order.png)
+
+**DELETE `/api/orders/:id`**: Revokes and completely removes an existing client order record from log memory:
+   ![Delete Order Record](images_readme/delete_order.png)
+
+---
+
+### Search
+
+**GET `/api/search/:query`**: Queries database text to parse matches, matching strings against names and descriptions:
+   ![Search Query Results](images_readme/search_query.png)
