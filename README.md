@@ -148,17 +148,18 @@ The application accepts the following REST API endpoints. All data is returned i
    ![Get User Order History](images_readme/orders-GET.png)
 
 **GET `/api/orders/:id`**: Resolves the exact checkout details and cost pricing breakdown belonging to a single unique order ID:
-   ![Get Order Receipt Details](images_readme/get_order_details.png)
+   ![Get Order Receipt Details](images_readme/orders-ID-GET.png)
 
 **PATCH `/api/orders/:id`**: Alters current order milestones or changes delivery staging states:
-   ![Update Order Status](images_readme/update_order.png)
+   ![Update Order Status](images_readme/orders-ID-PATCH.png)
 
 **DELETE `/api/orders/:id`**: Revokes and completely removes an existing client order record from log memory:
-   ![Delete Order Record](images_readme/delete_order.png)
+   ![Delete Order Record](images_readme/orders-DELETE1.png)
+   ![Delete Order Record](images_readme/orders-DELETE2.png)
 
 ---
 
 ### Search
 
 **GET `/api/search/:query`**: Queries database text to parse matches, matching strings against names and descriptions:
-   ![Search Query Results](images_readme/search_query.png)
+   ![Search Query Results](images_readme/search-GET.png)
