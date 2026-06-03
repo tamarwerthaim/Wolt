@@ -22,10 +22,5 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/restaurants/:id/products', productRoutes);
 app.use('/api/search', searchRoutes);
 
-// TODO- delete
-app.get('/ping', (req, res) => {
-    res.status(200).send('Server worked successfully! Well done Roni, Moriya and Tamar! 👑❤️');
-});
-
 // export the app instance 
 export default app;
