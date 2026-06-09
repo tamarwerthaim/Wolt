@@ -1,18 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
 :root {
   --header-bg: #ffffff;
   --text-color: #202125;
   --address-bg: #e2f4fd;
-  --address-text: #009de0;
+  --address-text: #00c2e8;
   --btn-secondary-bg: #f3f5f6;
   --btn-secondary-hover: #e4e6eb;
+  --danger-bg: #ffeef0;
+  --danger-text: #ff4d4f;
+  --primary-btn-bg: #00c2e8;
+  --main-font: "Nunito", sans-serif;
 }
 
 body.dark-mode {
   --header-bg: #1a1a1a;
   --text-color: #f3f5f6;
   --address-bg: #203746;
-  --address-text: #33b5ff;
+  --address-text: #00c2e8;
   --btn-secondary-bg: #2d2d2d;
   --btn-secondary-hover: #3d3d3d;
-  background-color: #121212;
+  background-color: var(--header-bg);
+  --danger-bg: #4a2025; 
+  --danger-text: #ff7875;
+  --primary-btn-bg: #00c2e8;
+}
+
+body {
+  background-color: var(--header-bg);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
 }

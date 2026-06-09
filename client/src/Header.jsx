@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Header.css';
-import woltLogo from './assets/wolt-delivery1310.logowik.com.PNG';
+import woltLogoLight from './assets/wolt-delivery1310.logowik.com.PNG';
+import woltLogoDark from './assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
 
 const Header = ({ darkMode, toggleTheme }) => {
   // נתונים מדומים זמניים (Mock Data) - למצב מחובר עם כתובת
@@ -26,7 +27,11 @@ const Header = ({ darkMode, toggleTheme }) => {
         {/* צד שמאל: לוגו וולט */}
         <div className="header-left">
           <div className="wolt-logo-container">
-            <img src={woltLogo} alt="Wolt Logo" className="wolt-official-logo" />
+            <img 
+              src={darkMode ? woltLogoDark : woltLogoLight} 
+              alt="Wolt Logo" 
+              className="wolt-official-logo" 
+            />
           </div>
         </div>
 
