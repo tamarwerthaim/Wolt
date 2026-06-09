@@ -9,12 +9,25 @@ export const registerUser = async (req, res) => {
         return res.status(400).json({ error: "All fields are required" });
     }
 
+    // Check password length
+    if (password.length < 8) {
+        return res.status(400).json({ error: "Password must be at least 8 characters long" });
+    }
+
+    // Check password contains letters and numbers
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+
+    if (!hasLetter || !hasNumber) { //if password does not contain letters and numbers:
+        return res.status(400).json({ error: "Password must contain a combination of letters and numbers" });
+    }
+
     try {
         // Call the model layer to save the user
         const newUser = userModel.saveUser({ username, password, name, phone, address });
         const { password: savedPassword, ...profileData } = newUser;
         return res.status(201).json(profileData);
-        } catch (error) {
+    } catch (error) {
         // Any error thrown from the model is treated as a bad input constraint (400 Bad Request)
         if (error.message === "Username already taken") {
             return res.status(400).json({ error: "Username already taken" });
