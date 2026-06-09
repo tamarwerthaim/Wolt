@@ -7,6 +7,7 @@ const Home = () => <h2 style={{ color: 'var(--text-color)' }}>עמוד הבית 
 const Orders = () => <h2 style={{ color: 'var(--text-color)' }}>ההזמנות שלי 📦</h2>;
 // const Login = () => <h2 style={{ color: 'var(--text-color)' }}>דף התחברות למערכת 🔑</h2>;
 import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -30,6 +31,7 @@ function App() {
           <Routes>
             {/* Public Login Route */}
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
             {/* Main application routes */}
             <Route path="/" element={<Home />} />
