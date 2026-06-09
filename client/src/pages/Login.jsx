@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import woltLogo from '../assets/wolt_circle2.png';
-import './LoginRegisterStyles.css'; // מייבאים את קובץ ה-CSS המשותף
+import './LoginRegisterStyles.css';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const navigate = useNavigate();
+
+    // handle login submit
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -15,8 +19,39 @@ const Login = () => {
             setError('You must fill in all the fields to connect');
             return;
         }
+        try {
+            // connecting to server
+            const response = await fetch('http://localhost:3000/api/tokens', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+            //make sure we not getting an error 
+            let data = {};
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            }
 
-        console.log('The fields are full, ready for the next step:', { username, password });
+            // check if login failed
+            if (!response.ok) {
+                throw new Error(data.error || 'Login failed. Invalid username or password.');
+            }
+
+            //save token
+            localStorage.setItem('token', data.token);
+            console.log('Login successful! Token saved in LocalStorage.');
+
+            //navigate to home
+            navigate('/')
+        }
+        catch (err) {
+            //setting error
+            setError(err.message || 'Server connection error. Please try again later.');
+        }
+
     };
 
     return (

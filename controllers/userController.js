@@ -2,10 +2,11 @@ import * as userModel from '../models/userModel.js';
 
 // Handle user sign-up registration and C++ synchronization
 export const registerUser = async (req, res) => {
-    const { username, password, name, phone, address } = req.body;
+    const { username, password, displayName, phone, address } = req.body;
+    const profileImage = req.file;
 
     // Reject request if any required registration field is missing
-    if (!username || !password || !name || !phone || !address) {
+    if (!username || !password || !displayName || !phone || !address || !profileImage) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -30,7 +31,14 @@ export const registerUser = async (req, res) => {
 
     try {
         // Call the model layer to save the user
-        const newUser = userModel.saveUser({ username, password, name, phone, address });
+        const newUser = userModel.saveUser({
+            username,
+            password,
+            name: displayName,
+            phone,
+            address,
+            profileImage: profileImage.path
+        });
         const { password: savedPassword, ...profileData } = newUser;
         return res.status(201).json(profileData);
     } catch (error) {
