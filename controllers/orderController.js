@@ -8,13 +8,8 @@ class OrderController {
     // GET /api/orders - Returns the list of orders for the logged in user.
     static async getAllOrders(req, res) {
         try {
-            // get user ID from request headers
-            const userId = req.headers['user-id'] || req.headers['authorization'];
-
-            // validate that user ID is provided
-            if (!userId) {
-                return res.status(400).json({ error: 'User ID header is required' });
-            }
+            // Extract verified user ID attached to the request object by the authenticateToken middleware
+            const userId = req.user.id;
 
             // get all orders from the model and filter them by user ID
             const allOrders = orderModel.findAll();
@@ -52,15 +47,11 @@ class OrderController {
     // 3. POST /api/orders - Creates a new order.
     static async createOrder(req, res) {
         try {
-            // get user ID from request headers and product ID from request body
-            const userId = req.headers['user-id'] || req.headers['authorization'];
+            // Extract verified user ID from the request object populated by the JWT middleware
+            const userId = req.user.id;
             // extract restaurantId and items from the request body, which are required to create a new order
             const { restaurantId, items } = req.body;
 
-            // validate that user ID, restaurant ID, and items array are provided in the request
-            if (!userId) {
-                return res.status(400).json({ error: 'User ID header is required' });
-            }
             if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
                 return res.status(400).json({ error: 'Restaurant ID and a non-empty items array are required' });
             }

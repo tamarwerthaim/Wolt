@@ -2,18 +2,20 @@
 import express from 'express';
 //import the RestaurantController to handle the logic for each route
 import RestaurantController from '../controllers/restaurantController.js';
+//import the authenticateAdmin middleware to protect admin-only routes
+import { authenticateAdmin } from '../middleware/auth.js';
 
 //create a new router instance
 const router = express.Router();
 //define the routes:
-//for adress that end in '/':
+// Public routes
 router.get('/', RestaurantController.getAllRestaurants);
-router.post('/', RestaurantController.createRestaurant);
-
-//for adress that end in '/:id' - the :id is a placeholder for the restaurant id
 router.get('/:id', RestaurantController.getRestaurantById);
-router.patch('/:id', RestaurantController.updateRestaurant);
-router.delete('/:id', RestaurantController.deleteRestaurant);
+
+// Protected Admin-only routes
+router.post('/', authenticateAdmin, RestaurantController.createRestaurant);
+router.patch('/:id', authenticateAdmin, RestaurantController.updateRestaurant);
+router.delete('/:id', authenticateAdmin, RestaurantController.deleteRestaurant);
 
 //export the router so it can be used in other parts of the application
 export default router;
