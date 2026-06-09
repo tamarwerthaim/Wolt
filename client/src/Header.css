@@ -5,12 +5,13 @@
   left: 0;
   right: 0;
   height: 72px;
-  background-color: var(--header-bg, #ffffff);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background-color: var(--header-bg); /* מצוין! משתמש במשתנה שערכנו */
+  /* הצללית תהיה עדינה יותר במצב לילה כדי לא להיראות "לכלוך" על המסך */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
   z-index: 1000;
   display: flex;
   align-items: center;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease; /* הוספתי color למקרה שאת משנה טקסט ב-Header */
 }
 
 /* קונטיינר פנימי שמחלק את האתר לשלושה אזורים */
@@ -30,6 +31,10 @@
   flex: 1; 
   display: flex;
   align-items: center;
+}
+
+.login-btn, .register-btn, .logout-btn {
+  font-family: "Nunito", sans-serif;
 }
 
 .header-left {
@@ -67,7 +72,7 @@
 .header-search-bar {
   display: flex;
   align-items: center;
-  background-color: var(--btn-secondary-bg, #f3f5f6);
+  background-color: var(--btn-secondary-bg);
   border-radius: 24px;
   width: 100%;
   max-width: 400px; /* זה שולט על הרוחב של תיבת החיפוש עצמה */
@@ -76,8 +81,8 @@
 }
 
 .header-search-bar:focus-within {
-  background-color: #ffffff;
-  box-shadow: 0 0 0 2px #009de030;
+  background-color: var(--header-bg);
+  box-shadow: 0 0 0 2px var(--address-text);
 }
 
 .search-icon {
@@ -106,11 +111,11 @@
 .user-address-box {
   display: flex;
   align-items: center;
-  background-color: var(--address-bg, #e2f4fd);
+  background-color: var(--address-bg);
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 13px;
-  color: var(--address-text, #009de0);
+  color: var(--address-text);
   font-weight: 600;
 }
 
@@ -127,8 +132,8 @@
 /* כפתור החלפת ערכת נושא */
 .theme-toggle-btn {
   border: none;
-  background-color: var(--btn-secondary-bg, #f3f5f6);
-  color: var(--text-color, #202125);
+  background-color: var(--btn-secondary-bg);
+  color: var(--text-color);
   padding: 8px 12px;
   border-radius: 12px;
   cursor: pointer;
@@ -153,7 +158,7 @@
 .user-name {
   font-weight: 600;
   font-size: 13px;
-  color: var(--text-color, #202125);
+  color: var(--text-color);
 }
 
 .logout-btn, .login-btn {
@@ -166,13 +171,15 @@
 }
 
 .logout-btn {
-  background-color: #ffeef0;
-  color: #ff4d4f;
+  background-color: transparent; /* רקע שקוף */
+  border: 1px solid var(--primary-btn-bg); /* גבול כחול */
+  color: var(--primary-btn-bg); /* טקסט כחול */
 }
 
 .login-btn {
-  background-color: #009de0;
+  background-color: var(--primary-btn-bg);
   color: white;
+  transition: background-color 0.3s ease;
 }
 /* עיצוב כפתור הרשם */
 .register-btn {
