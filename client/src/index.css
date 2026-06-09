@@ -1,0 +1,18 @@
+:root {
+  --header-bg: #ffffff;
+  --text-color: #202125;
+  --address-bg: #e2f4fd;
+  --address-text: #009de0;
+  --btn-secondary-bg: #f3f5f6;
+  --btn-secondary-hover: #e4e6eb;
+}
+
+body.dark-mode {
+  --header-bg: #1a1a1a;
+  --text-color: #f3f5f6;
+  --address-bg: #203746;
+  --address-text: #33b5ff;
+  --btn-secondary-bg: #2d2d2d;
+  --btn-secondary-hover: #3d3d3d;
+  background-color: #121212;
+}

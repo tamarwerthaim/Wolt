@@ -1,0 +1,191 @@
+/* מבנה ה-Header הכללי - נשאר קבוע למעלה בגלילה */
+.wolt-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background-color: var(--header-bg, #ffffff);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+/* קונטיינר פנימי שמחלק את האתר לשלושה אזורים */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  direction: ltr; /* קריטי: הכל עובד משמאל לימין */
+}
+
+/* נותנים לכולם משקל שווה כדי שהמרכז באמת יהיה באמצע */
+.header-center, .header-right {
+  flex: 1; 
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start; /* לוגו נצמד לשמאל */
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* חיפוש במרכז */
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end; /* כפתורים נצמדים לימין */
+  align-items: center;
+  gap: 12px;
+}
+
+.wolt-logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.wolt-official-logo {
+  height: 70px; 
+  object-fit: contain;
+  cursor: pointer;
+}
+
+
+.header-search-bar {
+  display: flex;
+  align-items: center;
+  background-color: var(--btn-secondary-bg, #f3f5f6);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 400px; /* זה שולט על הרוחב של תיבת החיפוש עצמה */
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.header-search-bar:focus-within {
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px #009de030;
+}
+
+.search-icon {
+  font-size: 14px;
+  opacity: 0.5;
+  margin-left: 8px;
+  color: var(--text-color);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-color);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-color);
+  opacity: 0.5;
+}
+
+
+/* תיבת הכתובת הדינמית בסגנון וולט */
+.user-address-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--address-bg, #e2f4fd);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--address-text, #009de0);
+  font-weight: 600;
+}
+
+.address-icon {
+  margin-left: 6px;
+}
+
+.address-label {
+  margin-left: 4px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* כפתור החלפת ערכת נושא */
+.theme-toggle-btn {
+  border: none;
+  background-color: var(--btn-secondary-bg, #f3f5f6);
+  color: var(--text-color, #202125);
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* פרופיל משתמש */
+.user-profile-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-color, #202125);
+}
+
+.logout-btn, .login-btn {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.logout-btn {
+  background-color: #ffeef0;
+  color: #ff4d4f;
+}
+
+.login-btn {
+  background-color: #009de0;
+  color: white;
+}
+/* עיצוב כפתור הרשם */
+.register-btn {
+  border: none;
+  background-color: var(--btn-secondary-bg);
+  color: var(--text-color);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.register-btn:hover {
+  background-color: var(--btn-secondary-hover);
+}
