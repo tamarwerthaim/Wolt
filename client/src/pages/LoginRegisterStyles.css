@@ -124,3 +124,42 @@
     margin-top: 12px;
     transition: background-color 0.15s ease, transform 0.1s ease;
 }
+
+.auth-preview-container {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-profile-preview {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--address-text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.auth-profile-preview:hover {
+    transform: scale(1.05);
+}
+
+.auth-remove-image-btn {
+    background: none;
+    border: none;
+    color: var(--danger-text);
+    font-family: "Nunito", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: opacity 0.2s ease;
+    padding: 4px 8px;
+}
+
+.auth-remove-image-btn:hover {
+    opacity: 0.8;
+}

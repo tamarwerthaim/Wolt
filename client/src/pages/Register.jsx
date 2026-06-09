@@ -10,7 +10,22 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [profileImage, setProfileImage] = useState(null);
+
+    const [imagePreview, setImagePreview] = useState(null);
     const [error, setError] = useState('');
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setProfileImage(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleClearImage = () => {
+        setProfileImage(null);
+        setImagePreview(null);
+    };
 
     const handleRegisterSubmit = (e) => {
         e.preventDefault();
@@ -152,13 +167,22 @@ const Register = () => {
                                 type="file"
                                 id="profileImage"
                                 accept="image/*"
-                                onChange={(e) => setProfileImage(e.target.files[0])}
+                                onChange={handleFileChange}
                                 className="auth-hidden-file-input"
                             />
                             <label htmlFor="profileImage" className="auth-file-input-label">
                                 {profileImage ? `📸 ${profileImage.name}` : '📁 Choose Image File'}
                             </label>
                         </div>
+
+                        {imagePreview && (
+                            <div className="auth-preview-container">
+                                <img src={imagePreview} alt="Profile Preview" className="auth-profile-preview" />
+                                <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
+                                    Remove Image
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {error && <div className="auth-error-text">{error}</div>}
