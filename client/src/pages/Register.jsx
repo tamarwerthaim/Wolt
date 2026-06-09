@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import woltLogo from '../assets/wolt_circle2.png';
-import './LoginRegisterStyles.css'; // מייבאים את קובץ ה-CSS המשותף
+import './LoginRegisterStyles.css';
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [address, setAddress] = useState('');
-    const [phone, setPhone] = useState(''); // <-- תוספת: ה-State של מספר הטלפון
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [profileImage, setProfileImage] = useState(null);
@@ -16,14 +16,35 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
-        // עדכון הבדיקה: ודוא שגם שדה הטלפון התמלא
+        // check if all fields are full
         if (!username || !displayName || !address || !phone || !password || !confirmPassword || !profileImage) {
             setError('All fields are required, including a delivery address, phone number, and profile image');
             return;
         }
 
+        // Check phone number format
+        const phoneRegex = /^05\d{8}$/;
+        if (!phoneRegex.test(phone)) {
+            setError('Invalid phone number. Must be a valid 10-digit number starting with 05.');
+            return;
+        }
+
+        // check if password match
         if (password !== confirmPassword) {
             setError('Passwords do not match');
+            return;
+        }
+
+        // check if password is at least 8 characters long
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters long.');
+            return;
+        }
+        // check if password has at least one letter and one number
+        const hasLetter = /[A-Za-z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        if (!hasLetter || !hasNumber) {
+            setError('Password must contain a combination of both letters and numbers.');
             return;
         }
 
@@ -31,7 +52,7 @@ const Register = () => {
             username,
             displayName,
             address,
-            phone, // הטלפון נשמר ומוכן לשלב הבא!
+            phone,
             password,
             profileImageName: profileImage.name
         });
