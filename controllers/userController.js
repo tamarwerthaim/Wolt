@@ -22,6 +22,12 @@ export const registerUser = async (req, res) => {
         return res.status(400).json({ error: "Password must contain a combination of letters and numbers" });
     }
 
+    // Check phone number format
+    const phoneRegex = /^05\d{8}$/; // Matches exactly 10 digits starting with '05'
+    if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ error: "Invalid phone number. Must be a valid 10-digit number" });
+    }
+
     try {
         // Call the model layer to save the user
         const newUser = userModel.saveUser({ username, password, name, phone, address });
