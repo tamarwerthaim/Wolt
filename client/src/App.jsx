@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './Header.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 const Home = () => <h2 style={{ color: 'var(--text-color)' }}>עמוד הבית - רשימת מסעדות 🍔</h2>;
 const Orders = () => <h2 style={{ color: 'var(--text-color)' }}>ההזמנות שלי 📦</h2>;
@@ -31,7 +32,12 @@ function App() {
 
             {/* Main application routes */}
             <Route path="/" element={<Home />} />
-            <Route path="/orders" element={<Orders />} />
+            {/* Protected Orders Route - only accessible if authenticated */}
+            <Route path="/orders" element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            } />
           </Routes>
         </main>
       </div>
