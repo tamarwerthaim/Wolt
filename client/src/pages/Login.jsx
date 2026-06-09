@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import woltLogo from '../assets/wolt_circle.jpg';
+import woltLogo from '../assets/wolt_circle2.png';
 
 const Login = () => {
     //save the username and password
@@ -11,42 +11,37 @@ const Login = () => {
 
     //handle the form submission
     const handleSubmit = (e) => {
-        // prevent the default form submission
         e.preventDefault();
-
-        // reset the error message
         setError('');
 
-        // check if the fields are empty
         if (!username || !password) {
             setError('You must fill in all the fields to connect');
-            return; // stop here and don't continue to the next code
+            return;
         }
 
-        // if we get here - the form has successfully passed the basic validation in the browser!
         console.log('The fields are full, ready for the next step:', { username, password });
     };
 
     return (
         <div style={styles.container}>
-            {/* explict call for the font from google */}
+            {/* טעינת הפונט המעוגל משרתי גוגל */}
             <style>
                 {`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;900&display=swap');`}
             </style>
 
             <div style={styles.card}>
 
-                {/* Wolt Logo */}
+                {/* לוגו Wolt */}
                 <div style={styles.logoContainer}>
                     <img src={woltLogo} alt="Wolt Logo" style={styles.logo} />
                 </div>
 
-                {/* The rounded heading */}
+                {/* הכותרת המעובבת */}
                 <h1 style={styles.heading}>Log in to Wolt</h1>
 
                 <form onSubmit={handleSubmit}>
 
-                    {/* username field */}
+                    {/* שדה שם משתמש */}
                     <div style={styles.inputWrapper}>
                         <label htmlFor="username" style={styles.label}>Enter your username:</label>
                         <input
@@ -59,7 +54,7 @@ const Login = () => {
                         />
                     </div>
 
-                    {/* password field */}
+                    {/* שדה סיסמה */}
                     <div style={styles.inputWrapper}>
                         <label htmlFor="password" style={styles.label}>Enter your password:</label>
                         <input
@@ -72,10 +67,10 @@ const Login = () => {
                         />
                     </div>
 
-                    {/* errors */}
+                    {/* שגיאות */}
                     {error && <div style={styles.errorText}>{error}</div>}
 
-                    {/* sign in button */}
+                    {/* כפתור כניסה */}
                     <button type="submit" style={styles.submitButton}>
                         Next
                     </button>
@@ -91,9 +86,12 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundColor: '#ffffff',
+        // משתמשים ברקע הדינמי שתמר הגדירה
+        backgroundColor: 'var(--header-bg)',
         padding: '20px',
         boxSizing: 'border-box',
+        // אנימציית מעבר חלקה כשהצבעים מתחלפים
+        transition: 'background-color 0.3s ease',
     },
     card: {
         width: '100%',
@@ -114,11 +112,13 @@ const styles = {
     },
     heading: {
         fontFamily: '"Nunito", sans-serif',
-        fontSize: '40px',
+        fontSize: '34px',
         fontWeight: '900',
         letterSpacing: '-0.5px',
-        color: '#141417',
+        // צבע כותרת דינמי (כהה ביום, בהיר בלילה)
+        color: 'var(--text-color)',
         margin: '0 0 32px 0',
+        transition: 'color 0.3s ease',
     },
     inputWrapper: {
         marginBottom: '20px',
@@ -129,33 +129,39 @@ const styles = {
         fontFamily: '"Nunito", sans-serif',
         fontSize: '16px',
         fontWeight: '600',
-        color: '#141417',
+        // צבע תווית דינמי
+        color: 'var(--text-color)',
         marginBottom: '10px',
         paddingRight: '4px',
         textAlign: 'left',
+        transition: 'color 0.3s ease',
     },
     input: {
         width: '100%',
         padding: '16px 20px',
         fontSize: '16px',
         borderRadius: '28px',
-        border: '1px solid #e3e4e6',
-        backgroundColor: '#ffffff',
+        // שימוש ברקע וגבולות משניים שמתכהים במצב לילה בצורה מעולה
+        border: '1px solid var(--btn-secondary-hover)',
+        backgroundColor: 'var(--btn-secondary-bg)',
         boxSizing: 'border-box',
         outline: 'none',
-        color: '#141417',
-        transition: 'border-color 0.15s ease',
+        // צבע הטקסט המוקלד ישתנה בהתאם
+        color: 'var(--text-color)',
         textAlign: 'left',
         fontFamily: '"Nunito", sans-serif',
         fontWeight: '400',
+        transition: 'all 0.3s ease',
     },
     errorText: {
         fontFamily: '"Nunito", sans-serif',
-        color: '#ff4d4f',
+        // צבע שגיאה דינמי (מותאם לרקע כהה/בהיר)
+        color: 'var(--danger-text)',
         fontSize: '17px',
         fontWeight: '600',
         textAlign: 'center',
         margin: '10px 0 15px 0',
+        transition: 'color 0.3s ease',
     },
     submitButton: {
         width: '100%',
@@ -164,7 +170,8 @@ const styles = {
         fontFamily: '"Nunito", sans-serif',
         fontWeight: '700',
         color: '#ffffff',
-        backgroundColor: '#00c2e8',
+        // כפתור Wolt הרשמי נשאר בצבע המותג בשני המצבים
+        backgroundColor: 'var(--primary-btn-bg)',
         border: 'none',
         borderRadius: '28px',
         cursor: 'pointer',
