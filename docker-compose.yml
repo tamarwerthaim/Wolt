@@ -36,4 +36,21 @@ services:
       - CPP_SERVER_HOST=${SERVER_IP:-server}
     # The port of the C++ server
       - CPP_SERVER_PORT=${PORT:-8080}
+    depends_on:
+      - server
+
+  # React Frontend Client Service (New Sub-task implementation)
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      # Bind mount the client directory for instant live-reload updates during development
+      - ./client:/app
+      # Anonymous volume to protect the container's node_modules from being overwritten by the host
+      - /app/node_modules
+    depends_on:
+      - web
   
