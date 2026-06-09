@@ -21,9 +21,13 @@ export const loginUser = (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Invalid username or password" });
     }
 
-    // Generate a secure signed JWT token with user information as payload
+    // Generate a secure signed JWT token with user information and if admin
     const token = jwt.sign(
-        { id: matchedUser.id, username: matchedUser.username },
+        { 
+            id: matchedUser.id, 
+            username: matchedUser.username, 
+            isAdmin: matchedUser.isAdmin
+        },
         JWT_SECRET,
         // Set token expiration time
         { expiresIn: '48h' }
