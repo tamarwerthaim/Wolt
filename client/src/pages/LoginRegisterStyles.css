@@ -1,0 +1,126 @@
+/* src/pages/LoginRegisterStyles.css */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--header-bg);
+    padding: 40px 20px;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 520px;
+    text-align: center;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+.auth-logo-container {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-logo {
+    display: block;
+    width: 200px;
+    height: auto;
+}
+
+.auth-heading {
+    font-family: "Nunito", sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--text-color);
+    margin: 0 0 32px 0;
+    transition: color 0.3s ease;
+}
+
+.auth-input-wrapper {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.auth-label {
+    display: block;
+    font-family: "Nunito", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    padding-right: 4px;
+    text-align: left;
+    transition: color 0.3s ease;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 16px;
+    border-radius: 28px;
+    border: 1px solid var(--btn-secondary-hover);
+    background-color: var(--btn-secondary-bg);
+    box-sizing: border-box;
+    outline: none;
+    color: var(--text-color);
+    text-align: left;
+    font-family: "Nunito", sans-serif;
+    font-weight: 400;
+    transition: all 0.3s ease;
+}
+
+.auth-file-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.auth-hidden-file-input {
+    display: none;
+}
+
+.auth-file-input-label {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 16px;
+    border-radius: 28px;
+    border: 1px dashed var(--address-text);
+    background-color: var(--btn-secondary-bg);
+    color: var(--text-color);
+    box-sizing: border-box;
+    cursor: pointer;
+    text-align: center;
+    font-family: "Nunito", sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.auth-error-text {
+    font-family: "Nunito", sans-serif;
+    color: var(--danger-text);
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+    margin: 10px 0 15px 0;
+    transition: color 0.3s ease;
+}
+
+.auth-submit-button {
+    width: 100%;
+    padding: 16px;
+    font-size: 20px;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    color: #ffffff;
+    background-color: var(--primary-btn-bg);
+    border: none;
+    border-radius: 28px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
