@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import woltLogo from '../assets/wolt_circle2.png';
 import './LoginRegisterStyles.css';
 
@@ -10,9 +11,10 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [profileImage, setProfileImage] = useState(null);
-
     const [imagePreview, setImagePreview] = useState(null);
     const [error, setError] = useState('');
+
+    const navigate = useNavigate();
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -27,7 +29,7 @@ const Register = () => {
         setImagePreview(null);
     };
 
-    const handleRegisterSubmit = (e) => {
+    const handleRegisterSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -63,15 +65,39 @@ const Register = () => {
             return;
         }
 
-        console.log('Registration data is ready:', {
-            username,
-            displayName,
-            address,
-            phone,
-            password,
-            profileImageName: profileImage.name
-        });
-    };
+        try {
+            //building object from Data
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('displayName', displayName);
+            formData.append('address', address);
+            formData.append('phone', phone);
+            formData.append('password', password);
+            formData.append('profileImage', profileImage);
+
+            //connecting to server and sending the data
+            const response = await fetch('http://localhost:3000/api/users', {
+                method: 'POST',
+                body: formData,
+            });
+
+            //getting the response from the server
+            const data = await response.json();
+            //if failed
+            if (!response.ok) {
+                throw new Error(data.error || 'Registration failed. Username might already exist.');
+            }
+            console.log('Registration successful!', data);
+
+            //setting success message and redirecting to login
+            alert('Registration completed successfully! You will now be redirected to log in.');
+            navigate('/login');
+        }
+        //if failed
+        catch (err) {
+            setError(err.message || 'Server connection error. Please try again.');
+        }
+    }; // <-- כאן נסגרת פונקציית handleRegisterSubmit בלבד!
 
     return (
         <div className="auth-container">

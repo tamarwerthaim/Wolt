@@ -1,5 +1,6 @@
 // import express and create an instance of it. app will be our server.
 import express from 'express';
+import cors from 'cors';
 
 // import routes
 import restaurantRoutes from './routes/restaurantRoutes.js';
@@ -10,6 +11,7 @@ import searchRoutes from './routes/searchRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 
 const app = express();
+app.use(cors());
 
 // app will use express.json() middleware to parse JSON request bodies
 app.use(express.json());
