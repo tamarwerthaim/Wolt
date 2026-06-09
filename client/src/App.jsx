@@ -5,7 +5,8 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 const Home = () => <h2 style={{ color: 'var(--text-color)' }}>עמוד הבית - רשימת מסעדות 🍔</h2>;
 const Orders = () => <h2 style={{ color: 'var(--text-color)' }}>ההזמנות שלי 📦</h2>;
-const Login = () => <h2 style={{ color: 'var(--text-color)' }}>דף התחברות למערכת 🔑</h2>;
+// const Login = () => <h2 style={{ color: 'var(--text-color)' }}>דף התחברות למערכת 🔑</h2>;
+import Login from './pages/Login.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -23,7 +24,7 @@ function App() {
     <Router> {/*Wrapped the entire application with Router to enable navigation */}
       <div className="app-container" style={{ direction: 'rtl' }}>
         <Header darkMode={darkMode} toggleTheme={toggleTheme} />
-        
+
         <main style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
           {/* Defined the route switches inside the main content area */}
           <Routes>
