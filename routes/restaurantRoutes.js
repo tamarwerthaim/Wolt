@@ -11,7 +11,8 @@ const router = express.Router();
 // Public routes
 router.get('/', RestaurantController.getAllRestaurants);
 router.get('/:id', RestaurantController.getRestaurantById);
-
+// Allow authenticated users to rate a restaurant
+router.post('/:id/rate', authenticateToken, RestaurantController.rateRestaurant);
 // Protected Admin-only routes
 router.post('/', authenticateAdmin, RestaurantController.createRestaurant);
 router.patch('/:id', authenticateAdmin, RestaurantController.updateRestaurant);
