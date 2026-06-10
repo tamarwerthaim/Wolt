@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './Home.css';
+import RestaurantCard from '../components/RestaurantCard.jsx';
 
 const Home = ({ currentUser }) => {
   const navigate = useNavigate();
@@ -155,21 +156,10 @@ const Home = ({ currentUser }) => {
                 <h3 className="group-title">Restaurants ({searchResults.restaurants.length})</h3>
                 <div className="results-grid">
                   {searchResults.restaurants.map((restaurant) => (
-                    <div 
+                    <RestaurantCard 
                       key={restaurant.id} 
-                      className="restaurant-card clickable"
-                      onClick={() => navigate(`/restaurant/${restaurant.id}`)}
-                    >
-                      <div className="card-image-placeholder">
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
-                      </div>
-                      <h3>{restaurant.name}</h3>
-                      <p>📍 Location: {restaurant.geolocation?.lat}, {restaurant.geolocation?.lng}</p>
-                    </div>
+                      restaurant={restaurant} 
+                    />
                   ))}
                 </div>
               </div>
@@ -217,47 +207,19 @@ const Home = ({ currentUser }) => {
               <div className={`marquee-track ${shouldScroll ? 'enable-scroll' : ''}`}>
                 {/* הוספת השיכפול - פעם ראשונה של הרשימה */}
                 {displayRestaurants.map((restaurant, index) => (
-                  <div 
+                  <RestaurantCard 
                     key={`list1-${restaurant.id}-${index}`} 
-                    className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
+                    restaurant={restaurant}
                     onClick={() => handleRestaurantClick(restaurant)}
-                  >
-                    <div className="card-image-placeholder">
-                      {restaurant.image ? (
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
-                      ) : (
-                        <span style={{ fontSize: '40px' }}>🍔</span>
-                      )}
-                    </div>
-                    <h3>{restaurant.name}</h3>
-                    <p>{restaurant.cuisine || `📍 Location: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
-                  </div>
+                  />
                 ))}
                 {/* הוספת השיכפול - פעם שנייה של הרשימה (עותק מדויק) - רק אם צריך לגלול */}
                 {shouldScroll && displayRestaurants.map((restaurant, index) => (
-                  <div 
+                  <RestaurantCard 
                     key={`list2-${restaurant.id}-${index}`} 
-                    className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
+                    restaurant={restaurant}
                     onClick={() => handleRestaurantClick(restaurant)}
-                  >
-                    <div className="card-image-placeholder">
-                      {restaurant.image ? (
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
-                      ) : (
-                        <span style={{ fontSize: '40px' }}>🍔</span>
-                      )}
-                    </div>
-                    <h3>{restaurant.name}</h3>
-                    <p>{restaurant.cuisine || `📍 Location: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
-                  </div>
+                  />
                 ))}
               </div>
             </div>
@@ -268,21 +230,10 @@ const Home = ({ currentUser }) => {
                 <h2 className="all-rests-title">All Our Restaurants ({restaurants.length})</h2>
                 <div className="all-rests-grid">
                   {restaurants.map((restaurant) => (
-                    <div 
+                    <RestaurantCard 
                       key={restaurant.id} 
-                      className="restaurant-card clickable"
-                      onClick={() => navigate(`/restaurant/${restaurant.id}`)}
-                    >
-                      <div className="card-image-placeholder">
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
-                      </div>
-                      <h3>{restaurant.name}</h3>
-                      <p>📍 Location: {restaurant.geolocation?.lat}, {restaurant.geolocation?.lng}</p>
-                    </div>
+                      restaurant={restaurant} 
+                    />
                   ))}
                 </div>
               </div>
