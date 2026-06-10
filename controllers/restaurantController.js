@@ -126,6 +126,7 @@ class RestaurantController {
         //extract the restaurant id from parameters and the rating score from the request body
         const { id } = req.params;
         const { score } = req.body;
+        const userId = req.user.id; // שליפת ה-userId מהטוקן המאומת
 
         //validate that the score is a valid input number between 1 and 5
         if (!score || score < 1 || score > 5) {
@@ -133,7 +134,7 @@ class RestaurantController {
         }
 
         //call the model layer to push the new vote score and calculate the real-time average rating
-        const updatedAverage = RestaurantModel.addRating(id, score);
+        const updatedAverage = RestaurantModel.addRating(id, userId, score);
 
         //if the target restaurant to rate is not found in memory database, return a 404 status
         if (updatedAverage === null) {

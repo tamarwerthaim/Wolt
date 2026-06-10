@@ -2,7 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 //for storing restaurants in memory
-let restaurants = []; 
+let restaurants = [];
 
 class RestaurantModel {
     //CRUD operations for restaurants
@@ -20,22 +20,22 @@ class RestaurantModel {
 
     // find restaurent by name 
     static findByName(name) {
-    return restaurants.find(restaurant => restaurant.name.toLowerCase() === name.toLowerCase());
-}
+        return restaurants.find(restaurant => restaurant.name.toLowerCase() === name.toLowerCase());
+    }
 
     //create a new restaurant
     static create(restaurantData) {
         //create a new restaurant object with a unique id
         const newRestaurant = {
-            id: uuidv4(), 
+            id: uuidv4(),
             name: restaurantData.name,
-            ratings: [], 
-            image: restaurantData.image, 
+            ratings: {}, // שינוי לאובייקט כדי לתמוך בהצבעה אחת למשתמש (מפתח: מזהה משתמש, ערך: ציון)
+            image: restaurantData.image,
             geolocation: {
-                lat: parseFloat(restaurantData.lat), 
+                lat: parseFloat(restaurantData.lat),
                 lng: parseFloat(restaurantData.lng)
             },
-            menu: [] 
+            menu: []
         };
         //add the new restaurant to the in-memory array
         restaurants.push(newRestaurant);
@@ -44,16 +44,22 @@ class RestaurantModel {
     }
 
     // add a new rating to the restaurant and return the updated average rating
-    static addRating(restaurantId, newScore) {
+    static addRating(restaurantId, userId, newScore) {
         const restaurant = this.findById(restaurantId);
         if (!restaurant) return null;
 
-        // add the new score to the restaurant's ratings array
-        restaurant.ratings.push(parseFloat(newScore));
+        // וידוא שהדירוגים מוגדרים כאובייקט (תמיכה במעבר ממערך לאובייקט ללא שגיאות)
+        if (!restaurant.ratings || Array.isArray(restaurant.ratings)) {
+            restaurant.ratings = {};
+        }
 
+        // שמירה/עדכון הדירוג של המשתמש (מבטיח שלכל משתמש יש רק קול אחד בעל משקל זהה)
+        restaurant.ratings[userId] = parseFloat(newScore);
+
+        const scores = Object.values(restaurant.ratings);
         // calculate the average rating
-        const sum = restaurant.ratings.reduce((total, score) => total + score, 0);
-        const average = sum / restaurant.ratings.length;
+        const sum = scores.reduce((total, score) => total + score, 0);
+        const average = sum / scores.length;
 
         // return the average rating rounded to one decimal place
         return Math.round(average);
