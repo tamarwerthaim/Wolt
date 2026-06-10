@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
@@ -5,7 +6,16 @@ import './Home.css';
 const Home = ({ currentUser }) => {
   const navigate = useNavigate();
 
-  // Handle admin panel actions
+  // נתונים זמניים למסעדות כדי שנראה את הסרט הנע עובד (לפי הדוגמה שלך)
+  const mockRestaurants = [
+    { id: 1, name: 'Burger King 🍔', cuisine: 'Burgers' },
+    { id: 2, name: 'Rebar 🥤', cuisine: 'Drinks' },
+    { id: 3, name: 'Sushi Bar 🥢', cuisine: 'Asian' },
+    { id: 4, name: 'Papa Johns 🍕', cuisine: 'Pizza' },
+    { id: 5, name: 'Deli Cream 🍦', cuisine: 'Ice Cream' },
+    { id: 6, name: 'Wok Republic 🍜', cuisine: 'Asian' },
+  ];
+
   const handleAddRestaurantClick = () => {
     if (currentUser?.isAdmin) {
       console.log('Opening add restaurant modal...');
@@ -14,20 +24,46 @@ const Home = ({ currentUser }) => {
 
   return (
     <div className="home-container">
-      <h2 className="home-title">Home - Nearby Restaurants 🍔</h2>
       
-      {/* Strictly protect the button view - only rendered if the user is an admin */}
-      {currentUser?.isAdmin && (
-        <div className="admin-actions-container">
-          <button onClick={handleAddRestaurantClick} className="admin-btn">
-            + Add New Restaurant (Admin Only)
-          </button>
-        </div>
-      )}
+      {/* ה-Hero הבאנר התכלת */}
+      <div className="hero-banner">
+        <h1 className="hero-text">WHAT IS YOUR DUDA?</h1>
+      </div>
 
-      {/* Container for fetching dynamic data from the server */}
-      <div className="restaurants-list">
-        <p>The dynamic restaurant list from the server will be displayed here...</p>
+      {/* אזור התוכן שמתחת לבאנר */}
+      <div className="home-content">
+        
+        {/* כפתור אדמין - יוצג רק אם מחובר אדמין */}
+        {currentUser?.isAdmin && (
+          <div className="admin-actions-container">
+            <button onClick={handleAddRestaurantClick} className="admin-btn">
+              + Add New Restaurant (Admin Only)
+            </button>
+          </div>
+        )}
+
+        {/* 2. רצועת המסעדות שזזה מעצמה מאוזן ולאט */}
+        <div className="marquee-wrapper">
+          <div className="marquee-track">
+            {/* ◄◄ הוספת השיכפול - פעם ראשונה של הרשימה */}
+            {mockRestaurants.map((restaurant) => (
+              <div key={`list1-${restaurant.id}`} className="restaurant-card">
+                <div className="card-image-placeholder">🍔</div>
+                <h3>{restaurant.name}</h3>
+                <p>{restaurant.cuisine}</p>
+              </div>
+            ))}
+            {/* ◄◄ הוספת השיכפול - פעם שנייה של הרשימה (עותק מדויק) */}
+            {mockRestaurants.map((restaurant) => (
+              <div key={`list2-${restaurant.id}`} className="restaurant-card">
+                <div className="card-image-placeholder">🍔</div>
+                <h3>{restaurant.name}</h3>
+                <p>{restaurant.cuisine}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
