@@ -72,13 +72,23 @@ class ProductController {
     static async createProduct(req, res) {
         // extract the restaurant id from the request parameters and the product data from the request body
         const { id } = req.params;
-        const { name, price, description } = req.body;
+        const { name, price, description, image } = req.body;
         //if the name is not provided in the request body, return a 400 status with an error message
-        if (!name) {
-            return res.status(400).json({ error: "Name is required" });
+        if (!name || !price || !description || !image) {
+            return res.status(400).json({ error: "All fields are required: name, price, description, and image must be provided." });
+        }
+        // Price Logic Validation
+        const numPrice = parseFloat(price);
+        if (isNaN(numPrice) || numPrice <= 0) {
+            return res.status(400).json({ error: "Product price must be a valid number greater than zero" });
+        }
+
+        // Product Image Reference Validation
+        if (typeof image !== 'string' || image.trim() === '') {
+            return res.status(400).json({ error: "Product image must be a valid non-empty string path" });
         }
         // use the ProductModel to create a new product and add it to the restaurant's menu
-        const newProduct = ProductModel.create(id, { name, price, description });
+        const newProduct = ProductModel.create(id, { name, price, description, image });
         // if the restaurant is not found, the model will return null
         if (!newProduct) {
             return res.status(404).json({ error: "Restaurant not found" });
@@ -94,9 +104,22 @@ class ProductController {
     static async updateProduct(req, res) {
         // extract the restaurant id and product id from the request parameters, and the updated product data from the request body
         const { id, pld } = req.params;
-        const updatedData = req.body;
+        const { name, price, description, image } = req.body;
+        // If an update for price is requested, enforce it is a positive number greater than zero
+        if (price !== undefined) {
+            const numPrice = parseFloat(price);
+            if (isNaN(numPrice) || numPrice <= 0) {
+                return res.status(400).json({ error: "Updated product price must be a valid number greater than zero" });
+            }
+        }
+        // If an update for image is requested, enforce it is a non-empty string reference path
+        if (image !== undefined) {
+            if (typeof image !== 'string' || image.trim() === '') {
+                return res.status(400).json({ error: "Updated product image must be a valid non-empty string path" });
+            }
+        }
         // use the ProductModel to update the product with the given restaurant id and product id
-        const updatedProduct = ProductModel.update(id, pld, updatedData);
+        const updatedProduct = ProductModel.update(id, pld, { name, price, description, image });
         
         // if the product or restaurant is not found, the model will return null
         if (!updatedProduct) {
