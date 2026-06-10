@@ -1,0 +1,250 @@
+/* Container and Overall Layout */
+.orders-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 24px 80px 24px;
+  font-family: var(--main-font);
+  color: var(--text-color);
+  direction: ltr; /* English alignment */
+  text-align: left;
+}
+
+.orders-title {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.user-welcome {
+  font-size: 16px;
+  color: #8a8d91;
+  margin-bottom: 32px;
+}
+
+.user-welcome strong {
+  color: var(--text-color);
+}
+
+/* Status message states (loading / error) */
+.orders-status-msg {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  background-color: var(--btn-secondary-bg);
+  border-radius: 16px;
+  margin-top: 20px;
+}
+
+.orders-status-msg.loading {
+  color: var(--primary-btn-bg);
+}
+
+.orders-status-msg.error {
+  color: var(--danger-text);
+  background-color: var(--danger-bg);
+}
+
+/* Empty State */
+.orders-empty {
+  text-align: center;
+  padding: 80px 24px;
+  background-color: var(--btn-secondary-bg);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.orders-empty-icon {
+  font-size: 72px;
+  margin-bottom: 20px;
+}
+
+.orders-empty h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.orders-empty p {
+  font-size: 15px;
+  color: #8a8d91;
+  margin: 0;
+}
+
+/* Orders List of Cards */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Single Order Card */
+.order-card {
+  background-color: var(--btn-secondary-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(128, 128, 128, 0.08);
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Card Header banner with Restaurant Details */
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: rgba(128, 128, 128, 0.04);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+}
+
+.order-restaurant-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.order-restaurant-img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.order-restaurant-name {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  color: var(--text-color);
+}
+
+.order-timestamp {
+  font-size: 12px;
+  color: #8a8d91;
+  display: block;
+}
+
+/* Status Badges */
+.order-status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.order-status-badge.pending {
+  background-color: #fff9db;
+  color: #f59f00;
+}
+
+.order-status-badge.completed {
+  background-color: #ebfbee;
+  color: #37b24d;
+}
+
+/* Dark mode specific colors for status badges */
+body.dark-mode .order-status-badge.pending {
+  background-color: #3e331c;
+  color: #ffd43b;
+}
+
+body.dark-mode .order-status-badge.completed {
+  background-color: #1a3c22;
+  color: #51cf66;
+}
+
+/* Card Body Section */
+.order-card-body {
+  padding: 20px;
+}
+
+.order-id-section {
+  font-size: 13px;
+  color: #8a8d91;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-id-code {
+  font-family: monospace;
+  background-color: rgba(128, 128, 128, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+/* Detailed Receipt Breakdown inside card */
+.order-receipt {
+  background-color: rgba(128, 128, 128, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.receipt-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8a8d91;
+  margin: 0 0 12px 0;
+}
+
+.receipt-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.receipt-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.receipt-item-name {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.receipt-item-qty {
+  font-weight: 700;
+  color: var(--primary-btn-bg);
+  margin-right: 6px;
+}
+
+.receipt-item-subtotal {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Card Footer total price paid banner */
+.order-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: rgba(128, 128, 128, 0.04);
+  border-top: 1px solid rgba(128, 128, 128, 0.08);
+}
+
+.order-total-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #8a8d91;
+}
+
+.order-total-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary-btn-bg);
+}
