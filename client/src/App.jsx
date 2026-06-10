@@ -17,30 +17,64 @@ function App() {
   // State for logged-in user details
   const [currentUser, setCurrentUser] = useState(null);
 
+  // // Fetch user details if token and userId exist in localStorage
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   const userId = localStorage.getItem('userId');
+
+  //   // if we have a token and userId but no currentUser data, fetch the profile from the server
+  //   if (token && userId && !currentUser) {
+  //     fetch(`http://localhost:3000/api/users/${userId}`, {
+  //       method: 'GET',
+  //       headers: {
+  //          // Send JWT token for security
+  //         'Authorization': `Bearer ${token}`
+  //       }
+  //     })
+  //     .then(res => res.json())
+  //     .then(userData => {
+  //       if (!userData.error) {
+  //         // Save profile data
+  //         setCurrentUser(userData);
+  //       }
+  //     })
+  //     .catch(err => console.error("Error fetching profile:", err));
+  //   }
+  // }, [currentUser]);
+
+
   // Fetch user details if token and userId exist in localStorage
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
 
-    // if we have a token and userId but no currentUser data, fetch the profile from the server
+    console.log("=== בדיקת סנכרון בתוך App.jsx ===");
+    console.log("1. האם קיים טוקן בדפדפן?", token ? "כן" : "לא");
+    console.log("2. האם קיים userId בדפדפן?", userId ? userId : "לא");
+
     if (token && userId && !currentUser) {
       fetch(`http://localhost:3000/api/users/${userId}`, {
         method: 'GET',
         headers: {
-           // Send JWT token for security
           'Authorization': `Bearer ${token}`
         }
       })
       .then(res => res.json())
       .then(userData => {
+        console.log("3. מה השרת ענה כשביקשנו את הפרופיל?", userData);
+        
         if (!userData.error) {
-          // Save profile data
           setCurrentUser(userData);
+          console.log("4. המשתמש עודכן בהצלחה בסטייט!");
+        } else {
+          console.log(" שגיאה מהשרת:", userData.error);
         }
       })
-      .catch(err => console.error("Error fetching profile:", err));
+      .catch(err => console.error(" שגיאה קריטית בחיבור לשרת:", err));
     }
   }, [currentUser]);
+
+
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -54,17 +88,21 @@ function App() {
   return (
     <Router>
       <div className="app-container" style={{ direction: 'rtl' }}>
-        <Header darkMode={darkMode} toggleTheme={toggleTheme} />
+        {/* שינוי 1: מעבירים ל-Header את המשתמש הנוכחי ואת פונקציית העדכון שלו */}
+        <Header darkMode={darkMode} toggleTheme={toggleTheme} currentUser={currentUser} setCurrentUser={setCurrentUser} />
 
-        {/* שינוי כאן: הורדנו את ה-padding, ה-max-width וה-margin הצרפתים */}
         <main> 
           <Routes>
-            <Route path="/login" element={<Login />} />
+            {/* שינוי 2: מעבירים ל-Login את האפשרות לעדכן את המשתמש הגלובלי מיד בהתחברות */}
+            <Route path="/login" element={<Login setCurrentUser={setCurrentUser} />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/" element={<Home />} />
+            
+            {/* שינוי 3: מעבירים ל-Home את המשתמש כדי שההרשאות וכפתורי האדמין יתעדכנו */}
+            <Route path="/" element={<Home currentUser={currentUser} />} />
+            
             <Route path="/orders" element={
               <ProtectedRoute>
-                <Orders />
+                <Orders currentUser={currentUser} />
               </ProtectedRoute>
             } />
           </Routes>

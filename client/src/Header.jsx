@@ -1,28 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Header.css';
 import woltLogoLight from './assets/wolt-delivery1310.logowik.com.PNG';
 import woltLogoDark from './assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
-
-// שינוי 1: מייבאים את ה-Hook של הניווט מהראוטר
 import { useNavigate } from 'react-router-dom';
 
-const Header = ({ darkMode, toggleTheme }) => {
-  // טיפ קטן לבדיקה: תשני את זה ל-false כדי שתוכלי לראות את כפתורי ה-Log in וה-Sign up במסך!
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const [user, setUser] = useState({
-    displayName: 'תמר',
-    profileImage: 'https://via.placeholder.com/40',
-    address: 'רחוב הרצל 42, רמת גן'
-  });
-
-  // שינוי 2: מאתחלים את פונקציית הניווט בתוך הקומפוננטה
+// מקבלים את currentUser ו-setCurrentUser מתוך ה-Props של ה-App
+const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
+  
+  // הסטטוס נקבע בצורה דינמית: אם קיים משתמש ב-App, אנחנו מחוברים!
+  const isLoggedIn = !!currentUser;
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    // מנקים את ה-localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    
+    // מאפסים את הסטייט ב-App כדי שכל האתר יתנתק מיידית
+    setCurrentUser(null);
+    
     console.log('מחיקת טוקן וניווט ל- /login');
-    // שינוי 3: מנווטים לעמוד הלוגין באופן אקטיבי בזמן התנתקות
     navigate('/login');
   };
 
@@ -37,6 +34,7 @@ const Header = ({ darkMode, toggleTheme }) => {
               src={darkMode ? woltLogoDark : woltLogoLight}
               alt="Wolt Logo"
               className="wolt-official-logo"
+              onClick={() => navigate('/')}
             />
           </div>
         </div>
@@ -49,12 +47,13 @@ const Header = ({ darkMode, toggleTheme }) => {
           </div>
         </div>
 
-        {/* צד ימין: כתובת, החלפת נושא, התחבר/הרשם */}
+        {/* צד ימין: כתובת, החלפת נושא, התחבר/הרשם/פרופיל */}
         <div className="header-right">
-          {isLoggedIn && user && user.address && (
+          {/* מציג את הכתובת האמיתית של המשתמש מהשרת רק אם הוא מחובר */}
+          {isLoggedIn && currentUser && currentUser.address && (
             <div className="user-address-box">
               <span className="address-icon">📍</span>
-              <span className="address-text">{user.address}</span>
+              <span className="address-text">{currentUser.address}</span>
             </div>
           )}
 
@@ -62,19 +61,27 @@ const Header = ({ darkMode, toggleTheme }) => {
             {darkMode ? '☀️' : '🌙'}
           </button>
 
-          {isLoggedIn ? (
+          {isLoggedIn && currentUser ? (
+            /* מציג תמונת פרופיל אמיתית מהשרת וברכת שלום דינמית */
             <div className="user-profile-section">
-              <img src={user.profileImage} className="profile-img" />
+              <img 
+                // src={currentUser.profileImage || 'https://via.placeholder.com/40'} 
+                // className="profile-img" 
+                // alt="Profile"
+                src={currentUser.profileImage ? `http://localhost:3000/uploads/${currentUser.profileImage}` : 'https://via.placeholder.com/40'} 
+                className="profile-img" 
+                alt="Profile"
+              />
+              <span className="user-name" style={{ fontFamily: '"Nunito", sans-serif', fontWeight: 600, marginRight: '8px', color: 'var(--text-color)' }}>
+                Hi, {currentUser.name || currentUser.username}
+              </span>
               <button className="logout-btn" onClick={handleLogout}>Log out</button>
             </div>
           ) : (
             <>
-              {/* שינוי 4: הוספת אירוע onClick שמנווט לעמוד הלוגין שלך! */}
               <button className="login-btn" onClick={() => navigate('/login')}>
                 Log in
               </button>
-
-              {/* שינוי 5: הוספת אירוע onClick שמנווט לעמוד ההרשמה (Register) שאת הולכת לבנות */}
               <button className="register-btn" onClick={() => navigate('/register')}>
                 Sign up
               </button>
