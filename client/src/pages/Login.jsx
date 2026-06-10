@@ -44,6 +44,13 @@ const Login = () => {
             localStorage.setItem('token', data.token);
             console.log('Login successful! Token saved in LocalStorage.');
 
+            // Decode the JWT token to extract user information
+            const tokenParts = data.token.split('.');
+            const decodedPayload = JSON.parse(atob(tokenParts[1]));
+            
+            // Save decoded user ID to localStorage
+            localStorage.setItem('userId', decodedPayload.id);
+
             //navigate to home
             navigate('/')
         }

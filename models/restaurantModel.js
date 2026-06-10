@@ -29,12 +29,34 @@ class RestaurantModel {
         const newRestaurant = {
             id: uuidv4(), 
             name: restaurantData.name,
+            rating: restaurantData.rating ? [parseFloat(restaurantData.rating)] : [], 
+            image: restaurantData.image, 
+            geolocation: {
+                lat: parseFloat(restaurantData.lat), 
+                lng: parseFloat(restaurantData.lng)
+            },
             menu: [] 
         };
         //add the new restaurant to the in-memory array
         restaurants.push(newRestaurant);
         //return the newly created restaurant
         return newRestaurant;
+    }
+
+    // add a new rating to the restaurant and return the updated average rating
+    static addRating(restaurantId, newScore) {
+        const restaurant = this.findById(restaurantId);
+        if (!restaurant) return null;
+
+        // add the new score to the restaurant's ratings array
+        restaurant.ratings.push(parseFloat(newScore));
+
+        // calculate the average rating
+        const sum = restaurant.ratings.reduce((total, score) => total + score, 0);
+        const average = sum / restaurant.ratings.length;
+
+        // return the average rating rounded to one decimal place
+        return Math.round(average);
     }
 
     //update an existing restaurant
@@ -46,6 +68,17 @@ class RestaurantModel {
         //update the restaurant's name if it's provided in the updatedData
         if (updatedData.name) {
             restaurant.name = updatedData.name;
+        }
+        //update the restaurant's image if it's provided in the updatedData
+        if (updatedData.image) {
+            restaurant.image = updatedData.image;
+        }
+        //update the restaurant's geolocation if both lat and lng are provided in the updatedData
+        if (updatedData.lat && updatedData.lng) {
+            restaurant.geolocation = {
+                lat: parseFloat(updatedData.lat),
+                lng: parseFloat(updatedData.lng)
+            };
         }
         //return the updated restaurant
         return restaurant;
