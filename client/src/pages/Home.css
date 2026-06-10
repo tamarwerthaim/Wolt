@@ -45,6 +45,7 @@
   margin: 0 auto;
   padding: 40px 20px;
   text-align: right; /* התאמה לעברית/אנגלית אחידה */
+  position: relative; /* מאפשר מיקום אבסולוטי של כפתור האדמין ביחס לתוכן */
 }
 
 /* --- לוגיקת הסרט הנע (Marquee האופקי) --- */
@@ -113,21 +114,37 @@
   margin: 0;
 }
 
-/* כפתור אדמין */
-.admin-actions-container {
-  margin-bottom: 30px;
-  text-align: center;
+/* כפתור אדמין להוספת מסעדה - ממוקם בצד שמאל של הסרט הנע */
+.add-restaurant-btn {
+  position: absolute;
+  left: -10px; /* מציב את הכפתור חצי בתוך הרצועה וחצי בחוץ (ה-padding של home-content הוא 20px) */
+  top: 0; /* מיושר אנכית לקו המעבר בין הבאנר התכלת לרקע הלבן */
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  background-color: var(--btn-secondary-bg);
+  border: 1px solid var(--btn-secondary-hover);
+  border-radius: 16px;
+  color: var(--text-color);
+  font-size: 32px;
+  font-weight: 300;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.admin-btn {
-  background-color: var(--danger-text);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--main-font);
+.add-restaurant-btn:hover {
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.add-restaurant-btn:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 /* האנימציה שמניעה את המסעדות משמאל לימין בלופ */

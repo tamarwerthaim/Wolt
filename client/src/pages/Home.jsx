@@ -18,7 +18,7 @@ const Home = ({ currentUser }) => {
 
   const handleAddRestaurantClick = () => {
     if (currentUser?.isAdmin) {
-      console.log('Opening add restaurant modal...');
+      navigate('/admin/add-restaurant');
     }
   };
 
@@ -35,16 +35,12 @@ const Home = ({ currentUser }) => {
 
       {/* אזור התוכן שמתחת לבאנר */}
       <div className="home-content">
-        
-        {/* כפתור אדמין - יוצג רק אם מחובר אדמין */}
         {currentUser?.isAdmin && (
-          <div className="admin-actions-container">
-            <button onClick={handleAddRestaurantClick} className="admin-btn">
-              + Add New Restaurant (Admin Only)
-            </button>
-          </div>
+          <button className="add-restaurant-btn" onClick={handleAddRestaurantClick} title="Add New Restaurant">
+            +
+          </button>
         )}
-
+        
         {/* 2. רצועת המסעדות שזזה מעצמה מאוזן ולאט */}
         <div className="marquee-wrapper">
           <div className="marquee-track">
