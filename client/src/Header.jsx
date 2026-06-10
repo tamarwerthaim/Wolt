@@ -4,8 +4,8 @@ import woltLogoLight from './assets/wolt-delivery1310.logowik.com.PNG';
 import woltLogoDark from './assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
 import { useNavigate } from 'react-router-dom';
 
-// מקבלים את currentUser ו-setCurrentUser מתוך ה-Props של ה-App
-const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
+// מקבלים את currentUser, setCurrentUser, cart ו-setIsCartOpen מתוך ה-Props של ה-App
+const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setIsCartOpen }) => {
   
   // הסטטוס נקבע בצורה דינמית: אם קיים משתמש ב-App, אנחנו מחוברים!
   const isLoggedIn = !!currentUser;
@@ -22,6 +22,8 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
     console.log('מחיקת טוקן וניווט ל- /login');
     navigate('/login');
   };
+
+  const totalItems = cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
 
   return (
     <header className="wolt-header">
@@ -47,7 +49,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
           </div>
         </div>
 
-        {/* צד ימין: כתובת, החלפת נושא, התחבר/הרשם/פרופיל */}
+        {/* צד ימין: כתובת, החלפת נושא, עגלה, התחבר/הרשם/פרופיל */}
         <div className="header-right">
           {/* מציג את הכתובת האמיתית של המשתמש מהשרת רק אם הוא מחובר */}
           {isLoggedIn && currentUser && currentUser.address && (
@@ -57,8 +59,13 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
             </div>
           )}
 
-          <button className="theme-toggle-btn" onClick={toggleTheme}>
+          <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
             {darkMode ? '☀️' : '🌙'}
+          </button>
+
+          <button className="header-cart-btn" onClick={() => setIsCartOpen(true)} aria-label="Open cart">
+            <span>🛒</span>
+            {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
           </button>
 
           {isLoggedIn && currentUser ? (

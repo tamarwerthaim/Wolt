@@ -9,11 +9,108 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import RestaurantDetails from './pages/RestaurantDetails';
 import AddRestaurant from './pages/AddRestaurant';
+import Cart from './components/Cart.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   // State for logged-in user details
   const [currentUser, setCurrentUser] = useState(null);
+
+  // Cart State (loaded from localStorage if exists)
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem('wolt_cart');
+    return savedCart ? JSON.parse(savedCart) : { restaurantId: null, restaurantName: '', items: [] };
+  });
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Sync cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('wolt_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // Add item to cart
+  const addToCart = (product, restaurantId, restaurantName) => {
+    setCart(prevCart => {
+      const productId = product.id || product._id;
+
+      // Single restaurant rule: check if adding from a different restaurant
+      if (prevCart.restaurantId && prevCart.restaurantId !== restaurantId) {
+        const confirmClear = window.confirm("You already have items from another restaurant in your cart. Would you like to clear the cart and start a new order from this restaurant?");
+        if (!confirmClear) return prevCart;
+
+        return {
+          restaurantId,
+          restaurantName,
+          items: [{
+            productId,
+            name: product.name,
+            price: Number(product.price),
+            image: product.image,
+            quantity: 1
+          }]
+        };
+      }
+
+      const existingIndex = prevCart.items.findIndex(item => item.productId === productId);
+      let newItems;
+
+      if (existingIndex > -1) {
+        newItems = prevCart.items.map((item, idx) =>
+          idx === existingIndex ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        newItems = [
+          ...prevCart.items,
+          {
+            productId,
+            name: product.name,
+            price: Number(product.price),
+            image: product.image,
+            quantity: 1
+          }
+        ];
+      }
+
+      return {
+        restaurantId,
+        restaurantName,
+        items: newItems
+      };
+    });
+  };
+
+  // Remove or decrement item in cart
+  const removeFromCart = (productId) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.items.find(item => item.productId === productId);
+      if (!existingItem) return prevCart;
+
+      let newItems;
+      if (existingItem.quantity === 1) {
+        newItems = prevCart.items.filter(item => item.productId !== productId);
+      } else {
+        newItems = prevCart.items.map(item =>
+          item.productId === productId ? { ...item, quantity: item.quantity - 1 } : item
+        );
+      }
+
+      const hasItems = newItems.length > 0;
+      return {
+        restaurantId: hasItems ? prevCart.restaurantId : null,
+        restaurantName: hasItems ? prevCart.restaurantName : '',
+        items: newItems
+      };
+    });
+  };
+
+  // Clear cart entirely
+  const clearCart = () => {
+    setCart({
+      restaurantId: null,
+      restaurantName: '',
+      items: []
+    });
+  };
 
   // Fetch user details if token and userId exist in localStorage
   useEffect(() => {
@@ -87,7 +184,14 @@ function App() {
     <Router>
       <div className="app-container" style={{ direction: 'rtl' }}>
         {/* שינוי 1: מעבירים ל-Header את המשתמש הנוכחי ואת פונקציית העדכון שלו */}
-        <Header darkMode={darkMode} toggleTheme={toggleTheme} currentUser={currentUser} setCurrentUser={setCurrentUser} />
+        <Header 
+          darkMode={darkMode} 
+          toggleTheme={toggleTheme} 
+          currentUser={currentUser} 
+          setCurrentUser={setCurrentUser} 
+          cart={cart}
+          setIsCartOpen={setIsCartOpen}
+        />
 
         <main>
           <Routes>
@@ -98,7 +202,13 @@ function App() {
             {/* שינוי 3: מעבירים ל-Home את המשתמש כדי שההרשאות וכפתורי האדמין יתעדכנו */}
             <Route path="/" element={<Home currentUser={currentUser} />} />
 
-            <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+            <Route path="/restaurant/:id" element={
+              <RestaurantDetails 
+                cart={cart}
+                addToCart={addToCart}
+                removeFromCart={removeFromCart}
+              />
+            } />
             <Route path="/admin/add-restaurant" element={<AddRestaurant />} />
 
             {/* Main application routes */}
@@ -110,6 +220,16 @@ function App() {
             } />
           </Routes>
         </main>
+
+        {/* Global Cart drawer component */}
+        <Cart 
+          cart={cart}
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          addToCart={addToCart}
+          removeFromCart={removeFromCart}
+          clearCart={clearCart}
+        />
       </div>
     </Router>
   );
