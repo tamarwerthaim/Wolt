@@ -28,11 +28,11 @@ class RestaurantController {
     //create a new restaurant
     static createRestaurant(req, res) {
         //extract the name from the request body
-        const { name } = req.body;
+        const { name, rating, image, lat, lng } = req.body;
         
         //validate that the name is provided, if not return a 400 status with an error message
-        if (!name) {
-            return res.status(400).json({ error: "Name is required" });
+        if (!name || !rating || !image || !lat || !lng) {
+            return res.status(400).json({ error: "All fields are required: name, rating, image, lat, and lng must be provided." });
         }
 
         //check if a restaurant with the same name already exists 
@@ -44,7 +44,7 @@ class RestaurantController {
         }
         
         //create a new restaurant using the model and store the result in newRestaurant
-        const newRestaurant = RestaurantModel.create({ name });
+        const newRestaurant = RestaurantModel.create({ name, rating, image, lat, lng });
         
         //set the Location header to the URL of the newly created restaurant
         res.location(`/api/restaurants/${newRestaurant.id}`);
@@ -56,7 +56,7 @@ class RestaurantController {
     static updateRestaurant(req, res) {
         //extract the id from the request parameters and the name from the request body
         const { id } = req.params;
-        const { name } = req.body;
+        const { name, rating, image, lat, lng } = req.body;
 
         //validate that the name is provided
         if (name) {
@@ -69,7 +69,7 @@ class RestaurantController {
         }
 
         //use the model to update the restaurant with the given id and new name, and store the result in updatedRestaurant
-        const updatedRestaurant = RestaurantModel.update(id, { name });
+        const updatedRestaurant = RestaurantModel.update(id, { name, rating, image, lat, lng });
         
         //if the restaurant to update is not found, return a 404 status with an error message
         if (!updatedRestaurant) {
@@ -92,6 +92,28 @@ class RestaurantController {
         }
         //if the deletion is successful, return a 204 status to indicate that the restaurant was deleted successfully
         res.status(204).send();
+    }
+
+    static rateRestaurant(req, res) {
+        //extract the restaurant id from parameters and the rating score from the request body
+        const { id } = req.params;
+        const { score } = req.body;
+
+        //validate that the score is a valid input number between 1 and 5
+        if (!score || score < 1 || score > 5) {
+            return res.status(400).json({ error: "Score must be a number between 1 and 5" });
+        }
+
+        //call the model layer to push the new vote score and calculate the real-time average rating
+        const updatedAverage = RestaurantModel.addRating(id, score);
+
+        //if the target restaurant to rate is not found in memory database, return a 404 status
+        if (updatedAverage === null) {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+
+        //return the updated dynamic average rating score with a 200 (OK) response status
+        return res.status(200).json({ newAverageRating: updatedAverage });
     }
 }
 //export the RestaurantController class so it can be used in other parts of the application
