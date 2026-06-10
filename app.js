@@ -23,6 +23,7 @@ app.use('/api/tokens', tokenRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/restaurants/:id/products', productRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/uploads', express.static('uploads'));
 
 // export the app instance 
 export default app;
