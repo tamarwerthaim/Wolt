@@ -72,8 +72,10 @@
   display: flex;
   gap: 20px;
   width: max-content;
-  animation: scrollMarquee 25s linear infinite;
-  /* זז בצורה חלקה ואינסופית */
+}
+
+.marquee-track.enable-scroll {
+  animation: scrollMarquee 25s linear infinite; /* זז בצורה חלקה ואינסופית רק כשיש גלילה */
 }
 
 /* כשהעכבר מעל הרצועה, התנועה עוצרת כדי שיהיה נוח ללחוץ */
@@ -191,11 +193,13 @@
 .all-restaurants-section {
   width: 100%;
   padding-top: 20px;
+  text-align: left; /* יישור לשמאל עבור אנגלית */
 }
 
 .all-rests-title {
+  font-family: "Nunito", sans-serif;
   font-size: 26px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text-color);
   margin-bottom: 24px;
   position: relative;
@@ -206,7 +210,7 @@
   content: '';
   position: absolute;
   bottom: -6px;
-  right: 0;
+  left: 0; /* מיושר לשמאל כיוון שהכותרת באנגלית (LTR) */
   width: 40px;
   height: 4px;
   background-color: var(--primary-btn-bg);

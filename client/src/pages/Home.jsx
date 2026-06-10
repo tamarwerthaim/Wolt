@@ -86,6 +86,10 @@ const Home = ({ currentUser }) => {
 
   const getRestaurantImage = (restaurant) => {
     if (restaurant.image) {
+      // אם הנתיב כבר מתחיל ב- '/uploads', נחבר אותו לשרת ישירות בלי להוסיף 'uploads' כפיל
+      if (restaurant.image.startsWith('/uploads')) {
+        return `http://localhost:3000${restaurant.image}`;
+      }
       return `http://localhost:3000/uploads/${restaurant.image}`;
     }
     return 'https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg';
@@ -106,6 +110,9 @@ const Home = ({ currentUser }) => {
     { id: 5, name: 'Deli Cream 🍦', cuisine: 'Ice Cream', image: '' },
     { id: 6, name: 'Wok Republic 🍜', cuisine: 'Asian', image: '' },
   ];
+
+  // לגלול את הרצועה רק אם יש מספיק מסעדות (מעל 4). אם יש מעט, נציג אותן סטטיות ללא שכפול.
+  const shouldScroll = displayRestaurants.length > 4;
 
   return (
     <div className="home-container">
@@ -207,7 +214,7 @@ const Home = ({ currentUser }) => {
           <>
             {/* רצועת המסעדות שזזה מעצמה מאוזן ולאט */}
             <div className="marquee-wrapper">
-              <div className="marquee-track">
+              <div className={`marquee-track ${shouldScroll ? 'enable-scroll' : ''}`}>
                 {/* הוספת השיכפול - פעם ראשונה של הרשימה */}
                 {displayRestaurants.map((restaurant, index) => (
                   <div 
@@ -227,11 +234,11 @@ const Home = ({ currentUser }) => {
                       )}
                     </div>
                     <h3>{restaurant.name}</h3>
-                    <p>{restaurant.cuisine || `📍 מיקום: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
+                    <p>{restaurant.cuisine || `📍 Location: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
                   </div>
                 ))}
-                {/* הוספת השיכפול - פעם שנייה של הרשימה (עותק מדויק) */}
-                {displayRestaurants.map((restaurant, index) => (
+                {/* הוספת השיכפול - פעם שנייה של הרשימה (עותק מדויק) - רק אם צריך לגלול */}
+                {shouldScroll && displayRestaurants.map((restaurant, index) => (
                   <div 
                     key={`list2-${restaurant.id}-${index}`} 
                     className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
@@ -249,7 +256,7 @@ const Home = ({ currentUser }) => {
                       )}
                     </div>
                     <h3>{restaurant.name}</h3>
-                    <p>{restaurant.cuisine || `📍 מיקום: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
+                    <p>{restaurant.cuisine || `📍 Location: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
                   </div>
                 ))}
               </div>
@@ -257,8 +264,8 @@ const Home = ({ currentUser }) => {
 
             {/* רשימת כל המסעדות בבלוקים מסודרים לגישה נוחה */}
             {restaurants.length > 0 && (
-              <div className="all-restaurants-section" style={{ direction: 'rtl', marginTop: '60px' }}>
-                <h2 className="all-rests-title">כל המסעדות שלנו ({restaurants.length})</h2>
+              <div className="all-restaurants-section" style={{ direction: 'ltr', marginTop: '60px' }}>
+                <h2 className="all-rests-title">All Our Restaurants ({restaurants.length})</h2>
                 <div className="all-rests-grid">
                   {restaurants.map((restaurant) => (
                     <div 
@@ -274,7 +281,7 @@ const Home = ({ currentUser }) => {
                         />
                       </div>
                       <h3>{restaurant.name}</h3>
-                      <p>📍 מיקום: {restaurant.geolocation?.lat}, {restaurant.geolocation?.lng}</p>
+                      <p>📍 Location: {restaurant.geolocation?.lat}, {restaurant.geolocation?.lng}</p>
                     </div>
                   ))}
                 </div>
