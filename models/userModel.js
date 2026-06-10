@@ -18,6 +18,7 @@ export const saveUser = (userData) => {
         name: userData.name,
         phone: userData.phone,
         address: userData.address,
+        profileImage: userData.profileImage,
         isAdmin: ALLOWED_ADMINS.includes(userData.username.toLowerCase()),
         isSyncedWithCpp: false
     };
