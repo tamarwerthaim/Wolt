@@ -163,8 +163,8 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
                     </span>
                 </div>
             </div>
-        );
-    };
+        </div>
+    );
 
     return (
         <div className="details-container">
