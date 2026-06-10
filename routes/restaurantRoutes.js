@@ -4,6 +4,7 @@ import express from 'express';
 import RestaurantController from '../controllers/restaurantController.js';
 //import the authenticateAdmin middleware to protect admin-only routes
 import { authenticateAdmin } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 //create a new router instance
 const router = express.Router();

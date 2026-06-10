@@ -52,6 +52,7 @@ class ProductModel {
         if (updatedData.name) product.name = updatedData.name;
         if (updatedData.price) product.price = updatedData.price;
         if (updatedData.description) product.description = updatedData.description;
+        if (updatedData.image) product.image = updatedData.image;
 
         return product;
     }
