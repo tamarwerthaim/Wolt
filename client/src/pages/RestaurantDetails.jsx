@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // תוספת: ייבוא useEffect
 import { useParams } from 'react-router-dom';
 
 const RestaurantDetails = () => {
@@ -16,21 +16,42 @@ const RestaurantDetails = () => {
 
     const fontStyle = { fontFamily: "'Nunito', sans-serif" };
 
-    // 2. State זמני כדי שנוכל לבנות את רשת המוצרים לפני ה-fetch האמיתי
-    // (צרי רק 6-9 מנות כדי לראות את הגריד)
-    const [products, setProducts] = useState([
-        { id: 1, name: "King of Burgers Meal", description: "Giant burger + fries + large drink. All the classics, all the tastiness.", price: 69.00, image: "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg" },
-        { id: 2, name: "Veggie Delight Deluxe", description: "Our plant-based hero. Beyond Patty, avocado, vegan mayo.", price: 73.00, image: "https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/7ec57da9-c437-4d94-a78b-d72b2167d730.jpg" },
-        { id: 3, name: "Double Trouble Stack", description: "Two 150g patties, cheddar, bacon. A burger lover's dream.", price: 81.00, image: "https://www.foodiesfeed.com/wp-content/uploads/2023/06/fresh-pork-steak-or-burgers-with-crispy-fries-on-a-wooden-board-500x334.jpg" },
-        { id: 4, name: "Crunchy Chicken Supreme", description: "Breaded chicken breast, lettuce, special sauce. Simple, perfect.", price: 65.00, image: "https://www.fastfoodpost.com/wp-content/uploads/2021/01/Burger-King-Unveils-New-Crunchy-Chicken-Burger-in-Select-Markets-500x334.jpg" },
-        { id: 5, name: "Family Meal Deal", description: "4 Burgers, 2 large fries, 1.5L drink. Feeds a whole kingdom.", price: 219.00, image: "https://images.deliveryhero.io/image/fd-sg/Products/Burger-King/Family-Meals/Family-Meal-1.jpg" },
-        { id: 6, name: "Classic French Fries", description: "Golden, crispy, salty. The perfect companion.", price: 19.00, image: "https://www.willflyforfood.net/wp-content/uploads/2021/04/fast-food-fries.jpg" },
-    ]);
+    // 2. סטייטים לניהול הנתונים מהשרת
+    const [products, setProducts] = useState([]); // מתחיל כמערך ריק
+    const [loading, setLoading] = useState(true); // סטייט טעינה
+    const [error, setError] = useState('');       // סטייט שגיאה
 
-    // 3. קומפוננטה זמנית לעיצוב MenuItem בודד בתוך ה-pages
-    // (זה השלד של ה-MenuItem שמעצב רק את ה-UI, לא נחבר לו הוספה לסל עדיין)
+    // 3. אפקט משיכת הנתונים מהשרת
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoading(true);
+                setError('');
+
+                // בקשת GET לנתיב הדינמי בשרת שלכן לפורט 3000
+                const response = await fetch(`http://localhost:3000/api/restaurants/${id}/products`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch menu products for this restaurant.');
+                }
+
+                const data = await response.json();
+                setProducts(data); // עדכון המוצרים האמיתיים מהשרת!
+            } catch (err) {
+                setError(err.message || 'Something went wrong while loading the menu.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchProducts();
+        }
+    }, [id]); // האפקט ירוץ מחדש אם ה-id בכתובת ה-URL משתנה
+
+    // 4. קומפוננטה זמנית לעיצוב MenuItem בתוך ה-page
     const menuItemPlaceholder = (product) => (
-        <div key={product.id} style={{
+        <div key={product.id || product._id} style={{
             display: 'flex',
             backgroundColor: woltPalette.white,
             borderRadius: '12px',
@@ -51,12 +72,16 @@ const RestaurantDetails = () => {
         >
             {/* צד שמאל: תמונה וכפתור פלוס */}
             <div style={{ position: 'relative', flex: '0 0 100px', marginRight: '16px' }}>
-                <img src={product.image} alt={product.name} style={{
-                    width: '100px',
-                    height: '100px',
-                    borderRadius: '8px',
-                    objectFit: 'cover',
-                }} />
+                {/* אם אין תמונה למוצר בשרת, נשים תמונת פלייסהולדר כללית של המבורגר */}
+                <img src={product.image || "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
+                    alt={product.name}
+                    style={{
+                        width: '100px',
+                        height: '100px',
+                        borderRadius: '8px',
+                        objectFit: 'cover',
+                    }}
+                />
                 <button style={{
                     position: 'absolute',
                     top: '8px',
@@ -81,11 +106,11 @@ const RestaurantDetails = () => {
                     {product.name}
                 </h3>
                 <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: woltPalette.gray, ...fontStyle, lineHeight: '1.4' }}>
-                    {product.description}
+                    {product.description || 'No description available for this delicious dish.'}
                 </p>
                 <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center' }}>
                     <span style={{ fontSize: '16px', fontWeight: '700', ...fontStyle, color: woltPalette.dark }}>
-                        ₪{product.price.toFixed(2)}
+                        ₪{Number(product.price).toFixed(2)}
                     </span>
                 </div>
             </div>
@@ -103,10 +128,10 @@ const RestaurantDetails = () => {
                 backgroundPosition: 'center',
             }}></div>
 
-            {/* חלק 2: כרטיסיית הראש ה"צפה" (הבהרה מהתמונה 7) */}
+            {/* חלק 2: כרטיסיית הראש ה"צפה" */}
             <div style={{
                 maxWidth: '1200px',
-                margin: '-80px auto 40px auto', // אפקט "ציפה" על הבאנר
+                margin: '-80px auto 40px auto',
                 backgroundColor: woltPalette.white,
                 borderRadius: '12px',
                 padding: '32px',
@@ -116,19 +141,16 @@ const RestaurantDetails = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
             }}>
-                {/* צד ימין של הכרטיסייה: שם ותיאור */}
                 <div style={{ textAlign: 'right' }}>
-                    <h1 style={{ margin: '0 0 8px 0', fontSize: '32px', fontWeight: '900', color: woltPalette.dark }}>The King's Burger House</h1>
-                    <p style={{ margin: '0 0 24px 0', fontSize: '18px', color: woltPalette.gray }}>🍔 Hand-Crafted Burgers • Ramat Gan House 🍔</p>
+                    <h1 style={{ margin: '0 0 8px 0', fontSize: '32px', fontWeight: '900', color: woltPalette.dark }}>Restaurant Menu View</h1>
+                    <p style={{ margin: '0 0 24px 0', fontSize: '18px', color: woltPalette.gray }}>Viewing products for Restaurant ID: {id}</p>
 
-                    {/* תגיות זמנים - כמו בתמונה 7 */}
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                         <div style={{ backgroundColor: '#e0fbf8', color: woltPalette.cyan, padding: '8px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: '600' }}>Pickup 15-20 min</div>
                         <div style={{ backgroundColor: '#e0fbf8', color: woltPalette.cyan, padding: '8px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: '600' }}>Delivery 40-50 min</div>
                     </div>
                 </div>
 
-                {/* צד שמאל של הכרטיסייה: דירוג */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                     <div style={{ fontSize: '24px', fontWeight: '900', color: woltPalette.dark }}>4.7</div>
                     <div style={{ fontSize: '14px', color: woltPalette.gray }}>⭐️ Ratings and reviews</div>
@@ -139,15 +161,36 @@ const RestaurantDetails = () => {
             <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 32px' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: '700', color: woltPalette.dark, margin: '0 0 24px 0' }}>The Entire Menu</h2>
 
-                {/* הגריד של המוצרים (כמו בתמונה 8, ללא קטגוריות) */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '24px',
-                    paddingBottom: '60px',
-                }}>
-                    {products.map(product => menuItemPlaceholder(product))}
-                </div>
+                {/* 5. הצגת מצבי טעינה, שגיאה או תפריט ריק */}
+                {loading && (
+                    <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px', color: woltPalette.cyan, fontWeight: '600' }}>
+                        🚴‍♂️ Loading restaurant's delicious menu...
+                    </div>
+                )}
+
+                {error && (
+                    <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px', color: 'red', fontWeight: '600' }}>
+                        ❌ Error: {error}
+                    </div>
+                )}
+
+                {!loading && !error && products.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px', color: woltPalette.gray }}>
+                        🍔 This restaurant hasn't added any dishes to the menu yet.
+                    </div>
+                )}
+
+                {/* הגריד של המוצרים האמיתיים מהשרת */}
+                {!loading && !error && products.length > 0 && (
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '24px',
+                        paddingBottom: '60px',
+                    }}>
+                        {products.map(product => menuItemPlaceholder(product))}
+                    </div>
+                )}
             </div>
         </div>
     );
