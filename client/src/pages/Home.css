@@ -20,12 +20,23 @@
 .hero-text {
   color: var(--hero-text-color);
   font-family: var(--wolt-hero-font); 
-  font-size: 64px; /* הגדלנו טיפה את הכתב שיהיה בולט */
-  font-weight: 800; /* עובי חזק כמו בצילום מסך */
+  font-size: 64px; 
+  font-weight: 800; 
   letter-spacing: -0.5px;
   margin: 0;
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   text-align: center;
+  line-height: 1.1;
+}
+
+.hero-accent-word {
+  display: block;
+  font-size: 140px;
+  letter-spacing: -1px;
+  /* ◄◄ תוספת 2: שינוי למרג'ין שלילי שמושך את המילה למעלה ומקטין את הרווח באופן מבוקר */
+  margin-top: -10px; 
+  /* ◄◄ תוספת 3: שומר על גובה שורה צפוף וקומפקטי גם למילה הגדולה */
+  line-height: 1.0; 
 }
 
 /* אזור התוכן שלמטה */

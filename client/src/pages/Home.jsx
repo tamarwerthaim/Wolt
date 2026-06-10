@@ -27,8 +27,10 @@ const Home = ({ currentUser }) => {
       
       {/* ה-Hero הבאנר התכלת */}
       <div className="hero-banner">
-        <h1 className="hero-text">WHAT IS YOUR</h1>
-        <h1 className="hero-text"><br />DUDA</h1>
+        <h1 className="hero-text">
+          WHAT IS YOUR
+          <span className="hero-accent-word">?DUDA</span>
+        </h1>
       </div>
 
       {/* אזור התוכן שמתחת לבאנר */}
