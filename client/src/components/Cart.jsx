@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Cart.css';
 
 const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) => {
   if (!isOpen) return null;
+
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cart.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -11,6 +15,60 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
   const handleBackdropClick = (e) => {
     if (e.target.className === 'cart-backdrop') {
       onClose();
+    }
+  };
+
+  // Submit order to POST /api/orders
+  const handleCheckout = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please log in to place your order.');
+      onClose();
+      navigate('/login');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          restaurantId: cart.restaurantId,
+          items: cart.items.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity
+          }))
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Order placed successfully! 🚀');
+        clearCart();
+        onClose();
+        navigate('/orders');
+      } else {
+        if (response.status === 401 || response.status === 403) {
+          alert('Your session has expired. Please log in again.');
+          localStorage.removeItem('token');
+          localStorage.removeItem('userId');
+          onClose();
+          navigate('/login');
+        } else {
+          alert(data.error || 'Failed to place order. Please try again.');
+        }
+      }
+    } catch (err) {
+      console.error('Error placing order:', err);
+      alert('A network error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,14 +157,19 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
               </div>
 
               <div className="cart-actions">
-                <button className="cart-clear-btn" onClick={clearCart}>
+                <button 
+                  className="cart-clear-btn" 
+                  onClick={clearCart}
+                  disabled={isSubmitting}
+                >
                   Clear Cart 🗑️
                 </button>
                 <button 
                   className="cart-checkout-btn"
-                  onClick={() => alert('In the next step (Subtask 2), we will connect the order submission to the server!')}
+                  onClick={handleCheckout}
+                  disabled={isSubmitting}
                 >
-                  Proceed to Checkout 🚀
+                  {isSubmitting ? 'Processing...' : 'Proceed to Checkout 🚀'}
                 </button>
               </div>
             </>
