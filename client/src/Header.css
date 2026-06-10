@@ -1,6 +1,6 @@
 /* מבנה ה-Header הכללי - נשאר קבוע למעלה בגלילה */
 .wolt-header {
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;

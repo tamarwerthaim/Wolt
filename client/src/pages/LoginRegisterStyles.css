@@ -1,4 +1,5 @@
 /* src/pages/LoginRegisterStyles.css */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;900&display=swap');
 
 .auth-container {
     display: flex;
@@ -162,4 +163,43 @@
 
 .auth-remove-image-btn:hover {
     opacity: 0.8;
+}
+
+.auth-input-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.auth-input-col {
+    flex: 1;
+    margin: 0 !important;
+}
+
+.wolt-brand-color {
+    color: #00c2e8 !important;
+}
+
+.auth-subtitle {
+    color: #8a8d91;
+    margin-bottom: 24px;
+    font-family: "Nunito", sans-serif;
+    font-size: 16px;
+}
+
+.auth-success-text {
+    color: #00c2e8;
+    font-family: "Nunito", sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+    margin: 10px 0 15px 0;
+}
+
+.auth-banner-preview {
+    width: 100%;
+    height: 160px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }

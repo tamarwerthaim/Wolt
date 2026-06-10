@@ -1,4 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@800&family=Nunito:wght@400;600;700&display=swap');
+
+/* איפוס גלובלי של הדפדפן כדי שהכל ייצמד לקצוות */
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden; /* מונע גלילה אופקית מיותרת */
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
 
 :root {
   --header-bg: #ffffff;
@@ -11,10 +23,12 @@
   --danger-text: #ff4d4f;
   --primary-btn-bg: #00c2e8;
   --main-font: "Nunito", sans-serif;
+  --wolt-hero-font: "Dosis", sans-serif;
+  --hero-text-color: #ffffff;
 }
 
 body.dark-mode {
-  --header-bg: #1a1a1a;
+  --header-bg: #000000;
   --text-color: #f3f5f6;
   --address-bg: #203746;
   --address-text: #00c2e8;
@@ -24,10 +38,12 @@ body.dark-mode {
   --danger-bg: #4a2025; 
   --danger-text: #ff7875;
   --primary-btn-bg: #00c2e8;
+  --hero-text-color: #000000;
 }
 
 body {
   background-color: var(--header-bg);
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
+  padding-top: 72px;
 }
