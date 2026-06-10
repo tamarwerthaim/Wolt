@@ -1,0 +1,263 @@
+/* RestaurantDetails.css */
+
+:root {
+    --wolt-cyan: #00c1a1;
+    --wolt-dark: #202125;
+    --wolt-gray: #8a8d91;
+    --wolt-light-gray: #f8f8f8;
+    --wolt-white: #ffffff;
+    --wolt-shadow: rgba(0, 0, 0, 0.08);
+}
+
+.details-container {
+    background-color: var(--wolt-light-gray);
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+}
+
+/* חלק 1: הבאנר הענק */
+.details-banner {
+    width: 100%;
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+}
+
+/* חלק 2: כרטיסיית הראש ה"צפה" */
+.details-header-card {
+    max-width: 1200px;
+    margin: -80px auto 40px auto;
+    background-color: var(--wolt-white);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* דירוגים - כעת בצד ימין (האלמנט הראשון ב-RTL) */
+.details-ratings-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    direction: ltr;
+    text-align: right;
+}
+
+.details-ratings-average {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--wolt-dark);
+}
+
+.details-ratings-count {
+    font-size: 14px;
+    color: var(--wolt-gray);
+    margin-bottom: 8px;
+}
+
+.details-stars-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.details-rate-label {
+    font-size: 12px;
+    color: var(--wolt-gray);
+    margin-right: 4px;
+}
+
+.details-star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 18px;
+    transition: transform 0.1s ease;
+}
+
+.details-star-btn:hover {
+    transform: scale(1.2);
+}
+
+.details-star-active {
+    color: #ffb400;
+}
+
+.details-star-inactive {
+    color: #ccc;
+}
+
+.details-login-to-rate {
+    font-size: 12px;
+    color: var(--wolt-gray);
+}
+
+.details-rating-status {
+    font-size: 12px;
+    color: var(--wolt-cyan);
+    margin-top: 4px;
+}
+
+/* פרטי המסעדה - כעת בצד שמאל (האלמנט השני ב-RTL) */
+.details-info-section {
+    text-align: left;
+    direction: ltr;
+}
+
+.details-restaurant-name {
+    margin: 0 0 8px 0;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--wolt-dark);
+}
+
+.details-restaurant-location {
+    margin: 0 0 24px 0;
+    font-size: 18px;
+    color: var(--wolt-gray);
+}
+
+.details-tags-row {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+}
+
+.details-tag {
+    background-color: #e0fbf8;
+    color: var(--wolt-cyan);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* חלק 3: רשימת המוצרים (כותרת וגריד של MenuItem) */
+.details-products-area {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.details-menu-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--wolt-dark);
+    margin: 0 0 24px 0;
+}
+
+.details-loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: var(--wolt-cyan);
+    font-weight: 600;
+}
+
+.details-error {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: red;
+    font-weight: 600;
+}
+
+.details-empty-menu {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: var(--wolt-gray);
+}
+
+.details-products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding-bottom: 60px;
+}
+
+/* כרטיסיית מנה בתפריט */
+.menu-item-card {
+    display: flex;
+    background-color: var(--wolt-white);
+    border-radius: 12px;
+    border: 1px solid var(--wolt-light-gray);
+    box-shadow: 0 2px 8px var(--wolt-shadow);
+    padding: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.menu-item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px var(--wolt-shadow);
+}
+
+.menu-item-image-wrapper {
+    position: relative;
+    flex: 0 0 100px;
+    margin-right: 16px;
+}
+
+.menu-item-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.menu-item-add-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: var(--wolt-cyan);
+    border: none;
+    color: var(--wolt-white);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-item-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.menu-item-name {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--wolt-dark);
+    font-family: 'Nunito', sans-serif;
+}
+
+.menu-item-desc {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    color: var(--wolt-gray);
+    line-height: 1.4;
+    font-family: 'Nunito', sans-serif;
+}
+
+.menu-item-price-wrapper {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+}
+
+.menu-item-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--wolt-dark);
+    font-family: 'Nunito', sans-serif;
+}
