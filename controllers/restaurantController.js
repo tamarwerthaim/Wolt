@@ -16,7 +16,7 @@ class RestaurantController {
         const { id } = req.params;
         //find the restaurant with the given id using the model
         const restaurant = RestaurantModel.findById(id);
-        
+
         //if the restaurant is not found, return a 404 status with an error message
         if (!restaurant) {
             return res.status(404).json({ error: "Restaurant not found" });
@@ -28,8 +28,10 @@ class RestaurantController {
     //create a new restaurant
     static createRestaurant(req, res) {
         //extract the name from the request body
-        const { name, image, lat, lng } = req.body;
-        
+        const { name, lat, lng } = req.body;
+
+        const image = req.file ? `/uploads/${req.file.filename}` : null;
+
         //validate that the name is provided, if not return a 400 status with an error message
         if (!name || !image || !lat || !lng) {
             return res.status(400).json({ error: "All fields are required: name, image, lat, and lng must be provided." });
@@ -52,15 +54,15 @@ class RestaurantController {
 
         //check if a restaurant with the same name already exists 
         const existingRestaurant = RestaurantModel.findByName ? RestaurantModel.findByName(name) : null;
-    
+
         // if a restaurant with the same name already exists, return a 400 status with an error message to prevent duplicate restaurant names
         if (existingRestaurant) {
             return res.status(400).json({ error: "Restaurant with this name already exists" });
         }
-        
+
         //create a new restaurant using the model and store the result in newRestaurant
         const newRestaurant = RestaurantModel.create({ name, image, lat, lng });
-        
+
         //set the Location header to the URL of the newly created restaurant
         res.location(`/api/restaurants/${newRestaurant.id}`);
         //return a 201 status to indicate that the restaurant was created successfully
@@ -96,12 +98,12 @@ class RestaurantController {
 
         //use the model to update the restaurant with the given id and new name, and store the result in updatedRestaurant
         const updatedRestaurant = RestaurantModel.update(id, { name, rating, image, lat, lng });
-        
+
         //if the restaurant to update is not found, return a 404 status with an error message
         if (!updatedRestaurant) {
             return res.status(404).json({ error: "Restaurant not found" });
         }
-        
+
         //if the update is successful, return a 204 status to indicate that the restaurant was updated successfully
         res.status(204).send();
     }
@@ -111,7 +113,7 @@ class RestaurantController {
         //extract the id from the request parameters
         const { id } = req.params;
         const isDeleted = RestaurantModel.delete(id);
-        
+
         //if the restaurant to delete is not found, return a 404 status with an error message
         if (!isDeleted) {
             return res.status(404).json({ error: "Restaurant not found" });
