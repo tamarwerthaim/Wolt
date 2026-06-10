@@ -11,6 +11,7 @@ import Orders from './pages/Orders.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import RestaurantDetails from './pages/RestaurantDetails';
+import AddRestaurant from './pages/AddRestaurant';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -100,6 +101,11 @@ function App() {
             {/* שינוי 3: מעבירים ל-Home את המשתמש כדי שההרשאות וכפתורי האדמין יתעדכנו */}
             <Route path="/" element={<Home currentUser={currentUser} />} />
             
+            <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+            <Route path="/admin/add-restaurant" element={<AddRestaurant />} />
+
+            {/* Main application routes */}
+            <Route path="/" element={<Home />} />
             <Route path="/orders" element={
               <ProtectedRoute>
                 <Orders currentUser={currentUser} />

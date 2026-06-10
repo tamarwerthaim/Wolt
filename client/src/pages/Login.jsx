@@ -68,9 +68,9 @@ const Login = ({ setCurrentUser }) => {
 
     return (
         <div className="auth-container">
-            <style>
+            {/* <style>
                 {`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;900&display=swap');`}
-            </style>
+            </style> */}
 
             <div className="auth-card">
                 <div className="auth-logo-container">
