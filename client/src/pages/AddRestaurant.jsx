@@ -83,7 +83,7 @@ const AddRestaurant = () => {
                 throw new Error(data.error || 'Failed to add the restaurant.');
             }
 
-            setSuccess('Restaurant added successfully! Redirecting...');
+            setSuccess('...Restaurant added successfully! Redirecting');
 
             setTimeout(() => {
                 navigate('/');
