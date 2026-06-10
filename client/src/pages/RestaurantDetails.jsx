@@ -2,11 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './RestaurantDetails.css';
 
-const RestaurantDetails = () => {
+const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
     const { id } = useParams();
 
-    // סטייטים לניהול הנתונים מהשרת
-    const [restaurant, setRestaurant] = useState(null); // סטייט לפרטי המסעדה
+    // 1. פלטת הצבעים והפונטים של וולט
+    const woltPalette = {
+        cyan: '#00c1a1',
+        dark: '#202125',
+        gray: '#8a8d91',
+        lightGray: '#f8f8f8',
+        white: '#ffffff',
+        shadow: 'rgba(0, 0, 0, 0.08)',
+    };
+
+    const fontStyle = { fontFamily: "'Nunito', sans-serif" };
+
+    // 2. סטייטים לניהול הנתונים מהשרת
+    const [restaurant, setRestaurant] = useState(null); // פרטי המסעדה
     const [products, setProducts] = useState([]); // מתחיל כמערך ריק
     const [loading, setLoading] = useState(true); // סטייט טעינה
     const [error, setError] = useState('');       // סטייט שגיאה
@@ -48,7 +60,7 @@ const RestaurantDetails = () => {
                 const prodData = await prodResponse.json();
                 setProducts(prodData);
             } catch (err) {
-                setError(err.message || 'Something went wrong while loading the menu.');
+                setError(err.message || 'Something went wrong while loading restaurant and menu.');
             } finally {
                 setLoading(false);
             }
@@ -151,8 +163,8 @@ const RestaurantDetails = () => {
                     </span>
                 </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="details-container">

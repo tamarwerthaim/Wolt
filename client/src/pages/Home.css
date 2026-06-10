@@ -8,20 +8,23 @@
 /* עיצוב הבאנר התכלת הראשי */
 .hero-banner {
   background-color: var(--primary-btn-bg);
-  width: 100%; /* שינוי: רוחב מלא רגיל ונקי */
-  padding: 240px 20px; /* גובה הבאנר הארוך שרצית */
+  width: 100%;
+  /* שינוי: רוחב מלא רגיל ונקי */
+  padding: 240px 20px;
+  /* גובה הבאנר הארוך שרצית */
   display: flex;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  margin: 0; /* מוודא שאין שום רווח למעלה או בצדדים */
+  margin: 0;
+  /* מוודא שאין שום רווח למעלה או בצדדים */
 }
 
 .hero-text {
   color: var(--hero-text-color);
-  font-family: var(--wolt-hero-font); 
-  font-size: 64px; 
-  font-weight: 800; 
+  font-family: var(--wolt-hero-font);
+  font-size: 64px;
+  font-weight: 800;
   letter-spacing: -0.5px;
   margin: 0;
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -34,9 +37,9 @@
   font-size: 140px;
   letter-spacing: -1px;
   /* ◄◄ תוספת 2: שינוי למרג'ין שלילי שמושך את המילה למעלה ומקטין את הרווח באופן מבוקר */
-  margin-top: -10px; 
+  margin-top: -10px;
   /* ◄◄ תוספת 3: שומר על גובה שורה צפוף וקומפקטי גם למילה הגדולה */
-  line-height: 1.0; 
+  line-height: 1.0;
 }
 
 /* אזור התוכן שלמטה */
@@ -44,28 +47,35 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
-  text-align: right; /* התאמה לעברית/אנגלית אחידה */
-  position: relative; /* מאפשר מיקום אבסולוטי של כפתור האדמין ביחס לתוכן */
+  text-align: right;
+  /* התאמה לעברית/אנגלית אחידה */
+  position: relative;
+  /* מאפשר מיקום אבסולוטי של כפתור האדמין ביחס לתוכן */
 }
 
 /* --- לוגיקת הסרט הנע (Marquee האופקי) --- */
 .marquee-wrapper {
   width: 100%;
-  overflow: hidden; /* מחביא את מה שיוצא מגבולות המסך בצדדים */
+  overflow: hidden;
+  /* מחביא את מה שיוצא מגבולות המסך בצדדים */
   padding: 10px 0;
   position: relative;
-  margin-top: -120px; /* מושך את המסעדות למעלה על רקע התכלת */
+  margin-top: -120px;
+  /* מושך את המסעדות למעלה על רקע התכלת */
   z-index: 10;
-  
+
   /* השורה שמצילה את המצב: מנטרלת את ה-RTL של האפליקציה רק עבור הסרט הנע */
-  direction: ltr; 
+  direction: ltr;
 }
 
 .marquee-track {
   display: flex;
   gap: 20px;
   width: max-content;
-  animation: scrollMarquee 25s linear infinite; /* זז בצורה חלקה ואינסופית */
+}
+
+.marquee-track.enable-scroll {
+  animation: scrollMarquee 25s linear infinite; /* זז בצורה חלקה ואינסופית רק כשיש גלילה */
 }
 
 /* כשהעכבר מעל הרצועה, התנועה עוצרת כדי שיהיה נוח ללחוץ */
@@ -86,7 +96,8 @@
 }
 
 .restaurant-card:hover {
-  transform: translateY(-5px); /* אפקט קפיצה קטן בטעינה */
+  transform: translateY(-5px);
+  /* אפקט קפיצה קטן בטעינה */
 }
 
 .card-image-placeholder {
@@ -117,8 +128,10 @@
 /* כפתור אדמין להוספת מסעדה - ממוקם בצד שמאל של הסרט הנע */
 .add-restaurant-btn {
   position: absolute;
-  left: -10px; /* מציב את הכפתור חצי בתוך הרצועה וחצי בחוץ (ה-padding של home-content הוא 20px) */
-  top: 0; /* מיושר אנכית לקו המעבר בין הבאנר התכלת לרקע הלבן */
+  left: -10px;
+  /* מציב את הכפתור חצי בתוך הרצועה וחצי בחוץ (ה-padding של home-content הוא 20px) */
+  top: 0;
+  /* מיושר אנכית לקו המעבר בין הבאנר התכלת לרקע הלבן */
   transform: translateY(-50%);
   width: 60px;
   height: 60px;
@@ -152,8 +165,233 @@
   0% {
     transform: translateX(0);
   }
+
   100% {
     /* עכשיו כשהרכיב הוא LTR, מעבר של בדיוק חצי מהרצועה (50%-) יוצר לופ אינסופי נקי וחלק */
-    transform: translateX(-50%); 
+    transform: translateX(-50%);
   }
+}
+
+/* תוספות לעימוד כל המסעדות ותוצאות החיפוש */
+.clickable {
+  cursor: pointer;
+}
+
+.restaurant-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.restaurant-card.clickable:hover .restaurant-card-img {
+  transform: scale(1.05);
+}
+
+/* כותרות וגריד כל המסעדות */
+.all-restaurants-section {
+  width: 100%;
+  padding-top: 20px;
+  text-align: left; /* יישור לשמאל עבור אנגלית */
+}
+
+.all-rests-title {
+  font-family: "Nunito", sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 24px;
+  position: relative;
+  display: inline-block;
+}
+
+.all-rests-title::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0; /* מיושר לשמאל כיוון שהכותרת באנגלית (LTR) */
+  width: 40px;
+  height: 4px;
+  background-color: var(--primary-btn-bg);
+  border-radius: 2px;
+}
+
+.all-rests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.all-rests-grid .restaurant-card {
+  width: 100%;
+  margin: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.all-rests-grid .restaurant-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* תוצאות חיפוש */
+.search-results-section {
+  width: 100%;
+  padding: 20px 0;
+  text-align: left;
+  /* יישור לשמאל עבור אנגלית */
+}
+
+.results-title {
+  font-family: "Nunito", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 30px;
+}
+
+.search-query-highlight {
+  color: var(--primary-btn-bg);
+}
+
+.loading-spinner {
+  text-align: center;
+  font-size: 18px;
+  padding: 40px;
+  color: var(--primary-btn-bg);
+  font-weight: 600;
+}
+
+.error-message {
+  text-align: center;
+  font-size: 18px;
+  padding: 20px;
+  color: var(--danger-text);
+}
+
+.no-results {
+  font-family: "Nunito", sans-serif;
+  text-align: center;
+  font-size: 20px;
+  padding: 80px 20px;
+  color: #8a8d91;
+  background-color: var(--btn-secondary-bg);
+  border-radius: 16px;
+  border: 1px dashed var(--btn-secondary-hover);
+}
+
+.results-group {
+  margin-bottom: 40px;
+}
+
+.group-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--btn-secondary-hover);
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+/* כרטיסיית מנה בתוצאות חיפוש */
+.product-result-card {
+  background-color: var(--btn-secondary-bg);
+  border-radius: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-result-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.product-card-header {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.product-image-container {
+  width: 100%;
+  height: 100%;
+}
+
+.product-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-result-card:hover .product-card-img {
+  transform: scale(1.05);
+}
+
+.product-price {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: var(--primary-btn-bg);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.product-card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.product-card-body h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0 0 6px 0;
+}
+
+.product-description {
+  font-size: 13px;
+  color: #737373;
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+  flex-grow: 1;
+}
+
+.product-restaurant-ref {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a8d91;
+  background-color: var(--btn-secondary-hover);
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.restaurant-ref-name {
+  color: var(--primary-btn-bg);
+  font-weight: 700;
 }
