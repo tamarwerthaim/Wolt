@@ -14,6 +14,73 @@ const Home = ({ currentUser }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Calculate distance in kilometers using the Haversine formula
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return null;
+    if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
+    const R = 6371; // Earth's radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+  };
+
+  // Sort restaurants by proximity if user location is available
+  const sortedRestaurants = React.useMemo(() => {
+    const userLat = currentUser?.geolocation?.lat;
+    const userLng = currentUser?.geolocation?.lng;
+
+    if (userLat === undefined || userLng === undefined || isNaN(userLat) || isNaN(userLng)) {
+      return restaurants;
+    }
+
+    return [...restaurants].sort((a, b) => {
+      const aLat = a.geolocation?.lat;
+      const aLng = a.geolocation?.lng;
+      const bLat = b.geolocation?.lat;
+      const bLng = b.geolocation?.lng;
+
+      const distA = getDistance(userLat, userLng, aLat, aLng);
+      const distB = getDistance(userLat, userLng, bLat, bLng);
+
+      if (distA === null) return 1;
+      if (distB === null) return -1;
+
+      return distA - distB;
+    });
+  }, [restaurants, currentUser]);
+
+  // Sort search results by proximity if user location is available
+  const sortedSearchResultsRestaurants = React.useMemo(() => {
+    const userLat = currentUser?.geolocation?.lat;
+    const userLng = currentUser?.geolocation?.lng;
+
+    if (userLat === undefined || userLng === undefined || isNaN(userLat) || isNaN(userLng)) {
+      return searchResults.restaurants;
+    }
+
+    return [...searchResults.restaurants].sort((a, b) => {
+      const aLat = a.geolocation?.lat;
+      const aLng = a.geolocation?.lng;
+      const bLat = b.geolocation?.lat;
+      const bLng = b.geolocation?.lng;
+
+      const distA = getDistance(userLat, userLng, aLat, aLng);
+      const distB = getDistance(userLat, userLng, bLat, bLng);
+
+      if (distA === null) return 1;
+      if (distB === null) return -1;
+
+      return distA - distB;
+    });
+  }, [searchResults.restaurants, currentUser]);
+
   // 1. טעינת כל המסעדות עבור הרצועה ורשימת כל המסעדות
   useEffect(() => {
     const fetchAllRestaurants = async () => {
@@ -102,7 +169,7 @@ const Home = ({ currentUser }) => {
   };
 
   // נתונים זמניים למסעדות כדי שהסרט הנע לא יהיה ריק אם ה-DB עדיין ריק
-  const displayRestaurants = restaurants.length > 0 ? restaurants : [
+  const displayRestaurants = sortedRestaurants.length > 0 ? sortedRestaurants : [
     { id: 1, name: 'Burger King 🍔', cuisine: 'Burgers', image: '' },
     { id: 2, name: 'Rebar 🥤', cuisine: 'Drinks', image: '' },
     { id: 3, name: 'Sushi Bar 🥢', cuisine: 'Asian', image: '' },
@@ -154,23 +221,39 @@ const Home = ({ currentUser }) => {
               <div className="results-group">
                 <h3 className="group-title">Restaurants ({searchResults.restaurants.length})</h3>
                 <div className="results-grid">
-                  {searchResults.restaurants.map((restaurant) => (
-                    <div 
-                      key={restaurant.id} 
-                      className="restaurant-card clickable"
-                      onClick={() => navigate(`/restaurant/${restaurant.id}`)}
-                    >
-                      <div className="card-image-placeholder">
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
+                  {sortedSearchResultsRestaurants.map((restaurant) => {
+                    const dist = currentUser?.geolocation
+                      ? getDistance(
+                          currentUser.geolocation.lat,
+                          currentUser.geolocation.lng,
+                          restaurant.geolocation?.lat,
+                          restaurant.geolocation?.lng
+                        )
+                      : null;
+                    return (
+                      <div 
+                        key={restaurant.id} 
+                        className="restaurant-card clickable"
+                        onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                      >
+                        <div className="card-image-placeholder">
+                          <img 
+                            src={getRestaurantImage(restaurant)} 
+                            alt={restaurant.name} 
+                            className="restaurant-card-img"
+                          />
+                        </div>
+                        <h3>{restaurant.name}</h3>
+                        <p>
+                          {dist !== null 
+                            ? `📍 ${dist.toFixed(1)} km away` 
+                            : restaurant.geolocation 
+                              ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
+                              : '📍 No location'}
+                        </p>
                       </div>
-                      <h3>{restaurant.name}</h3>
-                      <p>📍 Location: {restaurant.geolocation?.lat}, {restaurant.geolocation?.lng}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -216,74 +299,122 @@ const Home = ({ currentUser }) => {
             <div className="marquee-wrapper">
               <div className={`marquee-track ${shouldScroll ? 'enable-scroll' : ''}`}>
                 {/* הוספת השיכפול - פעם ראשונה של הרשימה */}
-                {displayRestaurants.map((restaurant, index) => (
-                  <div 
-                    key={`list1-${restaurant.id}-${index}`} 
-                    className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
-                    onClick={() => handleRestaurantClick(restaurant)}
-                  >
-                    <div className="card-image-placeholder">
-                      {restaurant.image ? (
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
-                      ) : (
-                        <span style={{ fontSize: '40px' }}>🍔</span>
-                      )}
+                {displayRestaurants.map((restaurant, index) => {
+                  const dist = currentUser?.geolocation
+                    ? getDistance(
+                        currentUser.geolocation.lat,
+                        currentUser.geolocation.lng,
+                        restaurant.geolocation?.lat,
+                        restaurant.geolocation?.lng
+                      )
+                    : null;
+                  return (
+                    <div 
+                      key={`list1-${restaurant.id}-${index}`} 
+                      className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
+                      onClick={() => handleRestaurantClick(restaurant)}
+                    >
+                      <div className="card-image-placeholder">
+                        {restaurant.image ? (
+                          <img 
+                            src={getRestaurantImage(restaurant)} 
+                            alt={restaurant.name} 
+                            className="restaurant-card-img"
+                          />
+                        ) : (
+                          <span style={{ fontSize: '40px' }}>🍔</span>
+                        )}
+                      </div>
+                      <h3>{restaurant.name}</h3>
+                      <p>
+                        {restaurant.cuisine || (dist !== null 
+                          ? `📍 ${dist.toFixed(1)} km away` 
+                          : restaurant.geolocation 
+                            ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
+                            : '📍 No location')}
+                      </p>
                     </div>
-                    <h3>{restaurant.name}</h3>
-                    <p>{restaurant.cuisine || `📍 Location: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
-                  </div>
-                ))}
+                  );
+                })}
                 {/* הוספת השיכפול - פעם שנייה של הרשימה (עותק מדויק) - רק אם צריך לגלול */}
-                {shouldScroll && displayRestaurants.map((restaurant, index) => (
-                  <div 
-                    key={`list2-${restaurant.id}-${index}`} 
-                    className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
-                    onClick={() => handleRestaurantClick(restaurant)}
-                  >
-                    <div className="card-image-placeholder">
-                      {restaurant.image ? (
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
-                      ) : (
-                        <span style={{ fontSize: '40px' }}>🍔</span>
-                      )}
+                {shouldScroll && displayRestaurants.map((restaurant, index) => {
+                  const dist = currentUser?.geolocation
+                    ? getDistance(
+                        currentUser.geolocation.lat,
+                        currentUser.geolocation.lng,
+                        restaurant.geolocation?.lat,
+                        restaurant.geolocation?.lng
+                      )
+                    : null;
+                  return (
+                    <div 
+                      key={`list2-${restaurant.id}-${index}`} 
+                      className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
+                      onClick={() => handleRestaurantClick(restaurant)}
+                    >
+                      <div className="card-image-placeholder">
+                        {restaurant.image ? (
+                          <img 
+                            src={getRestaurantImage(restaurant)} 
+                            alt={restaurant.name} 
+                            className="restaurant-card-img"
+                          />
+                        ) : (
+                          <span style={{ fontSize: '40px' }}>🍔</span>
+                        )}
+                      </div>
+                      <h3>{restaurant.name}</h3>
+                      <p>
+                        {restaurant.cuisine || (dist !== null 
+                          ? `📍 ${dist.toFixed(1)} km away` 
+                          : restaurant.geolocation 
+                            ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
+                            : '📍 No location')}
+                      </p>
                     </div>
-                    <h3>{restaurant.name}</h3>
-                    <p>{restaurant.cuisine || `📍 Location: ${restaurant.geolocation?.lat}, ${restaurant.geolocation?.lng}`}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* רשימת כל המסעדות בבלוקים מסודרים לגישה נוחה */}
-            {restaurants.length > 0 && (
+            {sortedRestaurants.length > 0 && (
               <div className="all-restaurants-section" style={{ direction: 'ltr', marginTop: '60px' }}>
-                <h2 className="all-rests-title">All Our Restaurants ({restaurants.length})</h2>
+                <h2 className="all-rests-title">All Our Restaurants ({sortedRestaurants.length})</h2>
                 <div className="all-rests-grid">
-                  {restaurants.map((restaurant) => (
-                    <div 
-                      key={restaurant.id} 
-                      className="restaurant-card clickable"
-                      onClick={() => navigate(`/restaurant/${restaurant.id}`)}
-                    >
-                      <div className="card-image-placeholder">
-                        <img 
-                          src={getRestaurantImage(restaurant)} 
-                          alt={restaurant.name} 
-                          className="restaurant-card-img"
-                        />
+                  {sortedRestaurants.map((restaurant) => {
+                    const dist = currentUser?.geolocation
+                      ? getDistance(
+                          currentUser.geolocation.lat,
+                          currentUser.geolocation.lng,
+                          restaurant.geolocation?.lat,
+                          restaurant.geolocation?.lng
+                        )
+                      : null;
+                    return (
+                      <div 
+                        key={restaurant.id} 
+                        className="restaurant-card clickable"
+                        onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                      >
+                        <div className="card-image-placeholder">
+                          <img 
+                            src={getRestaurantImage(restaurant)} 
+                            alt={restaurant.name} 
+                            className="restaurant-card-img"
+                          />
+                        </div>
+                        <h3>{restaurant.name}</h3>
+                        <p>
+                          {dist !== null 
+                            ? `📍 ${dist.toFixed(1)} km away` 
+                            : restaurant.geolocation 
+                              ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
+                              : '📍 No location'}
+                        </p>
                       </div>
-                      <h3>{restaurant.name}</h3>
-                      <p>📍 Location: {restaurant.geolocation?.lat}, {restaurant.geolocation?.lng}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
