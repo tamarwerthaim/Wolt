@@ -38,7 +38,7 @@ export const registerUser = async (req, res) => {
             phone,
             lat,
             lng,
-            profileImage: profileImage.path
+            profileImage: profileImage ? profileImage.filename : null
         });
         const { password: savedPassword, ...profileData } = newUser;
         return res.status(201).json(profileData);

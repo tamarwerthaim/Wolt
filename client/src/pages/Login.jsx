@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import woltLogo from '../assets/wolt_circle2.png';
 import './LoginRegisterStyles.css';
 
-const Login = () => {
+// שינוי 1: מקבלים את הפונקציה ב-Props בשורה הראשונה של הקומפוננטה
+const Login = ({ setCurrentUser }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const navigate = useNavigate();
 
-    // handle login submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -20,7 +20,6 @@ const Login = () => {
             return;
         }
         try {
-            // connecting to server
             const response = await fetch('http://localhost:3000/api/tokens', {
                 method: 'POST',
                 headers: {
@@ -28,37 +27,43 @@ const Login = () => {
                 },
                 body: JSON.stringify({ username, password }),
             });
-            //make sure we not getting an error 
+            
             let data = {};
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
                 data = await response.json();
             }
 
-            // check if login failed
             if (!response.ok) {
                 throw new Error(data.error || 'Login failed. Invalid username or password.');
             }
 
-            //save token
             localStorage.setItem('token', data.token);
             console.log('Login successful! Token saved in LocalStorage.');
 
-            // Decode the JWT token to extract user information
             const tokenParts = data.token.split('.');
             const decodedPayload = JSON.parse(atob(tokenParts[1]));
-            
-            // Save decoded user ID to localStorage
             localStorage.setItem('userId', decodedPayload.id);
+
+            // ◄◄ שינוי 2: מושכים מיד את פרופיל המשתמש המלא ומעדכנים את ה-State הגלובלי באפליקציה!
+            const profileResponse = await fetch(`http://localhost:3000/api/users/${decodedPayload.id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${data.token}`
+                }
+            });
+            const userData = await profileResponse.json();
+            
+            if (!userData.error) {
+                setCurrentUser(userData); // מעדכן את האפליקציה באופן מיידי!
+            }
 
             //navigate to home
             navigate('/')
         }
         catch (err) {
-            //setting error
             setError(err.message || 'Server connection error. Please try again later.');
         }
-
     };
 
     return (
