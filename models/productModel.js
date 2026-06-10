@@ -33,7 +33,8 @@ class ProductModel {
             id: uuidv4(),
             name: productData.name,
             price: productData.price,
-            description: productData.description
+            description: productData.description,
+            image: productData.image
         };
         
         // add the new product to the restaurant's menu

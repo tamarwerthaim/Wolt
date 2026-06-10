@@ -17,7 +17,10 @@ export const saveUser = (userData) => {
         password: userData.password,
         name: userData.name,
         phone: userData.phone,
-        address: userData.address,
+        geolocation: {
+            lat: parseFloat(userData.lat), 
+            lng: parseFloat(userData.lng)
+        },
         profileImage: userData.profileImage,
         isAdmin: ALLOWED_ADMINS.includes(userData.username.toLowerCase()),
         isSyncedWithCpp: false
