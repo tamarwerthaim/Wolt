@@ -24,7 +24,11 @@ export const searchRestaurantsAndProducts = (query) => {
             restaurant.menu.forEach(product => {
                 if ((product.name && product.name.toLowerCase().includes(lowerQuery)) ||
                     (product.description && product.description.toLowerCase().includes(lowerQuery))) {
-                    matchedProducts.push(product);
+                    matchedProducts.push({
+                        ...product,
+                        restaurantId: restaurant.id,
+                        restaurantName: restaurant.name
+                    });
                 }
             });
         }

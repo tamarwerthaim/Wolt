@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Header.css';
 import woltLogoLight from './assets/wolt-delivery1310.logowik.com.PNG';
 import woltLogoDark from './assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 // מקבלים את currentUser ו-setCurrentUser מתוך ה-Props של ה-App
 const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
@@ -10,6 +10,24 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
   // הסטטוס נקבע בצורה דינמית: אם קיים משתמש ב-App, אנחנו מחוברים!
   const isLoggedIn = !!currentUser;
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
+  const [searchVal, setSearchVal] = useState(searchQuery);
+
+  // סנכרון תיבת החיפוש עם ה-URL
+  useEffect(() => {
+    setSearchVal(searchQuery);
+  }, [searchQuery]);
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearchVal(val);
+    if (val.trim()) {
+      navigate(`/?search=${encodeURIComponent(val)}`);
+    } else {
+      navigate('/');
+    }
+  };
 
   const handleLogout = () => {
     // מנקים את ה-localStorage
@@ -43,7 +61,13 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser }) => {
         <div className="header-center">
           <div className="header-search-bar">
             <span className="search-icon">🔍</span>
-            <input type="text" placeholder="Search in Wolt..." className="search-input" />
+            <input 
+              type="text" 
+              placeholder="Search in Wolt..." 
+              className="search-input" 
+              value={searchVal}
+              onChange={handleSearchChange}
+            />
           </div>
         </div>
 
