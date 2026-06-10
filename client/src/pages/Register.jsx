@@ -40,7 +40,7 @@ const Register = () => {
 
         // עדכון 2: בדיקה שכל השדות מלאים כולל קו רוחב וקו אורך
         if (!username || !displayName || !lat || !lng || !phone || !password || !confirmPassword || !profileImage) {
-            setError('All fields are required, including location coordinates, phone number, and profile image.');
+            setError('All fields are required!');
             return;
         }
 
@@ -49,19 +49,19 @@ const Register = () => {
         const lngNum = parseFloat(lng);
 
         if (isNaN(latNum) || latNum < -90 || latNum > 90) {
-            setError('Invalid Latitude. It must be a valid number between -90 and 90.');
+            setError('Invalid Latitude.\n It must be a valid number between -90 and 90.');
             return;
         }
 
         if (isNaN(lngNum) || lngNum < -180 || lngNum > 180) {
-            setError('Invalid Longitude. It must be a valid number between -180 and 180.');
+            setError('Invalid Longitude.\n It must be a valid number between -180 and 180.');
             return;
         }
 
         // Check phone number format
         const phoneRegex = /^05\d{8}$/;
         if (!phoneRegex.test(phone)) {
-            setError('Invalid phone number. Must be a valid 10-digit number starting with 05.');
+            setError('Invalid phone number. \n Must be a valid 10-digit number starting with 05.');
             return;
         }
 
