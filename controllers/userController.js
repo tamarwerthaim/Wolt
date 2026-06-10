@@ -10,6 +10,26 @@ export const registerUser = async (req, res) => {
         return res.status(400).json({ error: "All fields are required" });
     }
 
+    // Geolocation bounds format and range check
+    const numLat = parseFloat(lat);
+    const numLng = parseFloat(lng);
+    
+    if (isNaN(numLat) || isNaN(numLng)) {
+        return res.status(400).json({ error: "Latitude and Longitude must be valid numbers" });
+    }
+    if (numLat < -90 || numLat > 90) {
+        return res.status(400).json({ error: "Latitude must be a number between -90 and 90" });
+    }
+    if (numLng < -180 || numLng > 180) {
+        return res.status(400).json({ error: "Longitude must be a number between -180 and 180" });
+    }
+
+    // Ensure the uploaded file mimetype is strictly an image
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+        return res.status(400).json({ error: "Invalid image format. Only JPG, JPEG, PNG, and WEBP are allowed" });
+    }
+
     // Check password length
     if (password.length < 8) {
         return res.status(400).json({ error: "Password must be at least 8 characters long" });

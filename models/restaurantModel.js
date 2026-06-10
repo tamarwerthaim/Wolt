@@ -29,7 +29,7 @@ class RestaurantModel {
         const newRestaurant = {
             id: uuidv4(), 
             name: restaurantData.name,
-            rating: restaurantData.rating ? [parseFloat(restaurantData.rating)] : [], 
+            ratings: [], 
             image: restaurantData.image, 
             geolocation: {
                 lat: parseFloat(restaurantData.lat), 

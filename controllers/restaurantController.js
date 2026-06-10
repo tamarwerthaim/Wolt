@@ -28,11 +28,26 @@ class RestaurantController {
     //create a new restaurant
     static createRestaurant(req, res) {
         //extract the name from the request body
-        const { name, rating, image, lat, lng } = req.body;
+        const { name, image, lat, lng } = req.body;
         
         //validate that the name is provided, if not return a 400 status with an error message
-        if (!name || !rating || !image || !lat || !lng) {
-            return res.status(400).json({ error: "All fields are required: name, rating, image, lat, and lng must be provided." });
+        if (!name || !image || !lat || !lng) {
+            return res.status(400).json({ error: "All fields are required: name, image, lat, and lng must be provided." });
+        }
+
+        //validate that the latitude and longitude are valid numbers within the acceptable range for geolocation coordinates
+        const numLat = parseFloat(lat);
+        const numLng = parseFloat(lng);
+        if (isNaN(numLat) || isNaN(numLng)) {
+            return res.status(400).json({ error: "Latitude and Longitude must be valid numbers" });
+        }
+        if (numLat < -90 || numLat > 90 || numLng < -180 || numLng > 180) {
+            return res.status(400).json({ error: "Invalid coordinate bounds for geolocation" });
+        }
+
+        // Image Path String Validation
+        if (typeof image !== 'string' || image.trim() === '') {
+            return res.status(400).json({ error: "Image path must be a non-empty string reference" });
         }
 
         //check if a restaurant with the same name already exists 
@@ -44,7 +59,7 @@ class RestaurantController {
         }
         
         //create a new restaurant using the model and store the result in newRestaurant
-        const newRestaurant = RestaurantModel.create({ name, rating, image, lat, lng });
+        const newRestaurant = RestaurantModel.create({ name, image, lat, lng });
         
         //set the Location header to the URL of the newly created restaurant
         res.location(`/api/restaurants/${newRestaurant.id}`);
@@ -56,7 +71,7 @@ class RestaurantController {
     static updateRestaurant(req, res) {
         //extract the id from the request parameters and the name from the request body
         const { id } = req.params;
-        const { name, rating, image, lat, lng } = req.body;
+        const { name, image, lat, lng } = req.body;
 
         //validate that the name is provided
         if (name) {
@@ -65,6 +80,17 @@ class RestaurantController {
             //if a restaurant with the same name exists and it's not the restaurant we're trying to update, return a 400 status with an error message to prevent duplicate restaurant names
             if (existing && existing.id !== id) {
                 return res.status(400).json({ error: "Restaurant with this name already exists" });
+            }
+        }
+        // Conditional Geolocation Checks on patches
+        if (lat || lng) {
+            if (!lat || !lng) {
+                return res.status(400).json({ error: "Both lat and lng parameters must be updated together" });
+            }
+            const numLat = parseFloat(lat);
+            const numLng = parseFloat(lng);
+            if (isNaN(numLat) || isNaN(numLng) || numLat < -90 || numLat > 90 || numLng < -180 || numLng > 180) {
+                return res.status(400).json({ error: "Invalid coordinates format or out of bounds" });
             }
         }
 
