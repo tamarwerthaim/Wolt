@@ -8,6 +8,7 @@ const Orders = () => <h2 style={{ color: 'var(--text-color)' }}>ההזמנות �
 // const Login = () => <h2 style={{ color: 'var(--text-color)' }}>דף התחברות למערכת 🔑</h2>;
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import RestaurantDetails from './pages/RestaurantDetails';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -32,6 +33,7 @@ function App() {
             {/* Public Login Route */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/restaurant/:id" element={<RestaurantDetails />} />
 
             {/* Main application routes */}
             <Route path="/" element={<Home />} />
