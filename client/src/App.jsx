@@ -11,6 +11,7 @@ import Orders from './pages/Orders.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import RestaurantDetails from './pages/RestaurantDetails';
+import AddRestaurant from './pages/AddRestaurant';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -61,6 +62,10 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+            <Route path="/admin/add-restaurant" element={<AddRestaurant />} />
+
+            {/* Main application routes */}
             <Route path="/" element={<Home />} />
             <Route path="/orders" element={
               <ProtectedRoute>
