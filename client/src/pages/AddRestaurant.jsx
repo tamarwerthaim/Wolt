@@ -35,7 +35,7 @@ const AddRestaurant = () => {
         setSuccess('');
 
         if (!name || !restaurantImage || !lat || !lng) {
-            setError('Please provide a restaurant name, latitude, longitude, and a banner image.');
+            setError('All fields are required! ');
             return;
         }
 
@@ -43,12 +43,12 @@ const AddRestaurant = () => {
         const lngNum = parseFloat(lng);
 
         if (isNaN(latNum) || latNum < -90 || latNum > 90) {
-            setError('Invalid Latitude. It must be a valid number between -90 and 90.');
+            setError('Invalid Latitude.\nIt must be a valid number between -90 and 90.');
             return;
         }
 
         if (isNaN(lngNum) || lngNum < -180 || lngNum > 180) {
-            setError('Invalid Longitude. It must be a valid number between -180 and 180.');
+            setError('Invalid Longitude.\nIt must be a valid number between -180 and 180.');
             return;
         }
 
@@ -57,14 +57,27 @@ const AddRestaurant = () => {
             formData.append('name', name);
             formData.append('lat', lat);
             formData.append('lng', lng);
+            // שולחים את הקובץ תחת השם 'restaurantImage' שהשרת יחפש
             formData.append('restaurantImage', restaurantImage);
+
+            // 🔥 שליפת ה-Token של האדמין שנשמר בלוגין
+            const token = localStorage.getItem('token');
 
             const response = await fetch('http://localhost:3000/api/restaurants', {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    // 🔥 הזרקת ה-Token כדי לעבור את חסימת ה-authenticateAdmin של מוריה
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData // כששולחים FormData, הדפדפן מגדיר את ה-Content-Type אוטומטית!
             });
 
-            const data = await response.json();
+            // בדיקה אם השרת החזיר תוכן (כי מוריה משתמשת ב-res.status(201).send() ללא גוף)
+            let data = {};
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            }
 
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to add the restaurant.');
