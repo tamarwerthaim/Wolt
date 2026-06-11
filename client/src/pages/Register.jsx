@@ -118,7 +118,7 @@ const Register = () => {
             // ממתינים 3 שניות כדי לתת למשתמש ליהנות מהחוויה, ואז מעבירים ללוגין
             setTimeout(() => {
                 navigate('/login');
-            }, 5000);
+            }, 4000);
         }
         // if failed
         catch (err) {
@@ -142,7 +142,7 @@ const Register = () => {
                 {/* 🎯 התנאי החדש שמציג מסך הצלחה מותאם במקום הטופס */}
                 {isSuccess ? (
                     <div>
-                        <h1 className="auth-heading wolt-brand-color">!Welcome to the Wolt Family</h1>
+                        <h1 className="auth-heading wolt-brand-color">!Welcome to Wolt Family</h1>
                     </div>
                 ) : (
                     <form onSubmit={handleRegisterSubmit}>

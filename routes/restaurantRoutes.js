@@ -20,7 +20,7 @@ router.post('/:id/rate', authenticateToken, RestaurantController.rateRestaurant)
 
 // Protected Admin-only routes
 router.post('/', authenticateAdmin, upload.single('restaurantImage'), RestaurantController.createRestaurant);
-router.patch('/:id', authenticateAdmin, RestaurantController.updateRestaurant);
+router.patch('/:id', authenticateAdmin, upload.single('restaurantImage'), RestaurantController.updateRestaurant);
 router.delete('/:id', authenticateAdmin, RestaurantController.deleteRestaurant);
 
 //export the router so it can be used in other parts of the application

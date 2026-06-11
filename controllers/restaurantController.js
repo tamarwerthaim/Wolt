@@ -28,13 +28,18 @@ class RestaurantController {
     //create a new restaurant
     static createRestaurant(req, res) {
         //extract the name from the request body
-        const { name, lat, lng } = req.body;
+        const { name, lat, lng, prepTime } = req.body;
 
         const image = req.file ? `/uploads/${req.file.filename}` : null;
 
         //validate that the name is provided, if not return a 400 status with an error message
-        if (!name || !image || !lat || !lng) {
-            return res.status(400).json({ error: "All fields are required: name, image, lat, and lng must be provided." });
+        if (!name || !image || !lat || !lng || !prepTime) {
+            return res.status(400).json({ error: "All fields are required: name, image, lat, lng, and prepTime must be provided." });
+        }
+
+        const parsedPrepTime = parseInt(prepTime);
+        if (isNaN(parsedPrepTime) || parsedPrepTime <= 0) {
+            return res.status(400).json({ error: "Preparation time must be a valid number greater than zero" });
         }
 
         //validate that the latitude and longitude are valid numbers within the acceptable range for geolocation coordinates
@@ -61,7 +66,7 @@ class RestaurantController {
         }
 
         //create a new restaurant using the model and store the result in newRestaurant
-        const newRestaurant = RestaurantModel.create({ name, image, lat, lng });
+        const newRestaurant = RestaurantModel.create({ name, image, lat, lng, prepTime: parsedPrepTime });
 
         //set the Location header to the URL of the newly created restaurant
         res.location(`/api/restaurants/${newRestaurant.id}`);
@@ -73,7 +78,8 @@ class RestaurantController {
     static updateRestaurant(req, res) {
         //extract the id from the request parameters and the name from the request body
         const { id } = req.params;
-        const { name, image, lat, lng } = req.body;
+        const { name, image: bodyImage, lat, lng, prepTime } = req.body;
+        const image = req.file ? `/uploads/${req.file.filename}` : bodyImage;
 
         //validate that the name is provided
         if (name) {
@@ -96,8 +102,16 @@ class RestaurantController {
             }
         }
 
+        let parsedPrepTime;
+        if (prepTime !== undefined) {
+            parsedPrepTime = parseInt(prepTime);
+            if (isNaN(parsedPrepTime) || parsedPrepTime <= 0) {
+                return res.status(400).json({ error: "Preparation time must be a valid number greater than zero" });
+            }
+        }
+
         //use the model to update the restaurant with the given id and new name, and store the result in updatedRestaurant
-        const updatedRestaurant = RestaurantModel.update(id, { name, rating, image, lat, lng });
+        const updatedRestaurant = RestaurantModel.update(id, { name, image, lat, lng, prepTime: parsedPrepTime });
 
         //if the restaurant to update is not found, return a 404 status with an error message
         if (!updatedRestaurant) {

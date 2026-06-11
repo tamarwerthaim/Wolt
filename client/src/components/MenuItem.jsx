@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MenuItem.css';
 
-const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName }) => {
+const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName, currentUser }) => {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tempQuantity, setTempQuantity] = useState(1);
 
@@ -66,6 +68,18 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     return (
         <>
             <div className="menu-item-card" onClick={handleCardClick}>
+                {currentUser?.isAdmin && (
+                    <button
+                        className="menu-item-edit-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/restaurant/${restaurantId}/product/${productId}/edit`);
+                        }}
+                        title="Edit Product"
+                    >
+                        ✏️
+                    </button>
+                )}
                 {/* צד שמאל: תמונה וכפתור פלוס או בורר כמות */}
                 <div className="menu-item-image-wrapper">
                     <img
@@ -125,9 +139,9 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
 
                         <div className="product-modal-footer">
                             <button className="product-modal-add-btn" onClick={handleAddToOrder}>
-                                להוסיף להזמנה ₪{(product.price * tempQuantity).toFixed(2)}
+                                ₪{(product.price * tempQuantity).toFixed(2)} Add to cart
                             </button>
-                            
+
                             <div className="product-modal-qty-selector">
                                 <button className="product-modal-qty-btn" onClick={handleModalIncrement}>+</button>
                                 <span className="product-modal-qty-val">{tempQuantity}</span>

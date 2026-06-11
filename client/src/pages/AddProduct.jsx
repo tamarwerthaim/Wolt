@@ -83,7 +83,7 @@ const AddProduct = () => {
             <div className="auth-card">
                 <h1 className="auth-heading wolt-brand-color">Add New Product</h1>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate>
                     {/* שם המוצר */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="name" className="auth-label">:Product Name</label>

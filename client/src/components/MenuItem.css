@@ -1,13 +1,28 @@
 /* MenuItem.css */
 
-.menu-item-card {
+:root {
     --wolt-cyan: #00c1a1;
     --wolt-dark: #202125;
     --wolt-gray: #8a8d91;
     --wolt-light-gray: #f8f8f8;
     --wolt-white: #ffffff;
     --wolt-shadow: rgba(0, 0, 0, 0.08);
+    --wolt-qty-bg: #e5f7fd;
+    --wolt-qty-text: #00848f;
+}
 
+body.dark-mode {
+    --wolt-dark: #ffffff;
+    --wolt-gray: #b0b3b8;
+    --wolt-light-gray: #121212;
+    --wolt-white: #1e1e20;
+    --wolt-shadow: rgba(0, 0, 0, 0.5);
+    --wolt-qty-bg: #1a2f3b;
+    --wolt-qty-text: #00c2e8;
+}
+
+.menu-item-card {
+    position: relative;
     display: flex;
     background-color: var(--wolt-white);
     border-radius: 12px;
@@ -40,14 +55,13 @@
 .menu-item-add-btn {
     position: absolute;
     bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: -10px;
     width: 44px;
     height: 44px;
     border-radius: 22px;
     background-color: var(--wolt-cyan);
     border: none;
-    color: var(--wolt-white);
+    color: #ffffff;
     font-size: 28px;
     cursor: pointer;
     display: flex;
@@ -55,26 +69,25 @@
     justify-content: center;
     transition: background-color 0.2s ease, transform 0.1s ease;
     z-index: 10;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .menu-item-add-btn:hover {
     background-color: #00a085;
-    transform: translateX(-50%) scale(1.05);
+    transform: scale(1.05);
 }
 
 .menu-item-add-btn:active {
-    transform: translateX(-50%) scale(0.95);
+    transform: scale(0.95);
 }
 
 /* Quantity Selector Pill */
 .menu-item-qty-selector {
     position: absolute;
     bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: -10px;
     height: 44px;
-    background-color: #e5f7fd;
+    background-color: var(--wolt-qty-bg);
     border-radius: 22px;
     display: flex;
     align-items: center;
@@ -84,16 +97,17 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     z-index: 10;
     gap: 10px;
-    direction: ltr; /* Ensure layout order (+ value -) regardless of RTL wrapper */
+    direction: ltr;
+    /* Ensure layout order (+ value -) regardless of RTL wrapper */
 }
 
 .menu-item-qty-btn {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #ffffff;
+    background-color: var(--wolt-white);
     border: none;
-    color: #00848f;
+    color: var(--wolt-qty-text);
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
@@ -107,7 +121,7 @@
 }
 
 .menu-item-qty-btn:hover {
-    background-color: #f0fbfc;
+    background-color: var(--wolt-light-gray);
     transform: scale(1.05);
 }
 
@@ -118,7 +132,7 @@
 .menu-item-qty-val {
     font-size: 18px;
     font-weight: 700;
-    color: #00848f;
+    color: var(--wolt-qty-text);
     min-width: 18px;
     text-align: center;
     font-family: 'Nunito', sans-serif;
@@ -178,14 +192,14 @@
 }
 
 .product-modal-container {
-    background-color: #ffffff;
+    background-color: var(--wolt-white);
     border-radius: 16px;
     width: 90%;
     max-width: 500px;
     position: relative;
     padding: 32px;
     box-sizing: border-box;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 30px var(--wolt-shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -197,6 +211,7 @@
         opacity: 0;
         transform: scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -210,9 +225,9 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    color: #4a5568;
+    background-color: var(--wolt-white);
+    border: 1px solid var(--wolt-light-gray);
+    color: var(--wolt-dark);
     font-size: 16px;
     cursor: pointer;
     display: flex;
@@ -224,7 +239,7 @@
 }
 
 .product-modal-close-btn:hover {
-    background-color: #f7fafc;
+    background-color: var(--wolt-light-gray);
     transform: scale(1.05);
 }
 
@@ -245,7 +260,7 @@
 .product-modal-title {
     font-size: 26px;
     font-weight: 800;
-    color: #202125;
+    color: var(--wolt-dark);
     margin: 0 0 12px 0;
     text-align: center;
     font-family: 'Nunito', sans-serif;
@@ -254,7 +269,7 @@
 .product-modal-price {
     font-size: 18px;
     font-weight: 600;
-    color: #8a8d91;
+    color: var(--wolt-gray);
     margin: 0 0 16px 0;
     text-align: center;
     font-family: 'Nunito', sans-serif;
@@ -262,7 +277,7 @@
 
 .product-modal-description {
     font-size: 15px;
-    color: #5a5d61;
+    color: var(--wolt-gray);
     line-height: 1.5;
     margin: 0 0 24px 0;
     text-align: center;
@@ -272,14 +287,15 @@
 
 .product-modal-footer {
     width: 100%;
-    border-top: 1px solid #f3f3f3;
+    border-top: 1px solid var(--wolt-light-gray);
     padding-top: 20px;
     margin-top: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    direction: ltr; /* Keeps buttons left-aligned and selector right-aligned */
+    direction: ltr;
+    /* Keeps buttons left-aligned and selector right-aligned */
 }
 
 .product-modal-add-btn {
@@ -309,7 +325,7 @@
 
 .product-modal-qty-selector {
     height: 44px;
-    background-color: #e5f7fd;
+    background-color: var(--wolt-qty-bg);
     border-radius: 22px;
     display: flex;
     align-items: center;
@@ -325,9 +341,9 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #ffffff;
+    background-color: var(--wolt-white);
     border: none;
-    color: #00848f;
+    color: var(--wolt-qty-text);
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
@@ -341,7 +357,7 @@
 }
 
 .product-modal-qty-btn:hover {
-    background-color: #f0fbfc;
+    background-color: var(--wolt-light-gray);
     transform: scale(1.05);
 }
 
@@ -352,8 +368,32 @@
 .product-modal-qty-val {
     font-size: 18px;
     font-weight: 700;
-    color: #00848f;
+    color: var(--wolt-qty-text);
     min-width: 18px;
     text-align: center;
     font-family: 'Nunito', sans-serif;
+}
+
+.menu-item-edit-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--wolt-white);
+    border: 1px solid var(--wolt-light-gray);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    font-size: 14px;
+}
+
+.menu-item-edit-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--wolt-light-gray);
 }

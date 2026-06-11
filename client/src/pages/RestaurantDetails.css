@@ -7,6 +7,20 @@
     --wolt-light-gray: #f8f8f8;
     --wolt-white: #ffffff;
     --wolt-shadow: rgba(0, 0, 0, 0.08);
+    --wolt-qty-bg: #e5f7fd;
+    --wolt-qty-text: #00848f;
+    --wolt-tag-bg: #e0fbf8;
+}
+
+body.dark-mode {
+    --wolt-dark: #ffffff;
+    --wolt-gray: #b0b3b8;
+    --wolt-light-gray: #121212;
+    --wolt-white: #1e1e20;
+    --wolt-shadow: rgba(0, 0, 0, 0.5);
+    --wolt-qty-bg: #1a2f3b;
+    --wolt-qty-text: #00c2e8;
+    --wolt-tag-bg: #16302b;
 }
 
 .details-container {
@@ -83,12 +97,24 @@
     transform: scale(1.2);
 }
 
+.details-star-btn:disabled {
+    cursor: default;
+}
+
+.details-star-btn:disabled:hover {
+    transform: none;
+}
+
 .details-star-active {
     color: #ffb400;
 }
 
 .details-star-inactive {
     color: #ccc;
+}
+
+body.dark-mode .details-star-inactive {
+    color: #444444;
 }
 
 .details-login-to-rate {
@@ -128,7 +154,7 @@
 }
 
 .details-tag {
-    background-color: #e0fbf8;
+    background-color: var(--wolt-tag-bg);
     color: var(--wolt-cyan);
     padding: 8px 12px;
     border-radius: 6px;
@@ -141,6 +167,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 32px;
+    direction: ltr;
 }
 
 .details-menu-title {
@@ -187,7 +214,7 @@
     background-color: var(--wolt-cyan);
     border: none;
     border-radius: 50%;
-    color: var(--wolt-white);
+    color: #ffffff;
     font-size: 26px;
     font-weight: bold;
     display: flex;
@@ -206,4 +233,25 @@
 
 .add-product-btn:active {
     transform: scale(0.95);
+}
+
+.edit-restaurant-btn {
+    background: none;
+    border: 1px solid var(--wolt-cyan);
+    color: var(--wolt-cyan);
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.edit-restaurant-btn:hover {
+    background-color: var(--wolt-cyan);
+    color: var(--wolt-white);
+    transform: scale(1.05);
 }

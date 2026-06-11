@@ -1,33 +1,64 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import './LoginRegisterStyles.css';
 
-const AddRestaurant = () => {
+const EditRestaurant = () => {
+    const { id: restaurantId } = useParams();
     const [name, setName] = useState('');
     const [lat, setLat] = useState('');
     const [lng, setLng] = useState('');
     const [prepTime, setPrepTime] = useState('15');
     const [restaurantImage, setRestaurantImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
+    const [existingImage, setExistingImage] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchRestaurant = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load restaurant details.');
+                }
+                const data = await response.json();
+                setName(data.name || '');
+                setLat(data.geolocation?.lat?.toString() || '');
+                setLng(data.geolocation?.lng?.toString() || '');
+                setPrepTime(data.prepTime?.toString() || '15');
+                if (data.image) {
+                    setExistingImage(data.image);
+                    setImagePreview(data.image.startsWith('/uploads') ? `http://localhost:3000${data.image}` : data.image);
+                }
+            } catch (err) {
+                setError(err.message || 'Error loading restaurant details.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchRestaurant();
+    }, [restaurantId]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setRestaurantImage(file);
             setImagePreview(URL.createObjectURL(file));
-
-            // התיקון לבאג התמונה: מאפסים את ערך ה-DOM של ה-Input
             e.target.value = '';
         }
     };
 
     const handleClearImage = () => {
         setRestaurantImage(null);
-        setImagePreview(null);
+        if (existingImage) {
+            setImagePreview(existingImage.startsWith('/uploads') ? `http://localhost:3000${existingImage}` : existingImage);
+        } else {
+            setImagePreview(null);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -35,19 +66,14 @@ const AddRestaurant = () => {
         setError('');
         setSuccess('');
 
-        if (!name || !restaurantImage || !lat || !lng || !prepTime) {
-            setError('All fields are required! ');
-            return;
-        }
-
-        const prepNum = parseInt(prepTime);
-        if (isNaN(prepNum) || prepNum <= 0) {
-            setError('Invalid preparation time.\nIt must be a valid number greater than zero.');
+        if (!name || !lat || !lng || !prepTime) {
+            setError('All fields except selecting a new image file are required!');
             return;
         }
 
         const latNum = parseFloat(lat);
         const lngNum = parseFloat(lng);
+        const prepNum = parseInt(prepTime);
 
         if (isNaN(latNum) || latNum < -90 || latNum > 90) {
             setError('Invalid Latitude.\nIt must be a valid number between -90 and 90.');
@@ -59,39 +85,80 @@ const AddRestaurant = () => {
             return;
         }
 
+        if (isNaN(prepNum) || prepNum <= 0) {
+            setError('Invalid preparation time.\nIt must be a valid number greater than zero.');
+            return;
+        }
+
         try {
             const formData = new FormData();
             formData.append('name', name);
             formData.append('lat', lat);
             formData.append('lng', lng);
             formData.append('prepTime', prepTime);
-            // שולחים את הקובץ תחת השם 'restaurantImage' שהשרת יחפש
-            formData.append('restaurantImage', restaurantImage);
 
-            // 🔥 שליפת ה-Token של האדמין שנשמר בלוגין
+            if (restaurantImage) {
+                formData.append('restaurantImage', restaurantImage);
+            } else {
+                formData.append('image', existingImage);
+            }
+
             const token = localStorage.getItem('token');
 
-            const response = await fetch('http://localhost:3000/api/restaurants', {
-                method: 'POST',
+            const response = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}`, {
+                method: 'PATCH',
                 headers: {
-                    // 🔥 הזרקת ה-Token כדי לעבור את חסימת ה-authenticateAdmin של מוריה
                     'Authorization': `Bearer ${token}`
                 },
-                body: formData // כששולחים FormData, הדפדפן מגדיר את ה-Content-Type אוטומטית!
+                body: formData
             });
 
-            // בדיקה אם השרת החזיר תוכן (כי מוריה משתמשת ב-res.status(201).send() ללא גוף)
-            let data = {};
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                data = await response.json();
+            if (!response.ok) {
+                let errorMsg = 'Failed to update restaurant.';
+                try {
+                    const data = await response.json();
+                    errorMsg = data.error || errorMsg;
+                } catch (_) {}
+                throw new Error(errorMsg);
             }
+
+            setSuccess('Restaurant details updated successfully! Redirecting...');
+
+            setTimeout(() => {
+                navigate(`/restaurant/${restaurantId}`);
+            }, 2000);
+
+        } catch (err) {
+            setError(err.message || 'Server error. Please try again.');
+        }
+    };
+
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this restaurant? This action cannot be undone.");
+        if (!confirmDelete) return;
+
+        setError('');
+        setSuccess('');
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to add the restaurant.');
+                let errorMsg = 'Failed to delete restaurant.';
+                try {
+                    const data = await response.json();
+                    errorMsg = data.error || errorMsg;
+                } catch (_) {}
+                throw new Error(errorMsg);
             }
 
-            setSuccess('...Restaurant added successfully! Redirecting');
+            setSuccess('Restaurant deleted successfully! Redirecting...');
 
             setTimeout(() => {
                 navigate('/');
@@ -101,6 +168,16 @@ const AddRestaurant = () => {
             setError(err.message || 'Server error. Please try again.');
         }
     };
+
+    if (loading) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px' }}>
+                    <p style={{ color: '#00c1a1', fontSize: '18px', fontWeight: 'bold' }}>Loading Restaurant Details...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-container">
@@ -112,8 +189,7 @@ const AddRestaurant = () => {
                     </svg>
                 </button>
 
-                {/* שילוב מושלם: הגודל והפונט של הלוגין, בצבע הכחול #00c2e8 מה-CSS שלך */}
-                <h1 className="auth-heading wolt-brand-color">Add New Restaurant</h1>
+                <h1 className="auth-heading wolt-brand-color">Edit Restaurant Details</h1>
 
                 <form onSubmit={handleSubmit} noValidate>
                     {/* שם המסעדה */}
@@ -133,7 +209,6 @@ const AddRestaurant = () => {
                     <div className="auth-input-wrapper">
                         <label className="auth-label">:Location</label>
                         <div className="auth-input-row">
-
                             {/* שדה Latitude */}
                             <div className="auth-input-col">
                                 <input
@@ -143,7 +218,7 @@ const AddRestaurant = () => {
                                     value={lat}
                                     onChange={(e) => setLat(e.target.value)}
                                     className="auth-input"
-                                    placeholder="Latitude (e.g., 32.0853)"
+                                    placeholder="Latitude"
                                 />
                             </div>
 
@@ -156,10 +231,9 @@ const AddRestaurant = () => {
                                     value={lng}
                                     onChange={(e) => setLng(e.target.value)}
                                     className="auth-input"
-                                    placeholder="Longitude (e.g., 34.7818)"
+                                    placeholder="Longitude"
                                 />
                             </div>
-
                         </div>
                     </div>
 
@@ -173,13 +247,13 @@ const AddRestaurant = () => {
                             value={prepTime}
                             onChange={(e) => setPrepTime(e.target.value)}
                             className="auth-input"
-                            placeholder="Preparation time (e.g., 15)"
+                            placeholder="Preparation time"
                         />
                     </div>
 
                     {/* העלאת תמונת באנר */}
                     <div className="auth-input-wrapper">
-                        <label className="auth-label">:Upload Restaurant Image</label>
+                        <label className="auth-label">:Restaurant Image</label>
                         <div className="auth-file-input-container">
                             <input
                                 type="file"
@@ -189,26 +263,46 @@ const AddRestaurant = () => {
                                 className="auth-hidden-file-input"
                             />
                             <label htmlFor="restaurantImage" className="auth-file-input-label">
-                                {restaurantImage ? `📸 ${restaurantImage.name}` : '📁 Choose Restaurant Image'}
+                                {restaurantImage ? `📸 ${restaurantImage.name}` : '📁 Upload New Banner Image'}
                             </label>
                         </div>
 
                         {imagePreview && (
                             <div className="auth-preview-container">
-                                <img src={imagePreview} alt="Restaurant Image Preview" className="auth-banner-preview" />
-                                <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
-                                    Remove Image
-                                </button>
+                                <img src={imagePreview} alt="Restaurant Banner Preview" className="auth-banner-preview" />
+                                {restaurantImage && (
+                                    <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
+                                        Revert to Original
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
 
                     {/* הודעות שגיאה או הצלחה */}
-                    {error && <div className="auth-error-text">{error}</div>}
+                    {error && <div className="auth-error-text" style={{ whiteSpace: 'pre-line' }}>{error}</div>}
                     {success && <div className="auth-success-text">{success}</div>}
 
                     <button type="submit" className="auth-submit-button">
-                        Add Restaurant
+                        Save Changes
+                    </button>
+
+                    <button 
+                        type="button" 
+                        onClick={handleDelete} 
+                        className="auth-submit-button"
+                        style={{ backgroundColor: '#ff4d4f', marginTop: '10px' }}
+                    >
+                        Delete Restaurant
+                    </button>
+
+                    <button 
+                        type="button" 
+                        onClick={() => navigate(`/restaurant/${restaurantId}`)} 
+                        className="auth-submit-button"
+                        style={{ backgroundColor: '#ccc', marginTop: '10px' }}
+                    >
+                        Cancel
                     </button>
                 </form>
             </div>
@@ -216,4 +310,4 @@ const AddRestaurant = () => {
     );
 };
 
-export default AddRestaurant;
+export default EditRestaurant;
