@@ -9,6 +9,7 @@ let restaurants = [
         ratings: {},
         image: '/uploads/bbb_burger.png',
         geolocation: { lat: 32.0853, lng: 34.7818 },
+        prepTime: 15,
         menu: []
     },
     {
@@ -17,6 +18,7 @@ let restaurants = [
         ratings: {},
         image: '/uploads/golda_gelato.png',
         geolocation: { lat: 32.0715, lng: 34.7785 },
+        prepTime: 10,
         menu: []
     },
     {
@@ -25,6 +27,7 @@ let restaurants = [
         ratings: {},
         image: '/uploads/pizzahut_pizza.png',
         geolocation: { lat: 32.0801, lng: 34.7805 },
+        prepTime: 20,
         menu: []
     },
     {
@@ -33,6 +36,7 @@ let restaurants = [
         ratings: {},
         image: '/uploads/japanjapan_sushi.png',
         geolocation: { lat: 32.0844, lng: 34.7901 },
+        prepTime: 25,
         menu: []
     },
     {
@@ -41,6 +45,7 @@ let restaurants = [
         ratings: {},
         image: '/uploads/greg_breakfast.png',
         geolocation: { lat: 32.0912, lng: 34.7761 },
+        prepTime: 15,
         menu: []
     },
     {
@@ -49,6 +54,7 @@ let restaurants = [
         ratings: {},
         image: '/uploads/rebar_smoothie.png',
         geolocation: { lat: 32.0699, lng: 34.7722 },
+        prepTime: 10,
         menu: []
     },
     {
@@ -57,6 +63,7 @@ let restaurants = [
         ratings: {},
         image: '/uploads/falafel_gabay.png',
         geolocation: { lat: 32.0625, lng: 34.7701 },
+        prepTime: 12,
         menu: []
     }
 ];
@@ -92,6 +99,7 @@ class RestaurantModel {
                 lat: parseFloat(restaurantData.lat),
                 lng: parseFloat(restaurantData.lng)
             },
+            prepTime: parseInt(restaurantData.prepTime) || 15,
             menu: []
         };
         //add the new restaurant to the in-memory array
@@ -142,6 +150,10 @@ class RestaurantModel {
                 lat: parseFloat(updatedData.lat),
                 lng: parseFloat(updatedData.lng)
             };
+        }
+        //update the restaurant's prepTime if it's provided in the updatedData
+        if (updatedData.prepTime !== undefined) {
+            restaurant.prepTime = parseInt(updatedData.prepTime) || 15;
         }
         //return the updated restaurant
         return restaurant;

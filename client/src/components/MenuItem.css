@@ -8,6 +8,7 @@
     --wolt-white: #ffffff;
     --wolt-shadow: rgba(0, 0, 0, 0.08);
 
+    position: relative;
     display: flex;
     background-color: var(--wolt-white);
     border-radius: 12px;
@@ -356,4 +357,28 @@
     min-width: 18px;
     text-align: center;
     font-family: 'Nunito', sans-serif;
+}
+
+.menu-item-edit-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--wolt-white, #ffffff);
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 10;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    font-size: 14px;
+}
+
+.menu-item-edit-btn:hover {
+    transform: scale(1.1);
+    background-color: #f1f5f9;
 }

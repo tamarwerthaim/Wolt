@@ -83,6 +83,14 @@
     transform: scale(1.2);
 }
 
+.details-star-btn:disabled {
+    cursor: default;
+}
+
+.details-star-btn:disabled:hover {
+    transform: none;
+}
+
 .details-star-active {
     color: #ffb400;
 }
@@ -141,6 +149,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 32px;
+    direction: ltr;
 }
 
 .details-menu-title {
@@ -206,4 +215,25 @@
 
 .add-product-btn:active {
     transform: scale(0.95);
+}
+
+.edit-restaurant-btn {
+    background: none;
+    border: 1px solid var(--wolt-cyan);
+    color: var(--wolt-cyan);
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.edit-restaurant-btn:hover {
+    background-color: var(--wolt-cyan);
+    color: var(--wolt-white);
+    transform: scale(1.05);
 }

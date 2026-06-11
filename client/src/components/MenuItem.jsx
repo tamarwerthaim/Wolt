@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MenuItem.css';
 
-const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName }) => {
+const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName, currentUser }) => {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tempQuantity, setTempQuantity] = useState(1);
 
@@ -66,6 +68,18 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     return (
         <>
             <div className="menu-item-card" onClick={handleCardClick}>
+                {currentUser?.isAdmin && (
+                    <button 
+                        className="menu-item-edit-btn" 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/restaurant/${restaurantId}/product/${productId}/edit`);
+                        }}
+                        title="Edit Product"
+                    >
+                        ✏️
+                    </button>
+                )}
                 {/* צד שמאל: תמונה וכפתור פלוס או בורר כמות */}
                 <div className="menu-item-image-wrapper">
                     <img

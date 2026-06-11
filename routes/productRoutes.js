@@ -12,7 +12,7 @@ router.get('/:pld', productController.getProductById);
 
 // Protected Admin-only routes
 router.post('/', authenticateAdmin, upload.single('productImage'), productController.createProduct);
-router.patch('/:pld', authenticateAdmin, productController.updateProduct);
+router.patch('/:pld', authenticateAdmin, upload.single('productImage'), productController.updateProduct);
 router.delete('/:pld', authenticateAdmin, productController.deleteProduct);
 
 export default router;

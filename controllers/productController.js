@@ -108,10 +108,16 @@ class ProductController {
     static async updateProduct(req, res) {
         // extract the restaurant id and product id from the request parameters, and the updated product data from the request body
         const { id, pld } = req.params;
-        const { name, price, description, image } = req.body;
+        const name = req.body?.name;
+        const price = req.body?.price;
+        const description = req.body?.description;
+        const bodyImage = req.body?.image;
+        const image = req.file ? `/uploads/${req.file.filename}` : bodyImage;
+
         // If an update for price is requested, enforce it is a positive number greater than zero
+        let numPrice;
         if (price !== undefined) {
-            const numPrice = parseFloat(price);
+            numPrice = parseFloat(price);
             if (isNaN(numPrice) || numPrice <= 0) {
                 return res.status(400).json({ error: "Updated product price must be a valid number greater than zero" });
             }
@@ -123,7 +129,7 @@ class ProductController {
             }
         }
         // use the ProductModel to update the product with the given restaurant id and product id
-        const updatedProduct = ProductModel.update(id, pld, { name, price, description, image });
+        const updatedProduct = ProductModel.update(id, pld, { name, price: numPrice, description, image });
         
         // if the product or restaurant is not found, the model will return null
         if (!updatedProduct) {

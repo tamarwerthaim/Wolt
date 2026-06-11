@@ -138,6 +138,43 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
         }
     };
 
+    // Calculate dynamic pickup and delivery times
+    const getDistance = (lat1, lon1, lat2, lon2) => {
+        if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return null;
+        if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) return null;
+        if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
+        const R = 6371; // Earth's radius in km
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distance in km
+    };
+
+    const prepTime = restaurant?.prepTime || 15;
+    const pickupStr = `Pickup ${prepTime}-${prepTime + 5} min`;
+
+    const userLat = currentUser?.geolocation?.lat;
+    const userLng = currentUser?.geolocation?.lng;
+    const restLat = restaurant?.geolocation?.lat;
+    const restLng = restaurant?.geolocation?.lng;
+
+    let deliveryStr = 'Delivery 30-40 min'; // Fallback
+    if (userLat !== undefined && userLng !== undefined && restLat !== undefined && restLng !== undefined &&
+        userLat !== null && userLng !== null && restLat !== null && restLng !== null) {
+        const distance = getDistance(userLat, userLng, restLat, restLng);
+        if (distance !== null) {
+            const travelTime = Math.round(distance * 3);
+            const deliveryTime = travelTime + prepTime;
+            deliveryStr = `Delivery ${deliveryTime}-${deliveryTime + 5} min`;
+        }
+    }
+
     return (
         <div className="details-container">
             <button className="back-button" onClick={() => navigate(-1)} title="Back">
@@ -168,27 +205,27 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                         ⭐️ ({getRatingsCount()} ratings)
                     </div>
 
-                    {/* בחירת כוכבים דינמית למשתמשים מחוברים */}
-                    {localStorage.getItem('token') ? (
-                        <div className="details-stars-row">
-                            <span className="details-rate-label">Rate:</span>
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                    key={star}
-                                    onClick={() => handleRate(star)}
-                                    onMouseEnter={() => setHoverRating(star)}
-                                    onMouseLeave={() => setHoverRating(0)}
-                                    className={`details-star-btn ${star <= (hoverRating || userRating)
-                                            ? 'details-star-active'
-                                            : 'details-star-inactive'
-                                        }`}
-                                    title={`Rate ${star} stars`}
-                                >
-                                    ★
-                                </button>
-                            ))}
-                        </div>
-                    ) : (
+                    {/* בחירת כוכבים דינמית למשתמשים מחוברים / מנוטרלת למשתמשים אורחים */}
+                    <div className="details-stars-row">
+                        <span className="details-rate-label">Rate:</span>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                                key={star}
+                                onClick={localStorage.getItem('token') ? () => handleRate(star) : undefined}
+                                onMouseEnter={localStorage.getItem('token') ? () => setHoverRating(star) : undefined}
+                                onMouseLeave={localStorage.getItem('token') ? () => setHoverRating(0) : undefined}
+                                disabled={!localStorage.getItem('token')}
+                                className={`details-star-btn ${star <= (hoverRating || userRating)
+                                        ? 'details-star-active'
+                                        : 'details-star-inactive'
+                                    }`}
+                                title={localStorage.getItem('token') ? `Rate ${star} stars` : 'Log in to rate'}
+                            >
+                                ★
+                            </button>
+                        ))}
+                    </div>
+                    {!localStorage.getItem('token') && (
                         <div className="details-login-to-rate">
                             Log in to rate
                         </div>
@@ -198,8 +235,17 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
 
                 {/* פרטי המסעדה - כעת בצד שמאל */}
                 <div className="details-info-section">
-                    <h1 className="details-restaurant-name">
+                    <h1 className="details-restaurant-name" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         {restaurant?.name || 'Restaurant Menu'}
+                        {currentUser?.isAdmin && (
+                            <button
+                                className="edit-restaurant-btn"
+                                onClick={() => navigate(`/restaurant/${id}/edit`)}
+                                title="Edit Restaurant"
+                            >
+                                Edit Restaurant ✏️
+                            </button>
+                        )}
                     </h1>
                     <p className="details-restaurant-location">
                         {restaurant?.geolocation
@@ -209,8 +255,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                     </p>
 
                     <div className="details-tags-row">
-                        <div className="details-tag">Pickup 15-20 min</div>
-                        <div className="details-tag">Delivery 40-50 min</div>
+                        <div className="details-tag">{pickupStr}</div>
+                        {localStorage.getItem('token') && <div className="details-tag">{deliveryStr}</div>}
                     </div>
                 </div>
             </div>
@@ -261,6 +307,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                                 onRemove={removeFromCart}
                                 restaurantId={id}
                                 restaurantName={restaurant?.name}
+                                currentUser={currentUser}
                             />
                         ))}
                     </div>

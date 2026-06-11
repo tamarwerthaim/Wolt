@@ -10,7 +10,9 @@ import Register from './pages/Register.jsx';
 import EditProfile from './pages/EditProfile.jsx';
 import RestaurantDetails from './pages/RestaurantDetails';
 import AddRestaurant from './pages/AddRestaurant';
+import EditRestaurant from './pages/EditRestaurant';
 import AddProduct from './pages/AddProduct';
+import EditProduct from './pages/EditProduct';
 import Cart from './components/Cart.jsx';
 
 function App() {
@@ -213,6 +215,16 @@ function App() {
               />
             } />
             <Route path="/restaurant/:id/add-product" element={<AddProduct />} />
+            <Route path="/restaurant/:id/edit" element={
+              <ProtectedRoute>
+                <EditRestaurant />
+              </ProtectedRoute>
+            } />
+            <Route path="/restaurant/:id/product/:pld/edit" element={
+              <ProtectedRoute>
+                <EditProduct />
+              </ProtectedRoute>
+            } />
             <Route path="/admin/add-restaurant" element={<AddRestaurant />} />
 
             {/* Main application routes */}

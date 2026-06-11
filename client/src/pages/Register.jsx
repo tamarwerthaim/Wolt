@@ -142,7 +142,7 @@ const Register = () => {
                 {/* 🎯 התנאי החדש שמציג מסך הצלחה מותאם במקום הטופס */}
                 {isSuccess ? (
                     <div>
-                        <h1 className="auth-heading wolt-brand-color">!Welcome to the Wolt Family</h1>
+                        <h1 className="auth-heading wolt-brand-color">!Welcome to Wolt Family</h1>
                     </div>
                 ) : (
                     <form onSubmit={handleRegisterSubmit}>
