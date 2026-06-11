@@ -7,6 +7,7 @@ import Orders from './pages/Orders.jsx';
 
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import EditProfile from './pages/EditProfile.jsx';
 import RestaurantDetails from './pages/RestaurantDetails';
 import AddRestaurant from './pages/AddRestaurant';
 import AddProduct from './pages/AddProduct';
@@ -219,6 +220,11 @@ function App() {
             <Route path="/orders" element={
               <ProtectedRoute>
                 <Orders currentUser={currentUser} />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit-profile" element={
+              <ProtectedRoute>
+                <EditProfile currentUser={currentUser} setCurrentUser={setCurrentUser} />
               </ProtectedRoute>
             } />
           </Routes>
