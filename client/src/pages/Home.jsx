@@ -269,7 +269,11 @@ const Home = ({ currentUser }) => {
                       <div className="product-card-header">
                         <div className="product-image-container">
                           <img
-                            src={product.image ? `http://localhost:3000/uploads/${product.image}` : "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
+                            src={product.image
+                              ? (product.image.startsWith('/uploads')
+                                  ? `http://localhost:3000${product.image}`
+                                  : `http://localhost:3000/uploads/${product.image}`)
+                              : "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
                             alt={product.name}
                             className="product-card-img"
                           />
@@ -280,7 +284,7 @@ const Home = ({ currentUser }) => {
                         <h3>{product.name}</h3>
                         <p className="product-description">{product.description || 'No description available for this dish.'}</p>
                         <div className="product-restaurant-ref">
-                          🏠 From: <span className="restaurant-ref-name">{product.restaurantName}</span>
+                          From: <span className="restaurant-ref-name">{product.restaurantName}</span>
                         </div>
                       </div>
                     </div>
