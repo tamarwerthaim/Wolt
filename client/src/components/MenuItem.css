@@ -1,7 +1,7 @@
 /* MenuItem.css */
 
 .menu-item-card {
-    --wolt-cyan: #00c2e8;
+    --wolt-cyan: #00c1a1;
     --wolt-dark: #202125;
     --wolt-gray: #8a8d91;
     --wolt-light-gray: #f8f8f8;
@@ -27,6 +27,7 @@
     position: relative;
     flex: 0 0 100px;
     margin-right: 16px;
+    height: 100px;
 }
 
 .menu-item-image {
@@ -38,29 +39,87 @@
 
 .menu-item-add-btn {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 30px;
-    height: 30px;
-    border-radius: 15px;
+    bottom: -20px;
+    right: -20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
     background-color: var(--wolt-cyan);
     border: none;
     color: var(--wolt-white);
-    font-size: 18px;
+    font-size: 28px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease, transform 0.1s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
 .menu-item-add-btn:hover {
-    background-color: #009ec0;
+    background-color: #00a085;
     transform: scale(1.05);
 }
 
 .menu-item-add-btn:active {
     transform: scale(0.95);
+}
+
+/* Quantity Selector Pill */
+.menu-item-qty-selector {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    height: 44px;
+    background-color: #e5f7fd;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+    gap: 10px;
+    direction: ltr; /* Ensure layout order (+ value -) regardless of RTL wrapper */
+}
+
+.menu-item-qty-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: none;
+    color: #00848f;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease, background-color 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.menu-item-qty-btn:hover {
+    background-color: #f0fbfc;
+    transform: scale(1.05);
+}
+
+.menu-item-qty-btn:active {
+    transform: scale(0.95);
+}
+
+.menu-item-qty-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00848f;
+    min-width: 18px;
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
 }
 
 .menu-item-text-wrapper {
@@ -69,6 +128,7 @@
     flex: 1;
     text-align: left;
     align-items: flex-start;
+    direction: ltr;
 }
 
 .menu-item-name {

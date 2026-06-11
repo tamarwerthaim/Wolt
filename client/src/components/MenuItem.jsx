@@ -1,12 +1,22 @@
 import React from 'react';
 import './MenuItem.css';
 
-const MenuItem = ({ product, onAdd }) => {
-    const handleAddClick = (e) => {
-        // מונע את מעבר הקליק לכרטיסייה עצמה אם יהיה עליה אירוע בעתיד
+const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName }) => {
+    const productId = product.id || product._id;
+    const cartItem = cart?.items?.find(item => item.productId === productId);
+    const quantity = cartItem ? cartItem.quantity : 0;
+
+    const handleIncrement = (e) => {
         e.stopPropagation();
         if (onAdd) {
-            onAdd(product);
+            onAdd(product, restaurantId, restaurantName);
+        }
+    };
+
+    const handleDecrement = (e) => {
+        e.stopPropagation();
+        if (onRemove) {
+            onRemove(productId);
         }
     };
 
@@ -22,14 +32,22 @@ const MenuItem = ({ product, onAdd }) => {
 
     return (
         <div className="menu-item-card">
-            {/* צד שמאל: תמונה וכפתור פלוס */}
+            {/* צד שמאל: תמונה וכפתור פלוס או בורר כמות */}
             <div className="menu-item-image-wrapper">
                 <img
                     src={getImageUrl(product.image)}
                     alt={product.name}
                     className="menu-item-image"
                 />
-                <button className="menu-item-add-btn" onClick={handleAddClick}>+</button>
+                {quantity > 0 ? (
+                    <div className="menu-item-qty-selector" onClick={(e) => e.stopPropagation()}>
+                        <button className="menu-item-qty-btn" onClick={handleIncrement}>+</button>
+                        <span className="menu-item-qty-val">{quantity}</span>
+                        <button className="menu-item-qty-btn" onClick={handleDecrement}>-</button>
+                    </div>
+                ) : (
+                    <button className="menu-item-add-btn" onClick={handleIncrement}>+</button>
+                )}
             </div>
 
             {/* צד ימין: טקסט ומחיר */}
