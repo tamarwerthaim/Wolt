@@ -13,4 +13,7 @@ router.post('/', upload.single('profileImage'), userController.registerUser);
 // Only authenticated users can fetch user profile details
 router.get('/:id', authenticateToken, userController.getUserProfile);
 
+// Update user profile details
+router.put('/:id', authenticateToken, upload.single('profileImage'), userController.updateUserProfile);
+
 export default router;

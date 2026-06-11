@@ -92,3 +92,78 @@ export const getUserProfile = (req, res) => {
         return res.status(500).json({ error: "Internal server error" });
     }
 };
+
+// Handle updating user profile details
+export const updateUserProfile = async (req, res) => {
+    const { id } = req.params;
+
+    // Check if the user is updating their own profile
+    if (!req.user || req.user.id !== id) {
+        return res.status(403).json({ error: "Forbidden: You can only edit your own profile" });
+    }
+
+    const { displayName, phone, lat, lng, password } = req.body;
+    const profileImage = req.file;
+
+    // Validate coordinates if provided
+    if (lat !== undefined && lng !== undefined) {
+        const numLat = parseFloat(lat);
+        const numLng = parseFloat(lng);
+        if (isNaN(numLat) || isNaN(numLng)) {
+            return res.status(400).json({ error: "Latitude and Longitude must be valid numbers" });
+        }
+        if (numLat < -90 || numLat > 90) {
+            return res.status(400).json({ error: "Latitude must be a number between -90 and 90" });
+        }
+        if (numLng < -180 || numLng > 180) {
+            return res.status(400).json({ error: "Longitude must be a number between -180 and 180" });
+        }
+    }
+
+    // Validate image format if uploaded
+    if (profileImage) {
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+        if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+            return res.status(400).json({ error: "Invalid image format. Only JPG, JPEG, PNG, and WEBP are allowed" });
+        }
+    }
+
+    // Validate password if updating
+    if (password) {
+        if (password.length < 8) {
+            return res.status(400).json({ error: "Password must be at least 8 characters long" });
+        }
+        const hasLetter = /[a-zA-Z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        if (!hasLetter || !hasNumber) {
+            return res.status(400).json({ error: "Password must contain a combination of letters and numbers" });
+        }
+    }
+
+    // Validate phone if updating
+    if (phone) {
+        const phoneRegex = /^05\d{8}$/;
+        if (!phoneRegex.test(phone)) {
+            return res.status(400).json({ error: "Invalid phone number. Must be a valid 10-digit number" });
+        }
+    }
+
+    try {
+        const updatedUser = userModel.updateUser(id, {
+            name: displayName,
+            phone,
+            lat,
+            lng,
+            password,
+            profileImage: profileImage ? profileImage.filename : undefined
+        });
+
+        const { password: savedPassword, ...profileData } = updatedUser;
+        return res.status(200).json(profileData);
+    } catch (error) {
+        if (error.message === "User not found") {
+            return res.status(404).json({ error: "User not found" });
+        }
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};

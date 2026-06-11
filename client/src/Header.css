@@ -247,3 +247,197 @@
   from { transform: scale(0); }
   to { transform: scale(1); }
 }
+
+/* User profile interaction & dropdown styling */
+.profile-img.interactive {
+  transition: transform 0.2s ease;
+}
+
+.profile-img.interactive:hover {
+  transform: scale(1.08);
+}
+
+.user-name.interactive {
+  transition: opacity 0.2s ease;
+}
+
+.user-name.interactive:hover {
+  opacity: 0.8;
+}
+
+.profile-dropdown-card {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  background-color: var(--header-bg);
+  border: 1px solid var(--btn-secondary-hover);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 1000;
+  animation: slideDownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  direction: ltr; /* Ensure layout inside dropdown is LTR */
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--btn-secondary-hover);
+  padding-bottom: 12px;
+}
+
+.profile-dropdown-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-btn-bg);
+}
+
+.profile-dropdown-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  text-align: left;
+}
+
+.profile-dropdown-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-color);
+  font-family: var(--main-font);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-dropdown-username {
+  font-size: 12px;
+  color: var(--text-color);
+  opacity: 0.6;
+  font-family: var(--main-font);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-dropdown-badge {
+  align-self: flex-start;
+  background-color: var(--address-bg);
+  color: var(--address-text);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  font-family: var(--main-font);
+}
+
+.profile-dropdown-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.profile-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-color);
+  font-family: var(--main-font);
+  text-align: left;
+}
+
+.profile-detail-item .detail-icon {
+  font-size: 14px;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+}
+
+.profile-detail-item .detail-text {
+  word-break: break-all;
+}
+
+.profile-dropdown-actions {
+  border-top: 1px solid var(--btn-secondary-hover);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* space between Edit Profile and Log out */
+}
+
+.edit-profile-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--btn-secondary-bg);
+  color: var(--text-color);
+  border: 1px solid var(--btn-secondary-hover);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--main-font);
+}
+
+.edit-profile-btn:hover {
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.edit-profile-btn:active {
+  transform: translateY(0);
+}
+
+.dropdown-logout-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-logout-btn:hover {
+  background-color: var(--danger-bg);
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.dropdown-logout-btn:active {
+  transform: translateY(0);
+}

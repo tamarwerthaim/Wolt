@@ -13,6 +13,19 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const [searchVal, setSearchVal] = useState(searchQuery);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    if (!isProfileOpen) return;
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.user-profile-section')) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, [isProfileOpen]);
 
   // סנכרון תיבת החיפוש עם ה-URL
   useEffect(() => {
@@ -73,7 +86,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
           </div>
         </div>
 
-        {/* צד ימין: כתובת, החלפת נושא, עגלה, התחבר/הרשם/פרופיל */}
+        {/* צד ימין: כתובת, עגלה, החלפת נושא, התחבר/הרשם/פרופיל */}
         <div className="header-right">
           {/* מציג את הכתובת האמיתית של המשתמש מהשרת רק אם הוא מחובר */}
           {isLoggedIn && currentUser && currentUser.address && (
@@ -87,33 +100,6 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             <span>🛒</span>
             {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
           </button>
-
-          {isLoggedIn && currentUser ? (
-            /* מציג תמונת פרופיל אמיתית מהשרת וברכת שלום דינמית */
-            <div className="user-profile-section">
-              <img 
-                // src={currentUser.profileImage || 'https://via.placeholder.com/40'} 
-                // className="profile-img" 
-                // alt="Profile"
-                src={currentUser.profileImage ? `http://localhost:3000/uploads/${currentUser.profileImage}` : 'https://via.placeholder.com/40'} 
-                className="profile-img" 
-                alt="Profile"
-              />
-              <span className="user-name" style={{ fontFamily: '"Nunito", sans-serif', fontWeight: 600, marginRight: '8px', color: 'var(--text-color)' }}>
-                Hi, {currentUser.name || currentUser.username}
-              </span>
-              <button className="logout-btn" onClick={handleLogout}>Log out</button>
-            </div>
-          ) : (
-            <>
-              <button className="login-btn" onClick={() => navigate('/login')}>
-                Log in
-              </button>
-              <button className="register-btn" onClick={() => navigate('/register')}>
-                Sign up
-              </button>
-            </>
-          )}
 
           <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
             {darkMode ? (
@@ -134,6 +120,72 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
               </svg>
             )}
           </button>
+
+          {isLoggedIn && currentUser ? (
+            /* מציג תמונת פרופיל אמיתית מהשרת וברכת שלום דינמית עם תפריט נפתח */
+            <div className="user-profile-section" style={{ position: 'relative' }}>
+              <span 
+                className="user-name interactive" 
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                style={{ fontFamily: '"Nunito", sans-serif', fontWeight: 600, color: 'var(--text-color)', cursor: 'pointer', userSelect: 'none' }}
+              >
+                Hi, {currentUser.name || currentUser.username}
+              </span>
+              <img 
+                src={currentUser.profileImage ? `http://localhost:3000/uploads/${currentUser.profileImage}` : 'https://via.placeholder.com/40'} 
+                className="profile-img interactive" 
+                alt="Profile"
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
+              />
+
+              {isProfileOpen && (
+                <div className="profile-dropdown-card">
+                  <div className="profile-dropdown-header">
+                    <img 
+                      src={currentUser.profileImage ? `http://localhost:3000/uploads/${currentUser.profileImage}` : 'https://via.placeholder.com/40'} 
+                      className="profile-dropdown-avatar" 
+                      alt="Avatar"
+                    />
+                    <div className="profile-dropdown-info">
+                      <h4 className="profile-dropdown-name">{currentUser.name || currentUser.username}</h4>
+                      <span className="profile-dropdown-username">{currentUser.username}</span>
+                      {currentUser.isAdmin && <span className="profile-dropdown-badge">Admin</span>}
+                    </div>
+                  </div>
+                  <div className="profile-dropdown-details">
+                    <div className="profile-detail-item">
+                      <span className="detail-icon">📞</span>
+                      <span className="detail-text">{currentUser.phone || 'No phone'}</span>
+                    </div>
+                    {currentUser.geolocation && (
+                      <div className="profile-detail-item">
+                        <span className="detail-icon">📍</span>
+                        <span className="detail-text">
+                          {currentUser.geolocation.lat.toFixed(4)}, {currentUser.geolocation.lng.toFixed(4)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="profile-dropdown-actions">
+                    <button className="edit-profile-btn" onClick={() => { setIsProfileOpen(false); navigate('/edit-profile'); }}>
+                      Edit Profile
+                    </button>
+                    <button className="logout-btn dropdown-logout-btn" onClick={handleLogout}>Log out</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <button className="login-btn" onClick={() => navigate('/login')}>
+                Log in
+              </button>
+              <button className="register-btn" onClick={() => navigate('/register')}>
+                Sign up
+              </button>
+            </>
+          )}
         </div>
 
       </div>

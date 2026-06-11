@@ -38,3 +38,29 @@ export function findUserById(id) {
 export function findUserByUsername(username){
     return users.find(user => user.username === username);
 };
+
+// Update an existing user's details
+export function updateUser(id, updateData) {
+    const user = users.find(user => user.id === id);
+    if (!user) {
+        throw new Error("User not found");
+    }
+    
+    if (updateData.name !== undefined) user.name = updateData.name;
+    if (updateData.phone !== undefined) user.phone = updateData.phone;
+    if (updateData.lat !== undefined && updateData.lng !== undefined) {
+        user.geolocation = {
+            lat: parseFloat(updateData.lat),
+            lng: parseFloat(updateData.lng)
+        };
+    }
+    if (updateData.profileImage !== undefined) {
+        user.profileImage = updateData.profileImage;
+    }
+    if (updateData.password) {
+        user.password = updateData.password;
+    }
+    user.isSyncedWithCpp = false;
+
+    return user;
+}
