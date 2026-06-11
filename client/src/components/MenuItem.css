@@ -39,8 +39,9 @@
 
 .menu-item-add-btn {
     position: absolute;
-    bottom: -20px;
-    right: -20px;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 44px;
     height: 44px;
     border-radius: 22px;
@@ -59,18 +60,19 @@
 
 .menu-item-add-btn:hover {
     background-color: #00a085;
-    transform: scale(1.05);
+    transform: translateX(-50%) scale(1.05);
 }
 
 .menu-item-add-btn:active {
-    transform: scale(0.95);
+    transform: translateX(-50%) scale(0.95);
 }
 
 /* Quantity Selector Pill */
 .menu-item-qty-selector {
     position: absolute;
-    bottom: -20px;
-    right: -20px;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
     height: 44px;
     background-color: #e5f7fd;
     border-radius: 22px;
@@ -157,5 +159,201 @@
     font-size: 16px;
     font-weight: 700;
     color: var(--wolt-dark);
+    font-family: 'Nunito', sans-serif;
+}
+
+/* Product Details Modal */
+.product-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    cursor: default;
+}
+
+.product-modal-container {
+    background-color: #ffffff;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    padding: 32px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: product-modal-show 0.25s ease-out;
+}
+
+@keyframes product-modal-show {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.product-modal-close-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.product-modal-close-btn:hover {
+    background-color: #f7fafc;
+    transform: scale(1.05);
+}
+
+.product-modal-image-wrapper {
+    width: 100%;
+    max-height: 220px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.product-modal-image {
+    max-width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+}
+
+.product-modal-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #202125;
+    margin: 0 0 12px 0;
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+}
+
+.product-modal-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #8a8d91;
+    margin: 0 0 16px 0;
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+}
+
+.product-modal-description {
+    font-size: 15px;
+    color: #5a5d61;
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+    text-align: center;
+    max-width: 90%;
+    font-family: 'Nunito', sans-serif;
+}
+
+.product-modal-footer {
+    width: 100%;
+    border-top: 1px solid #f3f3f3;
+    padding-top: 20px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    direction: ltr; /* Keeps buttons left-aligned and selector right-aligned */
+}
+
+.product-modal-add-btn {
+    flex: 1;
+    height: 44px;
+    background-color: var(--wolt-cyan);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+}
+
+.product-modal-add-btn:hover {
+    background-color: #00a085;
+}
+
+.product-modal-add-btn:active {
+    transform: scale(0.98);
+}
+
+.product-modal-qty-selector {
+    height: 44px;
+    background-color: #e5f7fd;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    gap: 10px;
+    direction: ltr;
+}
+
+.product-modal-qty-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: none;
+    color: #00848f;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s ease, background-color 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.product-modal-qty-btn:hover {
+    background-color: #f0fbfc;
+    transform: scale(1.05);
+}
+
+.product-modal-qty-btn:active {
+    transform: scale(0.95);
+}
+
+.product-modal-qty-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00848f;
+    min-width: 18px;
+    text-align: center;
     font-family: 'Nunito', sans-serif;
 }
