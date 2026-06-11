@@ -57,8 +57,7 @@ class ProductController {
                     }
                 }
             })().catch(error => {
-                // log the error message to the console, but don't crash the server
-                console.error("Failed to notify C++ server:", error.message);
+                // C++ server error is non-critical, so we silence it
             });
         }
         // return the product details as a JSON response with status 200 (OK)
