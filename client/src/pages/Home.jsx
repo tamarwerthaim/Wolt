@@ -5,21 +5,31 @@ import './Home.css';
 import cryImage from '../assets/cry.png';
 
 const Home = ({ currentUser }) => {
+  /* Routing and URL navigation hooks */
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  
+  /* Extract search term from URL or default to empty string */
   const searchQuery = searchParams.get('search') || '';
+  
+  /* Ref used to programmatically scroll down to search results */
   const resultsRef = useRef(null);
 
+  /* State for storing the global list of restaurants */
   const [restaurants, setRestaurants] = useState([]);
+  
+  /* State for separating search results into categories */
   const [searchResults, setSearchResults] = useState({ restaurants: [], products: [] });
+  
+  /* Global status states for loading and error handling */
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Calculate distance in kilometers using the Haversine formula
+  /* Calculate distance in kilometers using the Haversine formula */
   const getDistance = (lat1, lon1, lat2, lon2) => {
     if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return null;
     if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
-    const R = 6371; // Earth's radius in km
+    const R = 6371; 
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -29,18 +39,20 @@ const Home = ({ currentUser }) => {
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in km
+    return R * c; 
   };
 
-  // Sort restaurants by proximity if user location is available
+  /* Sort all available restaurants based on user proximity */
   const sortedRestaurants = React.useMemo(() => {
     const userLat = currentUser?.geolocation?.lat;
     const userLng = currentUser?.geolocation?.lng;
 
+    /* Return unsorted if user location data is missing or invalid */
     if (userLat === undefined || userLng === undefined || isNaN(userLat) || isNaN(userLng)) {
       return restaurants;
     }
 
+    /* Sort array by ascending distance from the user */
     return [...restaurants].sort((a, b) => {
       const aLat = a.geolocation?.lat;
       const aLng = a.geolocation?.lng;
@@ -57,15 +69,17 @@ const Home = ({ currentUser }) => {
     });
   }, [restaurants, currentUser]);
 
-  // Sort search results by proximity if user location is available
+  /* Sort active search results based on user proximity */
   const sortedSearchResultsRestaurants = React.useMemo(() => {
     const userLat = currentUser?.geolocation?.lat;
     const userLng = currentUser?.geolocation?.lng;
 
+    /* Return unsorted search results if user location is unavailable */
     if (userLat === undefined || userLng === undefined || isNaN(userLat) || isNaN(userLng)) {
       return searchResults.restaurants;
     }
 
+    /* Sort array by ascending distance from the user */
     return [...searchResults.restaurants].sort((a, b) => {
       const aLat = a.geolocation?.lat;
       const aLng = a.geolocation?.lng;
@@ -82,7 +96,7 @@ const Home = ({ currentUser }) => {
     });
   }, [searchResults.restaurants, currentUser]);
 
-  // 1. טעינת כל המסעדות עבור הרצועה ורשימת כל המסעדות
+  /* Fetch all restaurants from backend on mount when no search query exists */
   useEffect(() => {
     const fetchAllRestaurants = async () => {
       try {
@@ -94,7 +108,7 @@ const Home = ({ currentUser }) => {
         setRestaurants(data);
       } catch (err) {
         console.error('Error fetching restaurants:', err);
-        setError('שגיאה בטעינת המסעדות מהשרת');
+        setError('Error loading restaurants from the server');
       } finally {
         setLoading(false);
       }
@@ -105,7 +119,7 @@ const Home = ({ currentUser }) => {
     }
   }, [searchQuery]);
 
-  // 2. ביצוע חיפוש מול השרת כאשר יש שאילתה פעילה
+  /* Fetch dynamic search results whenever the user types a search query */
   useEffect(() => {
     const fetchSearchResults = async () => {
       try {
@@ -113,6 +127,7 @@ const Home = ({ currentUser }) => {
         setError('');
         const res = await fetch(`http://localhost:3000/api/search/${encodeURIComponent(searchQuery)}`);
         if (!res.ok) {
+          /* Clear previous results on invalid or bad requests */
           if (res.status === 400) {
             setSearchResults({ restaurants: [], products: [] });
             return;
@@ -123,7 +138,7 @@ const Home = ({ currentUser }) => {
         setSearchResults(data);
       } catch (err) {
         console.error('Search error:', err);
-        setError('שגיאה בביצוע החיפוש');
+        setError('Error performing search');
       } finally {
         setLoading(false);
       }
@@ -132,11 +147,12 @@ const Home = ({ currentUser }) => {
     if (searchQuery) {
       fetchSearchResults();
     } else {
+      /* Reset search state immediately when query is deleted */
       setSearchResults({ restaurants: [], products: [] });
     }
   }, [searchQuery]);
 
-  // 3. גלילה חלקה לתוצאות החיפוש כאשר הן מתקבלות
+  /* Automatically scroll screen down to search results container when loaded */
   useEffect(() => {
     if (searchQuery && resultsRef.current) {
       const timer = setTimeout(() => {
@@ -146,18 +162,21 @@ const Home = ({ currentUser }) => {
     }
   }, [searchQuery, searchResults]);
 
+  /* Navigate admin users to the restaurant creation dashboard */
   const handleAddRestaurantClick = () => {
     if (currentUser?.isAdmin) {
       navigate('/admin/add-restaurant');
     }
   };
 
+  /* Process image path or return a static placeholder fallback URL */
   const getRestaurantImage = (restaurant) => {
     if (restaurant.image) {
+      /* Use directly if it is an external absolute URL link */
       if (restaurant.image.startsWith('http://') || restaurant.image.startsWith('https://')) {
         return restaurant.image;
       }
-      // אם הנתיב כבר מתחיל ב- '/uploads', נחבר אותו לשרת ישירות בלי להוסיף 'uploads' כפיל
+      /* Prepend local server URL while avoiding nested upload paths */
       if (restaurant.image.startsWith('/uploads')) {
         return `http://localhost:3000${restaurant.image}`;
       }
@@ -166,6 +185,7 @@ const Home = ({ currentUser }) => {
     return 'https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg';
   };
 
+  /* Route user to a specific detailed view of a selected restaurant */
   const handleRestaurantClick = (restaurant) => {
     if (typeof restaurant.id === 'string') {
       navigate(`/restaurant/${restaurant.id}`);
@@ -173,14 +193,14 @@ const Home = ({ currentUser }) => {
   };
 
   const displayRestaurants = sortedRestaurants;
-
-  // לגלול את הרצועה רק אם יש מספיק מסעדות (מעל 4). אם יש מעט, נציג אותן סטטיות ללא שכפול.
+  
+  /* Trigger layout scrolling effect only if row contains more than 4 items */
   const shouldScroll = displayRestaurants.length > 4;
 
   return (
     <div className="home-container">
 
-      {/* ה-Hero הבאנר התכלת */}
+      {/* Hero banner presentation branding header */}
       <div className="hero-banner">
         <h1 className="hero-text">
           WHAT IS YOUR
@@ -188,24 +208,30 @@ const Home = ({ currentUser }) => {
         </h1>
       </div>
 
-      {/* אזור התוכן שמתחת לבאנר */}
+      {/* Main interactive section body */}
       <div className="home-content">
+        
+        {/* Render create button exclusively for administrative users */}
         {currentUser?.isAdmin && (
           <button className="add-restaurant-btn" onClick={handleAddRestaurantClick} title="Add New Restaurant">
             +
           </button>
         )}
 
+        {/* View conditional rendering toggle split between search query and default view */}
         {searchQuery ? (
-          /* --- תצוגת תוצאות חיפוש --- */
+          
+          /* Search results matching view container */
           <div ref={resultsRef} className="search-results-section" style={{ direction: 'ltr' }}>
             <h2 className="results-title">
               Search results for: <span className="search-query-highlight">"{searchQuery}"</span>
             </h2>
 
+            {/* Status alerts for active loading and unexpected errors */}
             {loading && <div className="loading-spinner">🚴‍♂️ Searching for the best results...</div>}
             {error && <div className="error-message">❌ {error}</div>}
 
+            {/* Empty state markup if search yielded zero database returns */}
             {!loading && !error && searchResults.restaurants.length === 0 && searchResults.products.length === 0 && (
               <div className="no-results">
                 <img src={cryImage} alt="No results" className="no-results-img" />
@@ -213,12 +239,13 @@ const Home = ({ currentUser }) => {
               </div>
             )}
 
-            {/* קבוצת מסעדות שנמצאו */}
+            {/* Section mapping out found restaurants */}
             {!loading && searchResults.restaurants.length > 0 && (
               <div className="results-group">
                 <h3 className="group-title">Restaurants ({searchResults.restaurants.length})</h3>
                 <div className="results-grid">
                   {sortedSearchResultsRestaurants.map((restaurant) => {
+                    /* Calculate distance value inline for every loop element */
                     const dist = currentUser?.geolocation
                       ? getDistance(
                         currentUser.geolocation.lat,
@@ -241,6 +268,8 @@ const Home = ({ currentUser }) => {
                           />
                         </div>
                         <h3>{restaurant.name}</h3>
+                        
+                        {/* Display specific calculated mileage or fallback text metadata */}
                         <p>
                           {dist !== null
                             ? `📍 ${dist.toFixed(1)} km away`
@@ -255,7 +284,7 @@ const Home = ({ currentUser }) => {
               </div>
             )}
 
-            {/* קבוצת מנות שנמצאו */}
+            {/* Section mapping out individual matching dishes */}
             {!loading && searchResults.products.length > 0 && (
               <div className="results-group" style={{ marginTop: '40px' }}>
                 <h3 className="group-title">Menu Items ({searchResults.products.length})</h3>
@@ -294,12 +323,14 @@ const Home = ({ currentUser }) => {
             )}
           </div>
         ) : (
-          /* --- עמוד הבית הרגיל --- */
+          
+          /* Default dashboard screen template layout when search is unused */
           <>
-            {/* רצועת המסעדות שזזה מעצמה מאוזן ולאט */}
+            {/* Infinite looping carousel element for highlighted restaurants */}
             <div className="marquee-wrapper">
               <div className={`marquee-track ${shouldScroll ? 'enable-scroll' : ''}`}>
-                {/* הוספת השיכפול - פעם ראשונה של הרשימה */}
+                
+                {/* First primary loop iteration of the slider data tracking row */}
                 {displayRestaurants.map((restaurant, index) => {
                   const dist = currentUser?.geolocation
                     ? getDistance(
@@ -337,7 +368,8 @@ const Home = ({ currentUser }) => {
                     </div>
                   );
                 })}
-                {/* הוספת השיכפול - פעם שנייה של הרשימה (עותק מדויק) - רק אם צריך לגלול */}
+                
+                {/* Second cloned loop iteration block to seamlessly connect scrolling gap boundaries */}
                 {shouldScroll && displayRestaurants.map((restaurant, index) => {
                   const dist = currentUser?.geolocation
                     ? getDistance(
@@ -378,7 +410,7 @@ const Home = ({ currentUser }) => {
               </div>
             </div>
 
-            {/* רשימת כל המסעדות בבלוקים מסודרים לגישה נוחה */}
+            {/* Grid displaying the complete restaurant phone-book catalog index */}
             {sortedRestaurants.length > 0 && (
               <div className="all-restaurants-section" style={{ direction: 'ltr', marginTop: '60px' }}>
                 <h2 className="all-rests-title">All Our Restaurants ({sortedRestaurants.length})</h2>
