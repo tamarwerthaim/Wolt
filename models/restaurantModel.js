@@ -2,7 +2,64 @@
 import { v4 as uuidv4 } from 'uuid';
 
 //for storing restaurants in memory
-let restaurants = [];
+let restaurants = [
+    {
+        id: uuidv4(),
+        name: 'BBB',
+        ratings: {},
+        image: '/uploads/bbb_burger.png',
+        geolocation: { lat: 32.0853, lng: 34.7818 },
+        menu: []
+    },
+    {
+        id: uuidv4(),
+        name: 'Golda',
+        ratings: {},
+        image: '/uploads/golda_gelato.png',
+        geolocation: { lat: 32.0715, lng: 34.7785 },
+        menu: []
+    },
+    {
+        id: uuidv4(),
+        name: 'Pizza Hut',
+        ratings: {},
+        image: '/uploads/pizzahut_pizza.png',
+        geolocation: { lat: 32.0801, lng: 34.7805 },
+        menu: []
+    },
+    {
+        id: uuidv4(),
+        name: 'Japan Japan',
+        ratings: {},
+        image: '/uploads/japanjapan_sushi.png',
+        geolocation: { lat: 32.0844, lng: 34.7901 },
+        menu: []
+    },
+    {
+        id: uuidv4(),
+        name: 'Greg Cafe',
+        ratings: {},
+        image: '/uploads/greg_breakfast.png',
+        geolocation: { lat: 32.0912, lng: 34.7761 },
+        menu: []
+    },
+    {
+        id: uuidv4(),
+        name: 'Rebar',
+        ratings: {},
+        image: '/uploads/rebar_smoothie.png',
+        geolocation: { lat: 32.0699, lng: 34.7722 },
+        menu: []
+    },
+    {
+        id: uuidv4(),
+        name: 'Falafel Gabay',
+        ratings: {},
+        image: '/uploads/falafel_gabay.png',
+        geolocation: { lat: 32.0625, lng: 34.7701 },
+        menu: []
+    }
+];
 
 class RestaurantModel {
     //CRUD operations for restaurants

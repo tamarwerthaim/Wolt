@@ -29,6 +29,8 @@ services:
       dockerfile: Dockerfile.web
     ports:
       - "${WEB_PORT:-3000}:${WEB_PORT:-3000}"
+    volumes:
+      - ./uploads:/usr/src/app/uploads
     environment:
     # The internal port where Express will listen
       - PORT=${WEB_PORT:-3000}
