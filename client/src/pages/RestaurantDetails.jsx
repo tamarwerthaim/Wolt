@@ -292,7 +292,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
 
                 {!loading && !error && products.length === 0 && (
                     <div className="details-empty-menu">
-                        🍔 This restaurant hasn't added any dishes to the menu yet.
+                        This restaurant hasn't added any dishes to the menu yet.
                     </div>
                 )}
 

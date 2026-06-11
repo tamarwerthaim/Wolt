@@ -142,6 +142,14 @@ function App() {
     }
   }, [currentUser]);
 
+  // Reset dark mode to light mode if user logs out (currentUser becomes null)
+  useEffect(() => {
+    if (!currentUser && darkMode) {
+      setDarkMode(false);
+      document.body.classList.remove('dark-mode');
+    }
+  }, [currentUser, darkMode]);
+
 
   // // Fetch user details if token and userId exist in localStorage
   // useEffect(() => {
