@@ -153,6 +153,9 @@ const Home = ({ currentUser }) => {
 
   const getRestaurantImage = (restaurant) => {
     if (restaurant.image) {
+      if (restaurant.image.startsWith('http://') || restaurant.image.startsWith('https://')) {
+        return restaurant.image;
+      }
       // אם הנתיב כבר מתחיל ב- '/uploads', נחבר אותו לשרת ישירות בלי להוסיף 'uploads' כפיל
       if (restaurant.image.startsWith('/uploads')) {
         return `http://localhost:3000${restaurant.image}`;
@@ -168,15 +171,7 @@ const Home = ({ currentUser }) => {
     }
   };
 
-  // נתונים זמניים למסעדות כדי שהסרט הנע לא יהיה ריק אם ה-DB עדיין ריק
-  const displayRestaurants = sortedRestaurants.length > 0 ? sortedRestaurants : [
-    { id: 1, name: 'Burger King 🍔', cuisine: 'Burgers', image: '' },
-    { id: 2, name: 'Rebar 🥤', cuisine: 'Drinks', image: '' },
-    { id: 3, name: 'Sushi Bar 🥢', cuisine: 'Asian', image: '' },
-    { id: 4, name: 'Papa Johns 🍕', cuisine: 'Pizza', image: '' },
-    { id: 5, name: 'Deli Cream 🍦', cuisine: 'Ice Cream', image: '' },
-    { id: 6, name: 'Wok Republic 🍜', cuisine: 'Asian', image: '' },
-  ];
+  const displayRestaurants = sortedRestaurants;
 
   // לגלול את הרצועה רק אם יש מספיק מסעדות (מעל 4). אם יש מעט, נציג אותן סטטיות ללא שכפול.
   const shouldScroll = displayRestaurants.length > 4;
