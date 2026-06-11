@@ -81,9 +81,6 @@ class OrderController {
 
                         if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
                             user.isSyncedWithCpp = true; 
-                            console.log(`[C++] Sync Success: User ${intUserId} -> Product ${intProductId} (${cppResponse})`);
-                        } else {
-                            console.log(`[C++] Sync Response: ${cppResponse}`);
                         }
                     } catch (cppError) {
                         console.error('C++ server communication error (non-critical):', cppError.message);
@@ -141,9 +138,6 @@ class OrderController {
 
                             if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
                                 user.isSyncedWithCpp = true; 
-                                console.log(`[C++] Sync Success (Update Order): User ${intUserId} -> Product ${intProductId} (${cppResponse})`);
-                            } else {
-                                console.log(`[C++] Sync Response (Update Order): ${cppResponse}`);
                             }
                         } catch (cppError) {
                             console.error('C++ server communication error (non-critical):', cppError.message);

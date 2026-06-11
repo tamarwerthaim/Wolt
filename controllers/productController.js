@@ -50,8 +50,6 @@ class ProductController {
                     const command = `${commandType} ${intUserId} ${intProductId}`;
                     // send the command to the C++ server and wait for the response
                     const cppResponse = await sendToCpp(command);
-                    // log the response from the C++ server for debugging purposes
-                    console.log("C++ Server Response:", cppResponse);
                     // if created
                     if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
                         // update that created in Cpp
