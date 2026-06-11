@@ -198,7 +198,7 @@ function App() {
 
   return (
     <Router>
-      <div className="app-container" style={{ direction: 'rtl' }}>
+      <div className="app-container">
         {/* שינוי 1: מעבירים ל-Header את המשתמש הנוכחי ואת פונקציית העדכון שלו */}
         <Header 
           darkMode={darkMode} 

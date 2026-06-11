@@ -276,3 +276,9 @@ body.dark-mode .auth-cancel-button:hover {
 .auth-splash-heading {
     direction: ltr;
 }
+
+.auth-success-image {
+    width: 400px;
+    height: 400px;
+    object-fit: contain;
+}

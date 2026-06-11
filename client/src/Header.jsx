@@ -121,7 +121,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
           {isLoggedIn && (
             <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
               {darkMode ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                   <circle cx="12" cy="12" r="5"></circle>
                   <line x1="12" y1="1" x2="12" y2="3"></line>
                   <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -133,7 +133,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                   <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
               )}
@@ -144,11 +144,10 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
           {isLoggedIn && currentUser ? (
             
             /* Render user info greeting menu and interactive avatar toggle */
-            <div className="user-profile-section" style={{ position: 'relative' }}>
+            <div className="user-profile-section">
               <span 
                 className="user-name interactive" 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                style={{ fontFamily: '"Nunito", sans-serif', fontWeight: 600, color: 'var(--text-color)', cursor: 'pointer', userSelect: 'none' }}
               >
                 Hi, {currentUser.name || currentUser.username}
               </span>
@@ -157,7 +156,6 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                 className="profile-img interactive" 
                 alt="Profile"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
               />
 
               {/* Account overlay card revealing metadata fields and global route navigation links */}

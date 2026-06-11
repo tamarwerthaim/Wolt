@@ -17,15 +17,14 @@ const OrderSuccess = () => {
     return (
         <div className="auth-container">
             <div className="auth-card">
-                <div className="auth-logo-container" style={{ marginBottom: '0px' }}>
+                <div className="auth-logo-container auth-splash-logo-container">
                     <img 
                         src={moneyImage} 
                         alt="Order Success" 
-                        className="auth-logo" 
-                        style={{ width: '400px', height: '400px', objectFit: 'contain' }}
+                        className="auth-logo auth-success-image"
                     />
                 </div>
-                <h1 className="auth-heading wolt-brand-color" style={{ direction: 'ltr' }}>
+                <h1 className="auth-heading wolt-brand-color auth-splash-heading">
                     We are on the way!
                 </h1>
             </div>

@@ -8,6 +8,10 @@ html, body {
   overflow-x: hidden; 
 }
 
+.app-container {
+  direction: rtl;
+}
+
 /* Enforce alternative box-sizing globally across all elements and pseudo-elements */
 *, *:before, *:after {
   box-sizing: inherit;
