@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './RestaurantDetails.css';
 
 const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
     const { id } = useParams();
+    const navigate = useNavigate();
 
     // 1. פלטת הצבעים והפונטים של וולט
     const woltPalette = {
@@ -168,6 +169,12 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
 
     return (
         <div className="details-container">
+            <button className="back-button" onClick={() => navigate(-1)} title="Back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
             {/* חלק 1: הבאנר הענק */}
             <div 
                 className="details-banner"

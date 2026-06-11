@@ -9,15 +9,13 @@
 .hero-banner {
   background-color: var(--primary-btn-bg);
   width: 100%;
-  /* שינוי: רוחב מלא רגיל ונקי */
-  padding: 240px 20px;
-  /* גובה הבאנר הארוך שרצית */
+  height: calc(100vh - 72px); /* ממלא את כל גובה המסך הנראה מינוס ה-Header */
   display: flex;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
   margin: 0;
-  /* מוודא שאין שום רווח למעלה או בצדדים */
+  padding: 20px;
 }
 
 .hero-text {
