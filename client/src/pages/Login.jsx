@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import woltLogo from '../assets/wolt_circle2.png';
+import foodImage from '../assets/food.png';
 import './LoginRegisterStyles.css';
 
 // שינוי 1: מקבלים את הפונקציה ב-Props בשורה הראשונה של הקומפוננטה
@@ -8,6 +9,7 @@ const Login = ({ setCurrentUser }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showSplash, setShowSplash] = useState(false);
 
     const navigate = useNavigate();
 
@@ -58,13 +60,37 @@ const Login = ({ setCurrentUser }) => {
                 setCurrentUser(userData); // מעדכן את האפליקציה באופן מיידי!
             }
 
-            //navigate to home
-            navigate('/')
+            // Trigger splash page for 5 seconds before home navigation
+            setShowSplash(true);
+            
+            setTimeout(() => {
+                navigate('/');
+            }, 5000);
         }
         catch (err) {
             setError(err.message || 'Server connection error. Please try again later.');
         }
     };
+
+    if (showSplash) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card">
+                    <div className="auth-logo-container" style={{ marginBottom: '0px' }}>
+                        <img 
+                            src={foodImage} 
+                            alt="Getting Hungry" 
+                            className="auth-logo" 
+                            style={{ width: '340px', height: '340px', objectFit: 'contain' }}
+                        />
+                    </div>
+                    <h1 className="auth-heading wolt-brand-color" style={{ direction: 'ltr' }}>
+                        Getting hungry?
+                    </h1>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-container">

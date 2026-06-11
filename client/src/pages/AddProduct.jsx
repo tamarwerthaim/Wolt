@@ -142,16 +142,16 @@ const AddProduct = () => {
 
                         {imagePreview && (
                             <div className="auth-preview-container">
-                                <img 
-                                    src={imagePreview} 
-                                    alt="Product Image Preview" 
-                                    style={{ 
-                                        width: '150px', 
-                                        height: '150px', 
-                                        borderRadius: '12px', 
-                                        objectFit: 'cover', 
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' 
-                                    }} 
+                                <img
+                                    src={imagePreview}
+                                    alt="Product Image Preview"
+                                    style={{
+                                        width: '150px',
+                                        height: '150px',
+                                        borderRadius: '12px',
+                                        objectFit: 'cover',
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                                    }}
                                 />
                                 <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
                                     Remove Image
@@ -167,10 +167,10 @@ const AddProduct = () => {
                     <button type="submit" className="auth-submit-button">
                         Add Product
                     </button>
-                    
-                    <button 
-                        type="button" 
-                        onClick={() => navigate(`/restaurant/${restaurantId}`)} 
+
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/restaurant/${restaurantId}`)}
                         className="auth-submit-button"
                         style={{ backgroundColor: '#ccc', marginTop: '10px' }}
                     >
