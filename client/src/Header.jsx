@@ -1,22 +1,25 @@
+// src/components/Header.jsx
 import React, { useState, useEffect } from 'react';
 import './Header.css';
 import woltLogoLight from './assets/wolt-delivery1310.logowik.com.PNG';
 import woltLogoDark from './assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
-// מקבלים את currentUser, setCurrentUser, cart ו-setIsCartOpen מתוך ה-Props של ה-App
+/* Navigation header component managing authentication states, search synchronization, theme options, and shopping cart toggles */
 const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setIsCartOpen, clearCart }) => {
   
-  // הסטטוס נקבע בצורה דינמית: אם קיים משתמש ב-App, אנחנו מחוברים!
+  /* Determine user login authentication status dynamically based on current context existence */
   const isLoggedIn = !!currentUser;
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  
+  /* Extract query parameters from URL and manage synchronized internal state */
   const searchQuery = searchParams.get('search') || '';
   const [searchVal, setSearchVal] = useState(searchQuery);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Close profile dropdown when clicking outside
+  /* Listener hook tracking external page clicks to automatically collapse open dropdown menus */
   useEffect(() => {
     if (!isProfileOpen) return;
     const handleOutsideClick = (e) => {
@@ -28,11 +31,12 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
     return () => document.removeEventListener('click', handleOutsideClick);
   }, [isProfileOpen]);
 
-  // סנכרון תיבת החיפוש עם ה-URL
+  /* Sync internal input text field values whenever the global URL search changes */
   useEffect(() => {
     setSearchVal(searchQuery);
   }, [searchQuery]);
 
+  /* Monitor keystrokes and immediately modify the primary application URL parameters */
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchVal(val);
@@ -43,28 +47,28 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
     }
   };
 
+  /* Terminate active user sessions, drop client tokens, reset local state, and wipe the cart */
   const handleLogout = () => {
-    // מנקים את ה-localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('wolt_cart');
     
-    // מאפסים את הסטייט ב-App כדי שכל האתר יתנתק מיידית
+    /* Update top-level application states to trigger instant layout re-renders */
     setCurrentUser(null);
-    // מרוקנים את העגלה
     clearCart();
     
-    console.log('מחיקת טוקן וניווט ל- /login');
+    console.log('Clearing token data and navigating to /login');
     navigate('/login');
   };
 
+  /* Aggregate total quantities cumulative calculation across all cart item fields */
   const totalItems = cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
 
   return (
     <header className="wolt-header">
       <div className="header-container">
 
-        {/* צד שמאל: לוגו וולט */}
+        {/* Left layout area: Brand identity logo display */}
         <div className="header-left">
           <div className="wolt-logo-container">
             <img
@@ -76,7 +80,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
           </div>
         </div>
 
-        {/* מרכז: שורת החיפוש */}
+        {/* Center layout area: Global interactive search bar input */}
         <div className="header-center">
           <div className="header-search-bar">
             <span className="search-icon">🔍</span>
@@ -90,9 +94,10 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
           </div>
         </div>
 
-        {/* צד ימין: כתובת, עגלה, החלפת נושא, התחבר/הרשם/פרופיל */}
+        {/* Right layout area: Utilities, theme options, cart status, and user profile account access */}
         <div className="header-right">
-          {/* מציג את הכתובת האמיתית של המשתמש מהשרת רק אם הוא מחובר */}
+          
+          {/* Render authenticated client primary shipping address if available */}
           {isLoggedIn && currentUser && currentUser.address && (
             <div className="user-address-box">
               <span className="address-icon">📍</span>
@@ -100,6 +105,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             </div>
           )}
 
+          {/* Interactive shopping cart trigger action with authentication gate checks */}
           <button className="header-cart-btn" onClick={() => {
             if (!isLoggedIn) {
               navigate('/login', { state: { from: location.pathname, openCart: true } });
@@ -111,6 +117,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
           </button>
 
+          {/* Vector path icon toggle action to switch between system color modes */}
           {isLoggedIn && (
             <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
               {darkMode ? (
@@ -133,8 +140,10 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             </button>
           )}
 
+          {/* Conditional layout branch split between explicit profile submenus and simple auth prompts */}
           {isLoggedIn && currentUser ? (
-            /* מציג תמונת פרופיל אמיתית מהשרת וברכת שלום דינמית עם תפריט נפתח */
+            
+            /* Render user info greeting menu and interactive avatar toggle */
             <div className="user-profile-section" style={{ position: 'relative' }}>
               <span 
                 className="user-name interactive" 
@@ -151,6 +160,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                 style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
               />
 
+              {/* Account overlay card revealing metadata fields and global route navigation links */}
               {isProfileOpen && (
                 <div className="profile-dropdown-card">
                   <div className="profile-dropdown-header">
@@ -165,6 +175,8 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                       {currentUser.isAdmin && <span className="profile-dropdown-badge">Admin</span>}
                     </div>
                   </div>
+                  
+                  {/* Detailed profile contact metadata records row elements */}
                   <div className="profile-dropdown-details">
                     <div className="profile-detail-item">
                       <span className="detail-icon">📞</span>
@@ -179,6 +191,8 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                       </div>
                     )}
                   </div>
+                  
+                  {/* Action group compilation footer executing navigation redirects or explicit logouts */}
                   <div className="profile-dropdown-actions">
                     <button className="orders-history-btn" onClick={() => { setIsProfileOpen(false); navigate('/orders'); }}>
                       Order History
@@ -192,6 +206,8 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
               )}
             </div>
           ) : (
+            
+            /* Fallback dual button presentation layouts targeting completely unauthenticated visitors */
             <>
               <button className="login-btn" onClick={() => navigate('/login')}>
                 Log in

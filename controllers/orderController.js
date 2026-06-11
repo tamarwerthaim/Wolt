@@ -83,10 +83,12 @@ class OrderController {
                             user.isSyncedWithCpp = true; 
                         }
                     } catch (cppError) {
-                        console.error('C++ server communication error (non-critical):', cppError.message);
+                        // C++ server error is non-critical, so we silence it
                     }
                 }
-            })().catch(err => console.error("Error in background C++ sync:", err));
+            })().catch(err => {
+                // background sync error is non-critical, so we silence it
+            });
 
             // create a new order using the orderModel's create function
             const newOrder = orderModel.create({ userId, restaurantId, items });
@@ -140,10 +142,12 @@ class OrderController {
                                 user.isSyncedWithCpp = true; 
                             }
                         } catch (cppError) {
-                            console.error('C++ server communication error (non-critical):', cppError.message);
+                            // C++ server error is non-critical, so we silence it
                         }
                     }
-                })().catch(err => console.error("Error in background C++ sync:", err));
+                })().catch(err => {
+                    // background sync error is non-critical, so we silence it
+                });
             }   
 
             // return the updated order in the response with a 204 status code

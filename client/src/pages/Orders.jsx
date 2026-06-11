@@ -3,15 +3,75 @@ import { useNavigate } from 'react-router-dom';
 import './Orders.css';
 import cartImage from '../assets/cart.png';
 
-const Orders = ({ currentUser }) => {
+const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [restaurantsMap, setRestaurantsMap] = useState({});
   const [productsMap, setProductsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteOrder = async (orderId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("Authentication token not found. Please log in.");
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        setOrders(prevOrders => prevOrders.filter(o => o.id !== orderId));
+        setSelectedOrder(null);
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.error || 'Failed to delete the order.');
+      }
+    } catch (err) {
+      console.error('Error deleting order:', err);
+      alert('A network error occurred. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEditOrder = (order) => {
+    const newCart = {
+      restaurantId: order.restaurantId,
+      restaurantName: restaurantsMap[order.restaurantId]?.name || 'Restaurant',
+      editingOrderId: order.id,
+      items: order.items.map(item => {
+        const product = productsMap[item.productId];
+        return {
+          productId: item.productId,
+          name: product?.name || `Item ID: ${item.productId.slice(0, 6)}`,
+          price: product ? Number(product.price) : 0,
+          image: product?.image || '',
+          quantity: item.quantity
+        };
+      })
+    };
+
+    setCart(newCart);
+    setIsCartOpen(true);
+    setSelectedOrder(null);
+    navigate(`/restaurant/${order.restaurantId}`);
+  };
 
   useEffect(() => {
+    console.log("Orders component mounted. Current User:", currentUser);
     const fetchOrderHistory = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -146,7 +206,15 @@ const Orders = ({ currentUser }) => {
             }, 0);
 
             return (
-              <div key={order.id} className="order-card">
+              <div 
+                key={order.id} 
+                className="order-card" 
+                onClick={() => {
+                  console.log("Order card clicked!", order);
+                  setSelectedOrder(order);
+                }} 
+                style={{ cursor: 'pointer' }}
+              >
                 {/* Restaurant Banner Header inside Card */}
                 <div className="order-card-header">
                   <div className="order-restaurant-details">
@@ -201,6 +269,107 @@ const Orders = ({ currentUser }) => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Modal for selected order details */}
+      {selectedOrder && (
+        <div className="order-modal-backdrop" onClick={(e) => {
+          if (e.target.className === 'order-modal-backdrop') setSelectedOrder(null);
+        }}>
+          <div className="order-modal-content">
+            <button className="order-modal-close-btn" onClick={() => setSelectedOrder(null)} aria-label="Close modal">
+              ✕
+            </button>
+            
+            <div className="order-modal-header">
+              <h2 className="modal-title">Order Details</h2>
+            </div>
+            
+            <div className="order-modal-body">
+              {(() => {
+                const restaurant = restaurantsMap[selectedOrder.restaurantId];
+                const orderDate = new Date(selectedOrder.createdAt).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                });
+                const orderTime = new Date(selectedOrder.createdAt).toLocaleTimeString('en-GB', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+                
+                const orderTotal = selectedOrder.items.reduce((sum, item) => {
+                  const product = productsMap[item.productId];
+                  const price = product ? Number(product.price) : 0;
+                  return sum + price * item.quantity;
+                }, 0);
+
+                return (
+                  <>
+                    <div className="modal-restaurant-section">
+                      <h3 className="modal-restaurant-name">{restaurant?.name || 'Premium Restaurant'}</h3>
+                      <span className="modal-timestamp">{orderDate} at {orderTime}</span>
+                    </div>
+
+                    <div className="modal-reference-row">
+                      <span className="modal-reference-label">Reference:</span>
+                      <code className="modal-reference-code">#{selectedOrder.id}</code>
+                    </div>
+
+                    <div className="modal-status-row">
+                      <span className="modal-status-label">Status:</span>
+                      <span className={`order-status-badge ${selectedOrder.status.toLowerCase()}`}>
+                        {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                      </span>
+                    </div>
+
+                    <div className="modal-items-section">
+                      <h4 className="modal-items-title">Receipt Breakdown</h4>
+                      <div className="modal-items-list">
+                        {selectedOrder.items.map((item) => {
+                          const product = productsMap[item.productId];
+                          const unitPrice = product ? Number(product.price) : 0;
+                          const subtotal = unitPrice * item.quantity;
+
+                          return (
+                            <div key={item.productId} className="modal-item-row">
+                              <span className="modal-item-name">
+                                <span className="modal-item-qty">{item.quantity}x</span> {product?.name || `Item ID: ${item.productId.slice(0, 6)}`}
+                              </span>
+                              <span className="modal-item-subtotal">₪{subtotal.toFixed(2)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="modal-total-row">
+                      <span className="modal-total-label">Total Paid:</span>
+                      <span className="modal-total-value">₪{orderTotal.toFixed(2)}</span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+            
+            <div className="order-modal-actions">
+              <button 
+                className="order-modal-btn edit" 
+                onClick={() => handleEditOrder(selectedOrder)}
+                disabled={isDeleting}
+              >
+                Edit Order
+              </button>
+              <button 
+                className="order-modal-btn delete" 
+                onClick={() => handleDeleteOrder(selectedOrder.id)}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Order'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

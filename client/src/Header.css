@@ -1,92 +1,99 @@
-/* מבנה ה-Header הכללי - נשאר קבוע למעלה בגלילה */
+/* Global top navigation bar wrapper locked at the top of the viewport */
 .wolt-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 72px;
-  background-color: var(--header-bg); /* מצוין! משתמש במשתנה שערכנו */
-  /* הצללית תהיה עדינה יותר במצב לילה כדי לא להיראות "לכלוך" על המסך */
+  background-color: var(--header-bg); 
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
   z-index: 1000;
   display: flex;
   align-items: center;
-  transition: background-color 0.3s ease, color 0.3s ease; /* הוספתי color למקרה שאת משנה טקסט ב-Header */
+  transition: background-color 0.3s ease, color 0.3s ease; 
 }
 
-/* קונטיינר פנימי שמחלק את האתר לשלושה אזורים */
+/* Inner alignment layout container forcing strict left-to-right flow and edge paddings */
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 100%; /* שינוי: מתפרס לגמרי על כל רוחב המסך */
+  max-width: 100%; 
   margin: 0;
-  padding: 0 20px; /* שינוי: רווח מינימלי מהקצוות כדי להזיז את הלוגו והכפתורים לקצוות */
-  direction: ltr; /* קריטי: הכל עובד משמאל לימין */
+  padding: 0 20px; 
+  direction: ltr; 
   box-sizing: border-box;
 }
 
-/* נותנים לכולם משקל שווה כדי שהמרכז באמת יהיה באמצע */
+/* Equal flex-grow distribution to ensure the middle search block is perfectly centered */
 .header-center, .header-right {
   flex: 1; 
   display: flex;
   align-items: center;
 }
 
+/* Shared typography configuration for authentication control buttons */
 .login-btn, .register-btn, .logout-btn {
   font-family: "Nunito", sans-serif;
 }
 
+/* Left portion of the header housing the main brand identity */
 .header-left {
   flex: 1;
   display: flex;
-  justify-content: flex-start; /* לוגו נצמד לשמאל */
+  justify-content: flex-start; 
 }
 
+/* Center portion dedicated entirely to global search navigation */
 .header-center {
   flex: 1;
   display: flex;
-  justify-content: center; /* חיפוש במרכז */
+  justify-content: center; 
 }
 
+/* Right portion grouping system utilities, authentication status, and cart access */
 .header-right {
   flex: 1;
   display: flex;
-  justify-content: flex-end; /* כפתורים נצמדים לימין */
+  justify-content: flex-end; 
   align-items: center;
   gap: 12px;
 }
 
+/* Structural wrapper for branding elements */
 .wolt-logo-container {
   display: flex;
   align-items: center;
 }
 
+/* Logo image scaling with a negative left margin to pull it close to the viewport edge */
 .wolt-official-logo {
   height: 70px; 
   object-fit: contain;
   cursor: pointer;
-  margin-left: -16px; /* מזיז את הלוגו שמאלה קרוב לקצה */
+  margin-left: -16px; 
 }
 
-
+/* Search bar control panel layout with a restricted max-width limit */
 .header-search-bar {
   display: flex;
   align-items: center;
   background-color: var(--btn-secondary-bg);
   border-radius: 24px;
   width: 100%;
-  max-width: 400px; /* זה שולט על הרוחב של תיבת החיפוש עצמה */
+  max-width: 400px; 
   padding: 8px 16px;
   transition: all 0.2s ease;
 }
 
+/* Active focus layout changing background contrast and appending an outline shadow ring */
 .header-search-bar:focus-within {
   background-color: var(--header-bg);
   box-shadow: 0 0 0 2px var(--address-text);
 }
 
+/* Search magnifying glass decorative icon alignment styling */
 .search-icon {
   font-size: 14px;
   opacity: 0.5;
@@ -94,6 +101,7 @@
   color: var(--text-color);
 }
 
+/* Core search input tag normalization removing native borders and focus outlines */
 .search-input {
   flex: 1;
   border: none;
@@ -103,13 +111,13 @@
   outline: none;
 }
 
+/* Muted visibility modifier applied directly onto the input text placeholder placeholder */
 .search-input::placeholder {
   color: var(--text-color);
   opacity: 0.5;
 }
 
-
-/* תיבת הכתובת הדינמית בסגנון וולט */
+/* Semi-bold dynamic widget displaying user address or metadata values */
 .user-address-box {
   display: flex;
   align-items: center;
@@ -121,6 +129,7 @@
   font-weight: 600;
 }
 
+/* Space separators for specific internal address icons and textual sub-labels */
 .address-icon {
   margin-left: 6px;
 }
@@ -131,7 +140,7 @@
   opacity: 0.8;
 }
 
-/* כפתור החלפת ערכת נושא */
+/* Light/Dark theme configuration utility toggle switch with hover transforms */
 .theme-toggle-btn {
   border: none;
   background-color: var(--btn-secondary-bg);
@@ -151,13 +160,14 @@
   transform: scale(1.05);
 }
 
-/* פרופיל משתמש */
+/* Authenticated user summary profile component row container */
 .user-profile-section {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* Circular user avatar image layout sizing configurations */
 .profile-img {
   width: 34px;
   height: 34px;
@@ -165,12 +175,14 @@
   object-fit: cover;
 }
 
+/* Compact display username label settings */
 .user-name {
   font-weight: 600;
   font-size: 13px;
   color: var(--text-color);
 }
 
+/* Standardized button layout attributes shared between login and logout controls */
 .logout-btn, .login-btn {
   border: none;
   padding: 6px 12px;
@@ -180,18 +192,21 @@
   cursor: pointer;
 }
 
+/* Secondary outline style option for session termination actions */
 .logout-btn {
-  background-color: transparent; /* רקע שקוף */
-  border: 1px solid var(--primary-btn-bg); /* גבול כחול */
-  color: var(--primary-btn-bg); /* טקסט כחול */
+  background-color: transparent; 
+  border: 1px solid var(--primary-btn-bg); 
+  color: var(--primary-btn-bg); 
 }
 
+/* High-contrast solid primary theme styling applied onto authentication entry points */
 .login-btn {
   background-color: var(--primary-btn-bg);
   color: white;
   transition: background-color 0.3s ease;
 }
-/* עיצוב כפתור הרשם */
+
+/* Secondary alternative button display configuration for client registration prompts */
 .register-btn {
   border: none;
   background-color: var(--btn-secondary-bg);
@@ -207,7 +222,7 @@
   background-color: var(--btn-secondary-hover);
 }
 
-/* כפתור עגלת הקניות ב-Header */
+/* Interactive navigation cart control utility supporting a relative micro-badge context */
 .header-cart-btn {
   border: none;
   background-color: var(--btn-secondary-bg);
@@ -229,6 +244,7 @@
   transform: scale(1.05);
 }
 
+/* Absolutely anchored top-right quantity count badge supporting pop keyframe states */
 .cart-badge {
   background-color: var(--primary-btn-bg);
   color: white;
@@ -243,12 +259,13 @@
   animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* Scale elastic pop interpolation transformation rules */
 @keyframes popIn {
   from { transform: scale(0); }
   to { transform: scale(1); }
 }
 
-/* User profile interaction & dropdown styling */
+/* Interactive item tracking hover feedback transitions for standard profile avatars */
 .profile-img.interactive {
   transition: transform 0.2s ease;
 }
@@ -257,6 +274,7 @@
   transform: scale(1.08);
 }
 
+/* Interactive text tracking hover fade transitions for display names */
 .user-name.interactive {
   transition: opacity 0.2s ease;
 }
@@ -265,6 +283,7 @@
   opacity: 0.8;
 }
 
+/* Absolutely positioned floating context panel mapping detailed user account operations */
 .profile-dropdown-card {
   position: absolute;
   top: calc(100% + 12px);
@@ -280,9 +299,10 @@
   gap: 14px;
   z-index: 1000;
   animation: slideDownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  direction: ltr; /* Ensure layout inside dropdown is LTR */
+  direction: ltr; 
 }
 
+/* Dropdown presentation transition keyframe mapping entry fades and translations */
 @keyframes slideDownFade {
   from {
     opacity: 0;
@@ -294,6 +314,7 @@
   }
 }
 
+/* Structural summary block separating avatar graphics from context action records */
 .profile-dropdown-header {
   display: flex;
   align-items: center;
@@ -302,6 +323,7 @@
   padding-bottom: 12px;
 }
 
+/* Prominent themed avatar border frame mapping internal account properties */
 .profile-dropdown-avatar {
   width: 48px;
   height: 48px;
@@ -310,6 +332,7 @@
   border: 2px solid var(--primary-btn-bg);
 }
 
+/* Truncating column alignment container protecting layout bounds from name lengths */
 .profile-dropdown-info {
   display: flex;
   flex-direction: column;
@@ -318,6 +341,7 @@
   text-align: left;
 }
 
+/* Ellipsis clipping constraints targeting primary client display credentials */
 .profile-dropdown-name {
   margin: 0;
   font-size: 15px;
@@ -329,6 +353,7 @@
   text-overflow: ellipsis;
 }
 
+/* Ellipsis clipping constraints targeting secondary client identifier tags */
 .profile-dropdown-username {
   font-size: 12px;
   color: var(--text-color);
@@ -339,6 +364,7 @@
   text-overflow: ellipsis;
 }
 
+/* Static descriptive label tag evaluating permissions level roles */
 .profile-dropdown-badge {
   align-self: flex-start;
   background-color: var(--address-bg);
@@ -352,6 +378,7 @@
   font-family: var(--main-font);
 }
 
+/* Meta status data presentation columns listing core credentials fields */
 .profile-dropdown-details {
   display: flex;
   flex-direction: column;
@@ -359,6 +386,7 @@
   padding: 4px 0;
 }
 
+/* Standard icon/text combo metadata item horizontal listing format */
 .profile-detail-item {
   display: flex;
   align-items: center;
@@ -369,6 +397,7 @@
   text-align: left;
 }
 
+/* Icon layout grid normalization centering descriptive sub-elements */
 .profile-detail-item .detail-icon {
   font-size: 14px;
   opacity: 0.8;
@@ -378,18 +407,21 @@
   width: 20px;
 }
 
+/* Break rules enforcing text wrapping over complex mail paths inside columns */
 .profile-detail-item .detail-text {
   word-break: break-all;
 }
 
+/* Action button grouping container located at the base of the dropdown menu */
 .profile-dropdown-actions {
   border-top: 1px solid var(--btn-secondary-hover);
   padding-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* space between Edit Profile and Log out */
+  gap: 8px; 
 }
 
+/* Standardized configuration attributes supporting secondary system actions */
 .orders-history-btn {
   width: 100%;
   padding: 10px;
@@ -416,6 +448,7 @@
   transform: translateY(0);
 }
 
+/* Secondary account alteration trigger button with hover translations */
 .edit-profile-btn {
   width: 100%;
   padding: 10px;
@@ -442,6 +475,7 @@
   transform: translateY(0);
 }
 
+/* High-priority contextual critical failure action button for explicit logouts */
 .dropdown-logout-btn {
   width: 100%;
   padding: 10px;

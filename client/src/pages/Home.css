@@ -1,15 +1,14 @@
-/* src/pages/Home.css */
-
+/* Base wrapper layout for the home container and font configuration */
 .home-container {
   width: 100%;
   font-family: var(--main-font);
 }
 
-/* עיצוב הבאנר התכלת הראשי */
+/* Full screen banner matching viewport height minus the fixed top header navigation */
 .hero-banner {
   background-color: var(--primary-btn-bg);
   width: 100%;
-  height: calc(100vh - 72px); /* ממלא את כל גובה המסך הנראה מינוס ה-Header */
+  height: calc(100vh - 72px); 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -18,6 +17,7 @@
   padding: 20px;
 }
 
+/* Typographic rules for the main massive banner text with drop shadows */
 .hero-text {
   color: var(--hero-text-color);
   font-family: var(--wolt-hero-font);
@@ -30,58 +30,53 @@
   line-height: 1.1;
 }
 
+/* Styling for the highlighted keyword using negative margins to tighten spacing */
 .hero-accent-word {
   display: block;
   font-size: 140px;
   letter-spacing: -1px;
-  /* ◄◄ תוספת 2: שינוי למרג'ין שלילי שמושך את המילה למעלה ומקטין את הרווח באופן מבוקר */
   margin-top: -10px;
-  /* ◄◄ תוספת 3: שומר על גובה שורה צפוף וקומפקטי גם למילה הגדולה */
   line-height: 1.0;
 }
 
-/* אזור התוכן שלמטה */
+/* Main layout boundaries establishing a relative coordinate reference for children */
 .home-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
   text-align: right;
-  /* התאמה לעברית/אנגלית אחידה */
   position: relative;
-  /* מאפשר מיקום אבסולוטי של כפתור האדמין ביחס לתוכן */
 }
 
-/* --- לוגיקת הסרט הנע (Marquee האופקי) --- */
+/* Ticker viewport container hiding overflowing elements and forcing left-to-right alignment */
 .marquee-wrapper {
   width: 100%;
   overflow: hidden;
-  /* מחביא את מה שיוצא מגבולות המסך בצדדים */
   padding: 10px 0;
   position: relative;
   margin-top: -120px;
-  /* מושך את המסעדות למעלה על רקע התכלת */
   z-index: 10;
-
-  /* השורה שמצילה את המצב: מנטרלת את ה-RTL של האפליקציה רק עבור הסרט הנע */
-  direction: ltr;
+  direction: ltr; 
 }
 
+/* Flex layout ribbon tracking sliding component nodes side by side */
 .marquee-track {
   display: flex;
   gap: 20px;
   width: max-content;
 }
 
+/* Triggers continuous linear animation loops across the horizontal axis */
 .marquee-track.enable-scroll {
-  animation: scrollMarquee 25s linear infinite; /* זז בצורה חלקה ואינסופית רק כשיש גלילה */
+  animation: scrollMarquee 25s linear infinite;
 }
 
-/* כשהעכבר מעל הרצועה, התנועה עוצרת כדי שיהיה נוח ללחוץ */
+/* Freezes continuous timeline scrolling animations whenever an active pointer hovers over */
 .marquee-wrapper:hover .marquee-track {
   animation-play-state: paused;
 }
 
-/* עיצוב כרטיס מסעדה קטן */
+/* Core modular restaurant card item component configuration with default shadows */
 .restaurant-card {
   width: 200px;
   background-color: var(--btn-secondary-bg);
@@ -93,11 +88,12 @@
   transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
+/* Interactive hover feedback properties lifting cards slightly along the vertical axis */
 .restaurant-card:hover {
   transform: translateY(-5px);
-  /* אפקט קפיצה קטן בטעינה */
 }
 
+/* Bounding box wrapper framing graphic placeholders or fallback loading vectors */
 .card-image-placeholder {
   width: 100%;
   height: 120px;
@@ -110,6 +106,7 @@
   margin-bottom: 12px;
 }
 
+/* Typography definition rules handling individual item component titles */
 .restaurant-card h3 {
   font-size: 16px;
   font-weight: 700;
@@ -117,19 +114,18 @@
   margin: 0 0 4px 0;
 }
 
+/* Text formatting layout variables processing metadata descriptions and captions */
 .restaurant-card p {
   font-size: 14px;
   color: #737373;
   margin: 0;
 }
 
-/* כפתור אדמין להוספת מסעדה - ממוקם בצד שמאל של הסרט הנע */
+/* Absolutely positioned floating action control button separating actions from layout grids */
 .add-restaurant-btn {
   position: absolute;
   left: -10px;
-  /* מציב את הכפתור חצי בתוך הרצועה וחצי בחוץ (ה-padding של home-content הוא 20px) */
   top: 0;
-  /* מיושר אנכית לקו המעבר בין הבאנר התכלת לרקע הלבן */
   transform: translateY(-50%);
   width: 60px;
   height: 60px;
@@ -148,33 +144,24 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Modifies scales parameters and drops pronounced background shading on button hover */
 .add-restaurant-btn:hover {
   background-color: var(--btn-secondary-hover);
   transform: translateY(-50%) scale(1.08);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Interactive down-click state scaling buttons backwards to offer tactile response clicks */
 .add-restaurant-btn:active {
   transform: translateY(-50%) scale(0.95);
 }
 
-/* האנימציה שמניעה את המסעדות משמאל לימין בלופ */
-@keyframes scrollMarquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    /* עכשיו כשהרכיב הוא LTR, מעבר של בדיוק חצי מהרצועה (50%-) יוצר לופ אינסופי נקי וחלק */
-    transform: translateX(-50%);
-  }
-}
-
-/* תוספות לעימוד כל המסעדות ותוצאות החיפוש */
+/* Explicit cursor utility indicating actionable click coordinates */
 .clickable {
   cursor: pointer;
 }
 
+/* Image containment normalization rules managing structural transitions */
 .restaurant-card-img {
   width: 100%;
   height: 100%;
@@ -183,17 +170,19 @@
   transition: transform 0.3s ease;
 }
 
+/* Targets component hover interactions to expand internal graphic element scale dimensions */
 .restaurant-card.clickable:hover .restaurant-card-img {
   transform: scale(1.05);
 }
 
-/* כותרות וגריד כל המסעדות */
+/* Structural block separating categories and resetting typography text layouts */
 .all-restaurants-section {
   width: 100%;
   padding-top: 20px;
-  text-align: left; /* יישור לשמאל עבור אנגלית */
+  text-align: left; 
 }
 
+/* Heading item structure preparing custom positioning anchors for baseline pseudo-borders */
 .all-rests-title {
   font-family: "Nunito", sans-serif;
   font-size: 26px;
@@ -204,17 +193,19 @@
   display: inline-block;
 }
 
+/* Pseudo-element dynamically manufacturing an abstract colored design underline metric ribbon */
 .all-rests-title::after {
   content: '';
   position: absolute;
   bottom: -6px;
-  left: 0; /* מיושר לשמאל כיוון שהכותרת באנגלית (LTR) */
+  left: 0; 
   width: 40px;
   height: 4px;
   background-color: var(--primary-btn-bg);
   border-radius: 2px;
 }
 
+/* Automated responsive CSS layout grid mapping columns seamlessly matching screen widths */
 .all-rests-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -222,37 +213,41 @@
   width: 100%;
 }
 
+/* Overrides card components dimensions to take up full available fraction track space blocks */
 .all-rests-grid .restaurant-card {
   width: 100%;
   margin: 0;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Amplifies multi-axis translate coordinates and casts deep lighting depth values on hover */
 .all-rests-grid .restaurant-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* תוצאות חיפוש */
+/* Layout section housing live filtering data streams returned from query checks */
 .search-results-section {
   width: 100%;
   padding: 10px 0;
   text-align: left;
-  /* יישור לשמאל עבור אנגלית */
 }
 
+/* Typography configuration defining the main search filter result headings status */
 .results-title {
   font-family: "Nunito", sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: var(--text-color);
-  margin-bottom: 12px; /* Reduced margin to pull content up */
+  margin-bottom: 12px; 
 }
 
+/* Inline text override utility forcing highlighted query keywords to render brand colors */
 .search-query-highlight {
   color: var(--primary-btn-bg);
 }
 
+/* Status loading element centered within views using heavy internal layout padding offsets */
 .loading-spinner {
   text-align: center;
   font-size: 18px;
@@ -261,6 +256,7 @@
   font-weight: 600;
 }
 
+/* Warning alert card interface styling utilizing custom designated error typography colors */
 .error-message {
   text-align: center;
   font-size: 18px;
@@ -268,6 +264,7 @@
   color: var(--danger-text);
 }
 
+/* Multi-axis flex block centering empty state placeholder elements when database records return null */
 .no-results {
   font-family: "Nunito", sans-serif;
   text-align: center;
@@ -282,126 +279,17 @@
   gap: 8px;
 }
 
+/* Responsive constraints handling failure graphics and protecting presentation heights */
 .no-results-img {
   width: 100%;
-  max-width: 300px; /* Sized to fit perfectly on any viewport together with headings */
+  max-width: 300px; 
   height: auto;
   object-fit: contain;
   border-radius: 16px;
-  margin-top: -10px; /* Reduced negative margin since padding is tight */
+  margin-top: -10px; 
 }
 
+/* Layout divider spacing grouping matching item matrices together */
 .results-group {
   margin-bottom: 40px;
-}
-
-.group-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin-bottom: 20px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--btn-secondary-hover);
-}
-
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
-}
-
-/* כרטיסיית מנה בתוצאות חיפוש */
-.product-result-card {
-  background-color: var(--btn-secondary-bg);
-  border-radius: 16px;
-  padding: 16px;
-  box-sizing: border-box;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.product-result-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-.product-card-header {
-  position: relative;
-  width: 100%;
-  height: 140px;
-  margin-bottom: 12px;
-  overflow: hidden;
-  border-radius: 12px;
-}
-
-.product-image-container {
-  width: 100%;
-  height: 100%;
-}
-
-.product-card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.product-result-card:hover .product-card-img {
-  transform: scale(1.05);
-}
-
-.product-price {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: var(--primary-btn-bg);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.product-card-body {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  text-align: left;
-}
-
-.product-card-body h3 {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0 0 6px 0;
-}
-
-.product-description {
-  font-size: 13px;
-  color: #737373;
-  margin: 0 0 16px 0;
-  line-height: 1.4;
-  flex-grow: 1;
-}
-
-.product-restaurant-ref {
-  font-size: 12px;
-  font-weight: 600;
-  color: #8a8d91;
-  background-color: var(--btn-secondary-hover);
-  padding: 6px 12px;
-  border-radius: 8px;
-  display: inline-block;
-  align-self: flex-start;
-  margin-top: auto;
-}
-
-.restaurant-ref-name {
-  color: var(--primary-btn-bg);
-  font-weight: 700;
 }
