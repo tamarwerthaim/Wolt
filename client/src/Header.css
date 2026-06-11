@@ -390,6 +390,32 @@
   gap: 8px; /* space between Edit Profile and Log out */
 }
 
+.orders-history-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--btn-secondary-bg);
+  color: var(--text-color);
+  border: 1px solid var(--btn-secondary-hover);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--main-font);
+}
+
+.orders-history-btn:hover {
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.orders-history-btn:active {
+  transform: translateY(0);
+}
+
 .edit-profile-btn {
   width: 100%;
   padding: 10px;

@@ -168,6 +168,9 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                     )}
                   </div>
                   <div className="profile-dropdown-actions">
+                    <button className="orders-history-btn" onClick={() => { setIsProfileOpen(false); navigate('/orders'); }}>
+                      Order History
+                    </button>
                     <button className="edit-profile-btn" onClick={() => { setIsProfileOpen(false); navigate('/edit-profile'); }}>
                       Edit Profile
                     </button>

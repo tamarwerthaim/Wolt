@@ -10,8 +10,18 @@ export function sendToCpp(dataToSend) {
     // this function will return a promise that resolves with the response from the C++ server
     return new Promise((resolve, reject) => {
         let responseData = '';
+        let settled = false;
         // create a new TCP client socket
         const client = new net.Socket();
+
+        // Timeout: if C++ server doesn't respond within 2 seconds, reject the promise
+        const timer = setTimeout(() => {
+            if (!settled) {
+                settled = true;
+                client.destroy();
+                reject(new Error('C++ server timeout after 2 seconds'));
+            }
+        }, 2000);
 
         // connect to the C++ server and send the data once connected
         client.connect(CPP_PORT, CPP_HOST, () => {
@@ -24,16 +34,24 @@ export function sendToCpp(dataToSend) {
             responseData += chunk.toString();
             // The C++ server always terminates its official response with a newline character
             if (responseData.endsWith('\n')) {
-                // Resolve the promise with the complete and trimmed response data
-                resolve(responseData.trim());
-                // Close the socket connection now that the data is fully received
-                client.destroy();
+                if (!settled) {
+                    settled = true;
+                    clearTimeout(timer);
+                    // Resolve the promise with the complete and trimmed response data
+                    resolve(responseData.trim());
+                    // Close the socket connection now that the data is fully received
+                    client.destroy();
+                }
             }
         });
         // handle any errors that occur during the connection or communication with the C++ server
         client.on('error', (err) => {
-            reject(err);
-            client.destroy();
+            if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                reject(err);
+                client.destroy();
+            }
         });
     });
 }
