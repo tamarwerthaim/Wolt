@@ -101,7 +101,7 @@ const EditProduct = () => {
                 try {
                     const data = await response.json();
                     errorMsg = data.error || errorMsg;
-                } catch (_) {}
+                } catch (_) { }
                 throw new Error(errorMsg);
             }
 
@@ -137,7 +137,7 @@ const EditProduct = () => {
                 try {
                     const data = await response.json();
                     errorMsg = data.error || errorMsg;
-                } catch (_) {}
+                } catch (_) { }
                 throw new Error(errorMsg);
             }
 
@@ -155,8 +155,8 @@ const EditProduct = () => {
     if (loading) {
         return (
             <div className="auth-container">
-                <div className="auth-card" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px' }}>
-                    <p style={{ color: '#00c1a1', fontSize: '18px', fontWeight: 'bold' }}>Loading Product Details...</p>
+                <div className="auth-card auth-loading-card">
+                    <p className="auth-loading-text">Loading Product Details...</p>
                 </div>
             </div>
         );
@@ -166,7 +166,7 @@ const EditProduct = () => {
         <div className="auth-container">
             <div className="auth-card">
                 <button className="back-button" onClick={() => navigate(-1)} title="Back">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
@@ -209,9 +209,8 @@ const EditProduct = () => {
                             id="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="auth-input"
+                            className="auth-input auth-textarea"
                             placeholder="Product description..."
-                            style={{ height: '80px', resize: 'none', padding: '12px' }}
                         />
                     </div>
 
@@ -233,16 +232,10 @@ const EditProduct = () => {
 
                         {imagePreview && (
                             <div className="auth-preview-container">
-                                <img 
-                                    src={imagePreview} 
-                                    alt="Product Preview" 
-                                    style={{ 
-                                        width: '150px', 
-                                        height: '150px', 
-                                        borderRadius: '12px', 
-                                        objectFit: 'cover', 
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' 
-                                    }} 
+                                <img
+                                    src={imagePreview}
+                                    alt="Product Preview"
+                                    className="auth-product-preview"
                                 />
                                 {productImage && (
                                     <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
@@ -261,20 +254,18 @@ const EditProduct = () => {
                         Save Changes
                     </button>
 
-                    <button 
-                        type="button" 
-                        onClick={handleDelete} 
-                        className="auth-submit-button"
-                        style={{ backgroundColor: '#ff4d4f', marginTop: '10px' }}
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="auth-submit-button auth-danger-button"
                     >
                         Delete Product
                     </button>
-                    
-                    <button 
-                        type="button" 
-                        onClick={() => navigate(`/restaurant/${restaurantId}`)} 
-                        className="auth-submit-button"
-                        style={{ backgroundColor: '#ccc', marginTop: '10px' }}
+
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/restaurant/${restaurantId}`)}
+                        className="auth-submit-button auth-cancel-button"
                     >
                         Cancel
                     </button>
