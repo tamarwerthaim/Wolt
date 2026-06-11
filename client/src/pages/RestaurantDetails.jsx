@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import MenuItem from '../components/MenuItem';
 import './RestaurantDetails.css';
 
 const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
     // 1. פלטת הצבעים והפונטים של וולט
     const woltPalette = {
@@ -103,7 +104,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
     const handleRate = async (score) => {
         const token = localStorage.getItem('token');
         if (!token) {
-            setRatingStatus('You must be logged in to rate.');
+            // Redirect to login, remembering to come back here with rating intent
+            navigate('/login', { state: { from: location.pathname, openRating: true } });
             return;
         }
 
@@ -211,10 +213,9 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                         {[1, 2, 3, 4, 5].map((star) => (
                             <button
                                 key={star}
-                                onClick={localStorage.getItem('token') ? () => handleRate(star) : undefined}
-                                onMouseEnter={localStorage.getItem('token') ? () => setHoverRating(star) : undefined}
-                                onMouseLeave={localStorage.getItem('token') ? () => setHoverRating(0) : undefined}
-                                disabled={!localStorage.getItem('token')}
+                                onClick={() => handleRate(star)}
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
                                 className={`details-star-btn ${star <= (hoverRating || userRating)
                                         ? 'details-star-active'
                                         : 'details-star-inactive'
@@ -226,7 +227,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                         ))}
                     </div>
                     {!localStorage.getItem('token') && (
-                        <div className="details-login-to-rate">
+                        <div className="details-login-to-rate" style={{ cursor: 'pointer' }} onClick={() => navigate('/login', { state: { from: location.pathname, openRating: true } })}>
                             Log in to rate
                         </div>
                     )}
