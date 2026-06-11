@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './Home.css';
+import cryImage from '../assets/cry.png';
 
 const Home = ({ currentUser }) => {
   const navigate = useNavigate();
@@ -212,7 +213,8 @@ const Home = ({ currentUser }) => {
 
             {!loading && !error && searchResults.restaurants.length === 0 && searchResults.products.length === 0 && (
               <div className="no-results">
-                No restaurants or dishes found matching your query. Try something else!
+                <img src={cryImage} alt="No results" className="no-results-img" />
+                <p style={{ margin: 0 }}>No restaurants or dishes found matching your query. Try something else!</p>
               </div>
             )}
 

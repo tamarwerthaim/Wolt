@@ -236,7 +236,7 @@
 /* תוצאות חיפוש */
 .search-results-section {
   width: 100%;
-  padding: 20px 0;
+  padding: 10px 0;
   text-align: left;
   /* יישור לשמאל עבור אנגלית */
 }
@@ -246,7 +246,7 @@
   font-size: 28px;
   font-weight: 700;
   color: var(--text-color);
-  margin-bottom: 30px;
+  margin-bottom: 12px; /* Reduced margin to pull content up */
 }
 
 .search-query-highlight {
@@ -271,12 +271,24 @@
 .no-results {
   font-family: "Nunito", sans-serif;
   text-align: center;
-  font-size: 20px;
-  padding: 80px 20px;
+  font-size: 18px;
+  padding: 0;
   color: #8a8d91;
-  background-color: var(--btn-secondary-bg);
+  background-color: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.no-results-img {
+  width: 100%;
+  max-width: 300px; /* Sized to fit perfectly on any viewport together with headings */
+  height: auto;
+  object-fit: contain;
   border-radius: 16px;
-  border: 1px dashed var(--btn-secondary-hover);
+  margin-top: -10px; /* Reduced negative margin since padding is tight */
 }
 
 .results-group {
