@@ -24,9 +24,9 @@ const Home = ({ currentUser }) => {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Distance in km
   };
@@ -183,7 +183,7 @@ const Home = ({ currentUser }) => {
 
   return (
     <div className="home-container">
-      
+
       {/* ה-Hero הבאנר התכלת */}
       <div className="hero-banner">
         <h1 className="hero-text">
@@ -224,30 +224,30 @@ const Home = ({ currentUser }) => {
                   {sortedSearchResultsRestaurants.map((restaurant) => {
                     const dist = currentUser?.geolocation
                       ? getDistance(
-                          currentUser.geolocation.lat,
-                          currentUser.geolocation.lng,
-                          restaurant.geolocation?.lat,
-                          restaurant.geolocation?.lng
-                        )
+                        currentUser.geolocation.lat,
+                        currentUser.geolocation.lng,
+                        restaurant.geolocation?.lat,
+                        restaurant.geolocation?.lng
+                      )
                       : null;
                     return (
-                      <div 
-                        key={restaurant.id} 
+                      <div
+                        key={restaurant.id}
                         className="restaurant-card clickable"
                         onClick={() => navigate(`/restaurant/${restaurant.id}`)}
                       >
                         <div className="card-image-placeholder">
-                          <img 
-                            src={getRestaurantImage(restaurant)} 
-                            alt={restaurant.name} 
+                          <img
+                            src={getRestaurantImage(restaurant)}
+                            alt={restaurant.name}
                             className="restaurant-card-img"
                           />
                         </div>
                         <h3>{restaurant.name}</h3>
                         <p>
-                          {dist !== null 
-                            ? `📍 ${dist.toFixed(1)} km away` 
-                            : restaurant.geolocation 
+                          {dist !== null
+                            ? `📍 ${dist.toFixed(1)} km away`
+                            : restaurant.geolocation
                               ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
                               : '📍 No location'}
                         </p>
@@ -264,16 +264,16 @@ const Home = ({ currentUser }) => {
                 <h3 className="group-title">Menu Items ({searchResults.products.length})</h3>
                 <div className="results-grid">
                   {searchResults.products.map((product) => (
-                    <div 
-                      key={product.id} 
+                    <div
+                      key={product.id}
                       className="product-result-card"
                       onClick={() => navigate(`/restaurant/${product.restaurantId}`)}
                     >
                       <div className="product-card-header">
                         <div className="product-image-container">
-                          <img 
-                            src={product.image ? `http://localhost:3000/uploads/${product.image}` : "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"} 
-                            alt={product.name} 
+                          <img
+                            src={product.image ? `http://localhost:3000/uploads/${product.image}` : "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
+                            alt={product.name}
                             className="product-card-img"
                           />
                         </div>
@@ -302,23 +302,23 @@ const Home = ({ currentUser }) => {
                 {displayRestaurants.map((restaurant, index) => {
                   const dist = currentUser?.geolocation
                     ? getDistance(
-                        currentUser.geolocation.lat,
-                        currentUser.geolocation.lng,
-                        restaurant.geolocation?.lat,
-                        restaurant.geolocation?.lng
-                      )
+                      currentUser.geolocation.lat,
+                      currentUser.geolocation.lng,
+                      restaurant.geolocation?.lat,
+                      restaurant.geolocation?.lng
+                    )
                     : null;
                   return (
-                    <div 
-                      key={`list1-${restaurant.id}-${index}`} 
+                    <div
+                      key={`list1-${restaurant.id}-${index}`}
                       className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
                       onClick={() => handleRestaurantClick(restaurant)}
                     >
                       <div className="card-image-placeholder">
                         {restaurant.image ? (
-                          <img 
-                            src={getRestaurantImage(restaurant)} 
-                            alt={restaurant.name} 
+                          <img
+                            src={getRestaurantImage(restaurant)}
+                            alt={restaurant.name}
                             className="restaurant-card-img"
                           />
                         ) : (
@@ -327,9 +327,9 @@ const Home = ({ currentUser }) => {
                       </div>
                       <h3>{restaurant.name}</h3>
                       <p>
-                        {restaurant.cuisine || (dist !== null 
-                          ? `📍 ${dist.toFixed(1)} km away` 
-                          : restaurant.geolocation 
+                        {restaurant.cuisine || (dist !== null
+                          ? `📍 ${dist.toFixed(1)} km away`
+                          : restaurant.geolocation
                             ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
                             : '📍 No location')}
                       </p>
@@ -340,23 +340,23 @@ const Home = ({ currentUser }) => {
                 {shouldScroll && displayRestaurants.map((restaurant, index) => {
                   const dist = currentUser?.geolocation
                     ? getDistance(
-                        currentUser.geolocation.lat,
-                        currentUser.geolocation.lng,
-                        restaurant.geolocation?.lat,
-                        restaurant.geolocation?.lng
-                      )
+                      currentUser.geolocation.lat,
+                      currentUser.geolocation.lng,
+                      restaurant.geolocation?.lat,
+                      restaurant.geolocation?.lng
+                    )
                     : null;
                   return (
-                    <div 
-                      key={`list2-${restaurant.id}-${index}`} 
+                    <div
+                      key={`list2-${restaurant.id}-${index}`}
                       className={`restaurant-card ${typeof restaurant.id === 'string' ? 'clickable' : ''}`}
                       onClick={() => handleRestaurantClick(restaurant)}
                     >
                       <div className="card-image-placeholder">
                         {restaurant.image ? (
-                          <img 
-                            src={getRestaurantImage(restaurant)} 
-                            alt={restaurant.name} 
+                          <img
+                            src={getRestaurantImage(restaurant)}
+                            alt={restaurant.name}
                             className="restaurant-card-img"
                           />
                         ) : (
@@ -365,9 +365,9 @@ const Home = ({ currentUser }) => {
                       </div>
                       <h3>{restaurant.name}</h3>
                       <p>
-                        {restaurant.cuisine || (dist !== null 
-                          ? `📍 ${dist.toFixed(1)} km away` 
-                          : restaurant.geolocation 
+                        {restaurant.cuisine || (dist !== null
+                          ? `📍 ${dist.toFixed(1)} km away`
+                          : restaurant.geolocation
                             ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
                             : '📍 No location')}
                       </p>
@@ -385,30 +385,30 @@ const Home = ({ currentUser }) => {
                   {sortedRestaurants.map((restaurant) => {
                     const dist = currentUser?.geolocation
                       ? getDistance(
-                          currentUser.geolocation.lat,
-                          currentUser.geolocation.lng,
-                          restaurant.geolocation?.lat,
-                          restaurant.geolocation?.lng
-                        )
+                        currentUser.geolocation.lat,
+                        currentUser.geolocation.lng,
+                        restaurant.geolocation?.lat,
+                        restaurant.geolocation?.lng
+                      )
                       : null;
                     return (
-                      <div 
-                        key={restaurant.id} 
+                      <div
+                        key={restaurant.id}
                         className="restaurant-card clickable"
                         onClick={() => navigate(`/restaurant/${restaurant.id}`)}
                       >
                         <div className="card-image-placeholder">
-                          <img 
-                            src={getRestaurantImage(restaurant)} 
-                            alt={restaurant.name} 
+                          <img
+                            src={getRestaurantImage(restaurant)}
+                            alt={restaurant.name}
                             className="restaurant-card-img"
                           />
                         </div>
                         <h3>{restaurant.name}</h3>
                         <p>
-                          {dist !== null 
-                            ? `📍 ${dist.toFixed(1)} km away` 
-                            : restaurant.geolocation 
+                          {dist !== null
+                            ? `📍 ${dist.toFixed(1)} km away`
+                            : restaurant.geolocation
                               ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
                               : '📍 No location'}
                         </p>
