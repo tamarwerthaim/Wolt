@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import woltLogo from '../assets/wolt_circle2.png';
 import foodImage from '../assets/food.png';
 import './LoginRegisterStyles.css';
 
 // שינוי 1: מקבלים את הפונקציה ב-Props בשורה הראשונה של הקומפוננטה
-const Login = ({ setCurrentUser }) => {
+const Login = ({ setCurrentUser, setIsCartOpen }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [showSplash, setShowSplash] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Read redirect state: where to go back and what action to trigger
+    const fromPath = location.state?.from || '/';
+    const shouldOpenCart = location.state?.openCart || false;
+    const shouldOpenRating = location.state?.openRating || false;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -60,11 +66,16 @@ const Login = ({ setCurrentUser }) => {
                 setCurrentUser(userData); // מעדכן את האפליקציה באופן מיידי!
             }
 
-            // Trigger splash page for 3 seconds before home navigation
+            // Trigger splash page for 3 seconds before redirecting back
             setShowSplash(true);
             
             setTimeout(() => {
-                navigate('/');
+                // Navigate back to origin (or home if no origin)
+                navigate(fromPath);
+                // If user came from cart button, open the cart after redirect
+                if (shouldOpenCart && setIsCartOpen) {
+                    setTimeout(() => setIsCartOpen(true), 100);
+                }
             }, 3000);
         }
         catch (err) {
@@ -99,7 +110,7 @@ const Login = ({ setCurrentUser }) => {
             </style> */}
 
             <div className="auth-card">
-                <button className="back-button" onClick={() => navigate('/')} title="Back">
+                <button className="back-button" onClick={() => navigate(fromPath)} title="Back">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>

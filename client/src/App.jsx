@@ -202,7 +202,7 @@ function App() {
         <main>
           <Routes>
             {/* שינוי 2: מעבירים ל-Login את האפשרות לעדכן את המשתמש הגלובלי מיד בהתחברות */}
-            <Route path="/login" element={<Login setCurrentUser={setCurrentUser} />} />
+            <Route path="/login" element={<Login setCurrentUser={setCurrentUser} setIsCartOpen={setIsCartOpen} />} />
             <Route path="/register" element={<Register />} />
 
             {/* שינוי 3: מעבירים ל-Home את המשתמש כדי שההרשאות וכפתורי האדמין יתעדכנו */}

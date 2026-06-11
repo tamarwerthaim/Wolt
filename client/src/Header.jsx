@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Header.css';
 import woltLogoLight from './assets/wolt-delivery1310.logowik.com.PNG';
 import woltLogoDark from './assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 // מקבלים את currentUser, setCurrentUser, cart ו-setIsCartOpen מתוך ה-Props של ה-App
 const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setIsCartOpen, clearCart }) => {
@@ -10,6 +10,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
   // הסטטוס נקבע בצורה דינמית: אם קיים משתמש ב-App, אנחנו מחוברים!
   const isLoggedIn = !!currentUser;
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const [searchVal, setSearchVal] = useState(searchQuery);
@@ -99,7 +100,13 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             </div>
           )}
 
-          <button className="header-cart-btn" onClick={() => setIsCartOpen(true)} aria-label="Open cart">
+          <button className="header-cart-btn" onClick={() => {
+            if (!isLoggedIn) {
+              navigate('/login', { state: { from: location.pathname, openCart: true } });
+            } else {
+              setIsCartOpen(true);
+            }
+          }} aria-label="Open cart">
             <span>🛒</span>
             {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
           </button>
