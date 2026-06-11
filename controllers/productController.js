@@ -38,8 +38,8 @@ class ProductController {
         const userId = req.header('user-id'); 
         //check if the userId header is provided
         if (userId) {
-            // we use a try-catch block to handle any potential errors when communicating with the C++ server, so that our server doesn't crash if the C++ server is down
-            try {
+            // run the notification in the background asynchronously
+            (async () => {
                 const user = userModel.findUserById(userId);
                 if (user) {
                     // convert the string IDs to integers
@@ -58,11 +58,10 @@ class ProductController {
                         user.isSyncedWithCpp = true;
                     }
                 }
-            //if there is an error
-            } catch (error) {
+            })().catch(error => {
                 // log the error message to the console, but don't crash the server
                 console.error("Failed to notify C++ server:", error.message);
-            }
+            });
         }
         // return the product details as a JSON response with status 200 (OK)
         res.status(200).json(product);

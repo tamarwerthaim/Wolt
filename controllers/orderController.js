@@ -62,37 +62,34 @@ class OrderController {
                 return res.status(401).json({ error: "Session expired. Please log in again." });
             }
 
-            for (const item of items) {
-                // convert the string IDs to integers
-                const intUserId = getIntId(userId);
-                const intProductId = getIntId(item.productId);
-                // determine the command type (POST for first interaction, PATCH for subsequent updates) and construct the command string to send to the C++ server
-                let commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                let cppCommand = `${commandType} ${intUserId} ${intProductId}`;
+            // update the C++ recommendation system in the background asynchronously
+            (async () => {
+                for (const item of items) {
+                    const intUserId = getIntId(userId);
+                    const intProductId = getIntId(item.productId);
+                    let commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
+                    let cppCommand = `${commandType} ${intUserId} ${intProductId}`;
 
-                try {
-                    // send the command to the C++ server in socket and wait for the response
-                    let cppResponse = await sendToCpp(cppCommand);
+                    try {
+                        let cppResponse = await sendToCpp(cppCommand);
 
-                    // If POST failed because user already exists in C++ (404 Not Found), retry with PATCH
-                    if (commandType === 'POST' && cppResponse.includes("404 Not Found")) {
-                        commandType = 'PATCH';
-                        cppCommand = `${commandType} ${intUserId} ${intProductId}`;
-                        cppResponse = await sendToCpp(cppCommand);
+                        if (commandType === 'POST' && cppResponse.includes("404 Not Found")) {
+                            commandType = 'PATCH';
+                            cppCommand = `${commandType} ${intUserId} ${intProductId}`;
+                            cppResponse = await sendToCpp(cppCommand);
+                        }
+
+                        if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
+                            user.isSyncedWithCpp = true; 
+                            console.log(`[C++] Sync Success: User ${intUserId} -> Product ${intProductId} (${cppResponse})`);
+                        } else {
+                            console.log(`[C++] Sync Response: ${cppResponse}`);
+                        }
+                    } catch (cppError) {
+                        console.error('C++ server communication error (non-critical):', cppError.message);
                     }
-
-                    // based on the response from the C++ server, update the user's isSyncedWithCpp property
-                    if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
-                        user.isSyncedWithCpp = true; // user created or updated successfully
-                    } else if (cppResponse.includes("404 Not Found")) {
-                        return res.status(404).json({ error: "User not found in recommendation system" });
-                    }
-                } catch (cppError) {
-                    // If the C++ server is unreachable or times out, log the error but continue with the order
-                    // The recommendation system is non-critical for placing an order
-                    console.error('C++ server communication error (non-critical):', cppError.message);
                 }
-            }
+            })().catch(err => console.error("Error in background C++ sync:", err));
 
             // create a new order using the orderModel's create function
             const newOrder = orderModel.create({ userId, restaurantId, items });
@@ -131,25 +128,28 @@ class OrderController {
                     return res.status(404).json({ error: "User not found" });
                 }
 
-                // loop through each item in the items array from the request body and send the appropriate command to the C++ server based on whether this is the user's first interaction or a subsequent update
-                for (const item of req.body.items) {
-                    // convert the string IDs to integers
-                    const intUserId = getIntId(userId);
-                    const intProductId = getIntId(item.productId);
-                    // determine the command type (POST for first interaction- incase, PATCH for subsequent updates) and construct the command string to send to the C++ server
-                    const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                    const cppCommand = `${commandType} ${intUserId} ${intProductId}`;
-                
-                    // send the command to the C++ server in socket and wait for the response
-                    const cppResponse = await sendToCpp(cppCommand);
+                // update the C++ recommendation system in the background asynchronously
+                (async () => {
+                    for (const item of req.body.items) {
+                        const intUserId = getIntId(userId);
+                        const intProductId = getIntId(item.productId);
+                        const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
+                        const cppCommand = `${commandType} ${intUserId} ${intProductId}`;
+                    
+                        try {
+                            const cppResponse = await sendToCpp(cppCommand);
 
-                    // based on the response from the C++ server, update the user's isSyncedWithCpp property if they were successfully synced, or return a 404 error if the user was not found in the recommendation system
-                    if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
-                        user.isSyncedWithCpp = true; // user created or updated successfully in the recommendation system
-                    } else if (cppResponse.includes("404 Not Found")) {
-                        return res.status(404).json({ error: "User not found in recommendation system" });
+                            if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
+                                user.isSyncedWithCpp = true; 
+                                console.log(`[C++] Sync Success (Update Order): User ${intUserId} -> Product ${intProductId} (${cppResponse})`);
+                            } else {
+                                console.log(`[C++] Sync Response (Update Order): ${cppResponse}`);
+                            }
+                        } catch (cppError) {
+                            console.error('C++ server communication error (non-critical):', cppError.message);
+                        }
                     }
-                }
+                })().catch(err => console.error("Error in background C++ sync:", err));
             }   
 
             // return the updated order in the response with a 204 status code
