@@ -3,17 +3,98 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import './Cart.css';
 
 const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) => {
-  if (!isOpen) return null;
-
   const navigate = useNavigate();
   const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleBackToMenu = () => {
     onClose();
     if (!location.pathname.startsWith('/restaurant/')) {
       navigate('/');
     }
+  };
+
+  const handleDecrease = async (productId, currentQuantity) => {
+    if (cart.items.length === 1 && currentQuantity === 1 && cart.editingOrderId) {
+      const confirmDelete = window.confirm("An order must have at least one item. Would you like to delete this order entirely from history?");
+      if (confirmDelete) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert("Session expired. Please log in.");
+          return;
+        }
+        setIsSubmitting(true);
+        try {
+          const res = await fetch(`http://localhost:3000/api/orders/${cart.editingOrderId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.ok) {
+            clearCart();
+            onClose();
+            navigate('/orders');
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            alert(errData.error || "Failed to delete the order.");
+          }
+        } catch (err) {
+          console.error("Error deleting order:", err);
+          alert("A network error occurred.");
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+      return;
+    }
+    removeFromCart(productId);
+  };
+
+  const handleClearCartClick = async () => {
+    if (cart.editingOrderId) {
+      const confirmDelete = window.confirm(
+        "You are editing an existing order. Would you like to delete this order entirely from history?\n\n" +
+        "• Click 'OK' to delete the order entirely.\n" +
+        "• Click 'Cancel' to keep the original order unchanged and just discard your current edits."
+      );
+      if (confirmDelete) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert("Session expired. Please log in.");
+          return;
+        }
+        setIsSubmitting(true);
+        try {
+          const res = await fetch(`http://localhost:3000/api/orders/${cart.editingOrderId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.ok) {
+            clearCart();
+            onClose();
+            navigate('/orders');
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            alert(errData.error || "Failed to delete the order.");
+          }
+        } catch (err) {
+          console.error("Error deleting order:", err);
+          alert("A network error occurred.");
+        } finally {
+          setIsSubmitting(false);
+        }
+      } else {
+        clearCart();
+        onClose();
+      }
+      return;
+    }
+    clearCart();
   };
 
   const getImageUrl = (image) => {
@@ -36,7 +117,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
     }
   };
 
-  // Submit order to POST /api/orders
+  // Submit order (POST /api/orders to create, or PATCH /api/orders/:id to update)
   const handleCheckout = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -49,8 +130,13 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/orders', {
-        method: 'POST',
+      const url = cart.editingOrderId 
+        ? `http://localhost:3000/api/orders/${cart.editingOrderId}` 
+        : 'http://localhost:3000/api/orders';
+      const method = cart.editingOrderId ? 'PATCH' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -64,7 +150,10 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
         })
       });
 
-      const data = await response.json();
+      let data = {};
+      if (response.status !== 204) {
+        data = await response.json().catch(() => ({}));
+      }
 
       if (response.ok) {
         clearCart();
@@ -94,7 +183,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
       <div className="cart-drawer">
         {/* Header */}
         <div className="cart-header">
-          <h2 className="cart-title">🛒 My Cart</h2>
+          <h2 className="cart-title">{cart.editingOrderId ? '✏️ Edit Order' : '🛒 My Cart'}</h2>
           <button className="cart-close-btn" onClick={onClose} aria-label="Close cart">
             ✕
           </button>
@@ -136,7 +225,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
                       <div className="cart-item-controls">
                         <button
                           className="cart-qty-btn decrease"
-                          onClick={() => removeFromCart(item.productId)}
+                          onClick={() => handleDecrease(item.productId, item.quantity)}
                         >
                           -
                         </button>
@@ -176,7 +265,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
               <div className="cart-actions">
                 <button 
                   className="cart-clear-btn" 
-                  onClick={clearCart}
+                  onClick={handleClearCartClick}
                   disabled={isSubmitting}
                 >
                   Clear Cart
@@ -186,7 +275,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
                   onClick={handleCheckout}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Processing...' : 'Proceed to Checkout'}
+                  {isSubmitting ? 'Processing...' : (cart.editingOrderId ? 'Update Order' : 'Proceed to Checkout')}
                 </button>
               </div>
             </>

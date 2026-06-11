@@ -77,6 +77,7 @@ function App() {
       }
 
       return {
+        ...prevCart,
         restaurantId,
         restaurantName,
         items: newItems
@@ -101,9 +102,11 @@ function App() {
 
       const hasItems = newItems.length > 0;
       return {
+        ...prevCart,
         restaurantId: hasItems ? prevCart.restaurantId : null,
         restaurantName: hasItems ? prevCart.restaurantName : '',
-        items: newItems
+        items: newItems,
+        editingOrderId: hasItems ? prevCart.editingOrderId : undefined
       };
     });
   };
@@ -241,7 +244,11 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/orders" element={
               <ProtectedRoute>
-                <Orders currentUser={currentUser} />
+                <Orders 
+                  currentUser={currentUser} 
+                  setCart={setCart}
+                  setIsCartOpen={setIsCartOpen}
+                />
               </ProtectedRoute>
             } />
             <Route path="/edit-profile" element={
