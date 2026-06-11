@@ -9,7 +9,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
 
     // 1. פלטת הצבעים והפונטים של וולט
     const woltPalette = {
-        cyan: '#00c2e8',
+        cyan: '#00c1a1',
         dark: '#202125',
         gray: '#8a8d91',
         lightGray: '#f8f8f8',
@@ -274,7 +274,11 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                             <MenuItem
                                 key={product.id || product._id}
                                 product={product}
+                                cart={cart}
                                 onAdd={addToCart}
+                                onRemove={removeFromCart}
+                                restaurantId={id}
+                                restaurantName={restaurant?.name}
                             />
                         ))}
                     </div>
