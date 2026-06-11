@@ -138,24 +138,6 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
         }
     };
 
-
-            {/* צד ימין: טקסט ומחיר */}
-            <div className="menu-item-text-wrapper">
-                <h3 className="menu-item-name">
-                    {product.name}
-                </h3>
-                <p className="menu-item-desc">
-                    {product.description || 'No description available for this delicious dish.'}
-                </p>
-                <div className="menu-item-price-wrapper">
-                    <span className="menu-item-price">
-                        ₪{Number(product.price).toFixed(2)}
-                    </span>
-                </div>
-            </div>
-        </div>
-    );
-
     return (
         <div className="details-container">
             <button className="back-button" onClick={() => navigate(-1)} title="Back">
