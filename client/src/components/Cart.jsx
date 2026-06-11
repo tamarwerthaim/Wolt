@@ -67,10 +67,9 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
       const data = await response.json();
 
       if (response.ok) {
-        alert('Order placed successfully! 🚀');
         clearCart();
         onClose();
-        navigate('/orders');
+        navigate('/order-success');
       } else {
         if (response.status === 401 || response.status === 403) {
           alert('Your session has expired. Please log in again.');
