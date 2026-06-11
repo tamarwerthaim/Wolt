@@ -20,10 +20,11 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+  max-width: 100%; /* שינוי: מתפרס לגמרי על כל רוחב המסך */
+  margin: 0;
+  padding: 0 20px; /* שינוי: רווח מינימלי מהקצוות כדי להזיז את הלוגו והכפתורים לקצוות */
   direction: ltr; /* קריטי: הכל עובד משמאל לימין */
+  box-sizing: border-box;
 }
 
 /* נותנים לכולם משקל שווה כדי שהמרכז באמת יהיה באמצע */
@@ -66,6 +67,7 @@
   height: 70px; 
   object-fit: contain;
   cursor: pointer;
+  margin-left: -16px; /* מזיז את הלוגו שמאלה קרוב לקצה */
 }
 
 
@@ -139,6 +141,14 @@
   cursor: pointer;
   font-weight: 600;
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.05);
 }
 
 /* פרופיל משתמש */

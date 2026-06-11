@@ -139,9 +139,31 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
     };
 
 
+            {/* צד ימין: טקסט ומחיר */}
+            <div className="menu-item-text-wrapper">
+                <h3 className="menu-item-name">
+                    {product.name}
+                </h3>
+                <p className="menu-item-desc">
+                    {product.description || 'No description available for this delicious dish.'}
+                </p>
+                <div className="menu-item-price-wrapper">
+                    <span className="menu-item-price">
+                        ₪{Number(product.price).toFixed(2)}
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
 
     return (
         <div className="details-container">
+            <button className="back-button" onClick={() => navigate(-1)} title="Back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
             {/* חלק 1: הבאנר הענק */}
             <div
                 className="details-banner"

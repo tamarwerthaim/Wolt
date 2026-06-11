@@ -47,3 +47,31 @@ body {
   transition: background-color 0.3s, color 0.3s;
   padding-top: 72px;
 }
+
+/* כפתור חזרה גלובלי מעוצב */
+.back-button {
+  position: absolute;
+  top: 92px; /* גובה ה-Header פלוס מרווח */
+  left: 20px;
+  z-index: 100;
+  background-color: var(--header-bg); /* משתמש בצבע הרקע של ה-Header להבטחת ניגודיות */
+  color: var(--text-color);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  /* צל כפול חזק ועמוק למראה תלת-ממדי יוקרתי */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.back-button:hover {
+  background-color: var(--btn-secondary-hover);
+  transform: scale(1.1); /* הגדלה קלה ומקצועית */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+}
