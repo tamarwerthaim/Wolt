@@ -1,17 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@800&family=Nunito:wght@400;600;700&display=swap');
 
-/* איפוס גלובלי של הדפדפן כדי שהכל ייצמד לקצוות */
+/* Global normalization resets to eliminate browser default spacing and protect layout bounds */
 html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow-x: hidden; /* מונע גלילה אופקית מיותרת */
+  overflow-x: hidden; 
 }
 
+/* Enforce alternative box-sizing globally across all elements and pseudo-elements */
 *, *:before, *:after {
   box-sizing: inherit;
 }
 
+/* Centralized design system custom property variables mapping out the default light mode theme */
 :root {
   --header-bg: #ffffff;
   --text-color: #202125;
@@ -27,6 +29,7 @@ html, body {
   --hero-text-color: #ffffff;
 }
 
+/* Override palette variable mappings targeting dark mode active view rendering environments */
 body.dark-mode {
   --header-bg: #000000;
   --text-color: #f3f5f6;
@@ -41,6 +44,7 @@ body.dark-mode {
   --hero-text-color: #000000;
 }
 
+/* Document body properties managing global transitions and adding offset padding for the fixed header */
 body {
   background-color: var(--header-bg);
   color: var(--text-color);
@@ -48,13 +52,13 @@ body {
   padding-top: 72px;
 }
 
-/* כפתור חזרה גלובלי מעוצב */
+/* Shared dynamic absolute back navigation control element with deep dimensional box shadows */
 .back-button {
   position: absolute;
-  top: 92px; /* גובה ה-Header פלוס מרווח */
+  top: 92px; 
   left: 20px;
   z-index: 100;
-  background-color: var(--header-bg); /* משתמש בצבע הרקע של ה-Header להבטחת ניגודיות */
+  background-color: var(--header-bg); 
   color: var(--text-color);
   border: none;
   width: 40px;
@@ -66,12 +70,12 @@ body {
   justify-content: center;
   transition: all 0.2s ease;
   text-decoration: none;
-  /* צל כפול חזק ועמוק למראה תלת-ממדי יוקרתי */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
+/* Interactive hover feedback properties computing micro-elevation scales and extending depth shadows */
 .back-button:hover {
   background-color: var(--btn-secondary-hover);
-  transform: scale(1.1); /* הגדלה קלה ומקצועית */
+  transform: scale(1.1); 
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
 }
