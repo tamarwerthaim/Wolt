@@ -5,7 +5,7 @@ import woltLogoDark from './assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 // מקבלים את currentUser, setCurrentUser, cart ו-setIsCartOpen מתוך ה-Props של ה-App
-const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setIsCartOpen }) => {
+const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setIsCartOpen, clearCart }) => {
   
   // הסטטוס נקבע בצורה דינמית: אם קיים משתמש ב-App, אנחנו מחוברים!
   const isLoggedIn = !!currentUser;
@@ -46,9 +46,12 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
     // מנקים את ה-localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
+    localStorage.removeItem('wolt_cart');
     
     // מאפסים את הסטייט ב-App כדי שכל האתר יתנתק מיידית
     setCurrentUser(null);
+    // מרוקנים את העגלה
+    clearCart();
     
     console.log('מחיקת טוקן וניווט ל- /login');
     navigate('/login');

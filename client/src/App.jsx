@@ -196,6 +196,7 @@ function App() {
           setCurrentUser={setCurrentUser} 
           cart={cart}
           setIsCartOpen={setIsCartOpen}
+          clearCart={clearCart}
         />
 
         <main>

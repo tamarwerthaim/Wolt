@@ -94,7 +94,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
       <div className="cart-drawer">
         {/* Header */}
         <div className="cart-header">
-          <h2 className="cart-title">My Cart 🛒</h2>
+          <h2 className="cart-title">🛒 My Cart</h2>
           <button className="cart-close-btn" onClick={onClose} aria-label="Close cart">
             ✕
           </button>
@@ -179,14 +179,14 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
                   onClick={clearCart}
                   disabled={isSubmitting}
                 >
-                  Clear Cart 🗑️
+                  Clear Cart
                 </button>
                 <button 
                   className="cart-checkout-btn"
                   onClick={handleCheckout}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Processing...' : 'Proceed to Checkout 🚀'}
+                  {isSubmitting ? 'Processing...' : 'Proceed to Checkout'}
                 </button>
               </div>
             </>

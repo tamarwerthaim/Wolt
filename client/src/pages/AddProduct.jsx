@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './LoginRegisterStyles.css'; // שימוש בעיצוב הקיים של טפסים לקבלת מראה אחיד
 
@@ -13,6 +13,11 @@ const AddProduct = () => {
     const [success, setSuccess] = useState('');
 
     const navigate = useNavigate();
+
+    // Scroll to top when the page loads so the title is always visible
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, []);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
