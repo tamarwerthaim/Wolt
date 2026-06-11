@@ -69,8 +69,8 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
         <>
             <div className="menu-item-card" onClick={handleCardClick}>
                 {currentUser?.isAdmin && (
-                    <button 
-                        className="menu-item-edit-btn" 
+                    <button
+                        className="menu-item-edit-btn"
                         onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/restaurant/${restaurantId}/product/${productId}/edit`);
@@ -139,9 +139,9 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
 
                         <div className="product-modal-footer">
                             <button className="product-modal-add-btn" onClick={handleAddToOrder}>
-                                להוסיף להזמנה ₪{(product.price * tempQuantity).toFixed(2)}
+                                ₪{(product.price * tempQuantity).toFixed(2)} Add to cart
                             </button>
-                            
+
                             <div className="product-modal-qty-selector">
                                 <button className="product-modal-qty-btn" onClick={handleModalIncrement}>+</button>
                                 <span className="product-modal-qty-val">{tempQuantity}</span>

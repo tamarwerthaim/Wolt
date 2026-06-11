@@ -118,7 +118,7 @@ const Register = () => {
             // ממתינים 3 שניות כדי לתת למשתמש ליהנות מהחוויה, ואז מעבירים ללוגין
             setTimeout(() => {
                 navigate('/login');
-            }, 5000);
+            }, 4000);
         }
         // if failed
         catch (err) {
