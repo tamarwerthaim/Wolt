@@ -1,12 +1,30 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Cart.css';
 
 const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) => {
   if (!isOpen) return null;
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleBackToMenu = () => {
+    onClose();
+    if (!location.pathname.startsWith('/restaurant/')) {
+      navigate('/');
+    }
+  };
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg";
+    }
+    if (image.startsWith('/uploads')) {
+      return `http://localhost:3000${image}`;
+    }
+    return image;
+  };
 
   const totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cart.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -90,7 +108,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
               <div className="cart-empty-icon">🛍️</div>
               <p className="cart-empty-text">Your cart is empty...</p>
               <p className="cart-empty-subtext">Add delicious dishes from the menu to start an order!</p>
-              <button className="cart-start-btn" onClick={onClose}>
+              <button className="cart-start-btn" onClick={handleBackToMenu}>
                 Back to Menu 🍔
               </button>
             </div>
@@ -105,7 +123,7 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
                 {cart.items.map((item) => (
                   <div key={item.productId} className="cart-item">
                     <img
-                      src={item.image || "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
+                      src={getImageUrl(item.image)}
                       alt={item.name}
                       className="cart-item-img"
                     />

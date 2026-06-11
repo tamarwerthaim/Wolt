@@ -33,7 +33,7 @@ function App() {
   // Add item to cart
   const addToCart = (product, restaurantId, restaurantName) => {
     setCart(prevCart => {
-      const productId = product.id || product._id;
+      const productId = product.productId || product.id || product._id;
 
       // Single restaurant rule: check if adding from a different restaurant
       if (prevCart.restaurantId && prevCart.restaurantId !== restaurantId) {
