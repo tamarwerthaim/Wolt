@@ -8,17 +8,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 1. פלטת הצבעים והפונטים של וולט
-    const woltPalette = {
-        cyan: '#00c1a1',
-        dark: '#202125',
-        gray: '#8a8d91',
-        lightGray: '#f8f8f8',
-        white: '#ffffff',
-        shadow: 'rgba(0, 0, 0, 0.08)',
-    };
-
-    const fontStyle = { fontFamily: "'Nunito', sans-serif" };
+    // 1. פלטת הצבעים והפונטים של וולט הועברו ל-CSS הגלובלי והמקומי
 
     // 2. סטייטים לניהול הנתונים מהשרת
     const [restaurant, setRestaurant] = useState(null); // פרטי המסעדה
@@ -180,21 +170,22 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
     return (
         <div className="details-container">
             <button className="back-button" onClick={() => navigate(-1)} title="Back">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
             </button>
             {/* חלק 1: הבאנר הענק */}
-            <div
-                className="details-banner"
-                style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%), url('${restaurant?.image
+            <div className="details-banner-container">
+                <img
+                    src={restaurant?.image
                             ? `http://localhost:3000${restaurant.image}`
-                            : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg'
-                        }')`
-                }}
-            ></div>
+                            : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg'}
+                    alt={restaurant?.name || 'Restaurant Banner'}
+                    className="details-banner-img"
+                />
+                <div className="details-banner-overlay"></div>
+            </div>
 
             {/* חלק 2: כרטיסיית הראש ה"צפה" */}
             <div className="details-header-card">
@@ -227,7 +218,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                         ))}
                     </div>
                     {!localStorage.getItem('token') && (
-                        <div className="details-login-to-rate" style={{ cursor: 'pointer' }} onClick={() => navigate('/login', { state: { from: location.pathname, openRating: true } })}>
+                        <div className="details-login-to-rate" onClick={() => navigate('/login', { state: { from: location.pathname, openRating: true } })}>
                             Log in to rate
                         </div>
                     )}
@@ -236,7 +227,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
 
                 {/* פרטי המסעדה - כעת בצד שמאל */}
                 <div className="details-info-section">
-                    <h1 className="details-restaurant-name" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h1 className="details-restaurant-name">
                         {restaurant?.name || 'Restaurant Menu'}
                         {currentUser?.isAdmin && (
                             <button
@@ -264,8 +255,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
 
             {/* חלק 3: רשימת המוצרים */}
             <div className="details-products-area">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h2 className="details-menu-title" style={{ margin: 0 }}>The Entire Menu</h2>
+                <div className="details-menu-header">
+                    <h2 className="details-menu-title">The Entire Menu</h2>
                     {currentUser?.isAdmin && (
                         <button 
                             className="add-product-btn" 

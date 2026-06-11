@@ -147,9 +147,9 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
   }, []);
 
   return (
-    <div className="orders-container" style={{ direction: 'ltr' }}>
+    <div className="orders-container">
       <button className="back-button" onClick={() => navigate('/')} title="Back">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
@@ -212,8 +212,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                 onClick={() => {
                   console.log("Order card clicked!", order);
                   setSelectedOrder(order);
-                }} 
-                style={{ cursor: 'pointer' }}
+                }}
               >
                 {/* Restaurant Banner Header inside Card */}
                 <div className="order-card-header">
