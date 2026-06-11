@@ -148,10 +148,10 @@ const EditProfile = ({ currentUser, setCurrentUser }) => {
             }
 
             console.log('Profile updated successfully!', data);
-            
+
             // Update the global state immediately
             setCurrentUser(data);
-            setSuccessMsg('Profile updated successfully! 🚀');
+            setSuccessMsg('Profile updated successfully!');
 
             setTimeout(() => {
                 navigate('/');
@@ -167,7 +167,7 @@ const EditProfile = ({ currentUser, setCurrentUser }) => {
         <div className="auth-container">
             <div className="auth-card">
                 <button className="back-button" onClick={() => navigate('/')} title="Back">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
@@ -176,7 +176,7 @@ const EditProfile = ({ currentUser, setCurrentUser }) => {
                     <img src={woltLogo} alt="Wolt Logo" className="auth-logo" />
                 </div>
 
-                <h2 className="auth-heading" style={{ fontFamily: 'var(--main-font)', fontWeight: 700, margin: '10px 0 20px', color: 'var(--text-color)' }}>
+                <h2 className="auth-heading">
                     Edit Profile Details
                 </h2>
 
@@ -292,8 +292,8 @@ const EditProfile = ({ currentUser, setCurrentUser }) => {
                         )}
                     </div>
 
-                    {error && <div className="auth-error-text" style={{ whiteSpace: 'pre-line' }}>{error}</div>}
-                    {successMsg && <div className="auth-success-text" style={{ color: 'var(--address-text)', fontWeight: 600, margin: '10px 0', textAlign: 'center' }}>{successMsg}</div>}
+                    {error && <div className="auth-error-text">{error}</div>}
+                    {successMsg && <div className="auth-success-text">{successMsg}</div>}
 
                     <button type="submit" className="auth-submit-button" disabled={isSubmitting}>
                         {isSubmitting ? 'Updating...' : 'Save Changes'}

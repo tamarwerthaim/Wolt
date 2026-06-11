@@ -70,6 +70,7 @@
     outline: none;
     color: var(--text-color);
     text-align: left;
+    direction: ltr;
     font-family: "Nunito", sans-serif;
     font-weight: 400;
     transition: all 0.3s ease;
@@ -110,6 +111,7 @@
     margin: 10px 0 15px 0;
     transition: color 0.3s ease;
     direction: ltr;
+    white-space: pre-line;
 }
 
 .auth-submit-button {
@@ -204,4 +206,73 @@
     border-radius: 12px;
     object-fit: cover;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Custom reusable form helper classes */
+.auth-textarea {
+    height: 80px;
+    resize: none;
+    padding: 12px;
+}
+
+.auth-product-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.auth-cancel-button {
+    background-color: #ccc;
+    margin-top: 10px;
+}
+
+.auth-cancel-button:hover {
+    background-color: #b3b3b3;
+}
+
+body.dark-mode .auth-cancel-button {
+    background-color: #444;
+    color: #fff;
+}
+
+body.dark-mode .auth-cancel-button:hover {
+    background-color: #555;
+}
+
+.auth-danger-button {
+    background-color: var(--danger-text);
+    margin-top: 10px;
+}
+
+.auth-danger-button:hover {
+    filter: brightness(1.08);
+}
+
+.auth-loading-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.auth-loading-text {
+    color: var(--wolt-cyan);
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.auth-splash-logo-container {
+    margin-bottom: 0px;
+}
+
+.auth-splash-image {
+    width: 340px;
+    height: 340px;
+    object-fit: contain;
+}
+
+.auth-splash-heading {
+    direction: ltr;
 }

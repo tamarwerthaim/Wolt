@@ -123,9 +123,8 @@ const AddProduct = () => {
                             id="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="auth-input"
+                            className="auth-input auth-textarea"
                             placeholder="Product description..."
-                            style={{ height: '80px', resize: 'none', padding: '12px' }}
                         />
                     </div>
 
@@ -150,13 +149,7 @@ const AddProduct = () => {
                                 <img
                                     src={imagePreview}
                                     alt="Product Image Preview"
-                                    style={{
-                                        width: '150px',
-                                        height: '150px',
-                                        borderRadius: '12px',
-                                        objectFit: 'cover',
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
-                                    }}
+                                    className="auth-product-preview"
                                 />
                                 <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
                                     Remove Image
@@ -176,8 +169,7 @@ const AddProduct = () => {
                     <button
                         type="button"
                         onClick={() => navigate(`/restaurant/${restaurantId}`)}
-                        className="auth-submit-button"
-                        style={{ backgroundColor: '#ccc', marginTop: '10px' }}
+                        className="auth-submit-button auth-cancel-button"
                     >
                         Cancel
                     </button>
