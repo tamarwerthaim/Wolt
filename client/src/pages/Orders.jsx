@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Orders.css';
+import cartImage from '../assets/cart.png';
 
 const Orders = ({ currentUser }) => {
   const navigate = useNavigate();
@@ -87,16 +88,20 @@ const Orders = ({ currentUser }) => {
 
   return (
     <div className="orders-container" style={{ direction: 'ltr' }}>
-      <button className="back-button" onClick={() => navigate(-1)} title="Back">
+      <button className="back-button" onClick={() => navigate('/')} title="Back">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
       </button>
-      <h2 className="orders-title">My Orders 📦</h2>
-      
-      <div className="user-welcome">
-        <p>Welcome back, <strong>{currentUser?.name || currentUser?.username}</strong>! Here is your order history:</p>
+      <div className="orders-top-section">
+        <div className="orders-top-left">
+          <h2 className="orders-title">My Orders</h2>
+          <div className="user-welcome">
+            <p>Welcome back, <strong>{currentUser?.name || currentUser?.username}</strong>! Here is your order history:</p>
+          </div>
+        </div>
+        <img src={cartImage} alt="Cart" className="orders-hero-cart-img" />
       </div>
 
       {loading && (

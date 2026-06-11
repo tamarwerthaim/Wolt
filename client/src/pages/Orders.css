@@ -9,10 +9,29 @@
   text-align: left;
 }
 
+.orders-top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.orders-top-left {
+  flex: 1;
+}
+
+.orders-hero-cart-img {
+  height: 220px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: 24px;
+}
+
 .orders-title {
   font-size: 32px;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: var(--text-color);
 }
 
