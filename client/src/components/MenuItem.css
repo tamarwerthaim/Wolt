@@ -1,7 +1,7 @@
 /* MenuItem.css */
 
 .menu-item-card {
-    --wolt-cyan: #00c1a1;
+    --wolt-cyan: #00c2e8;
     --wolt-dark: #202125;
     --wolt-gray: #8a8d91;
     --wolt-light-gray: #f8f8f8;
@@ -55,7 +55,7 @@
 }
 
 .menu-item-add-btn:hover {
-    background-color: #00a085;
+    background-color: #009ec0;
     transform: scale(1.05);
 }
 
@@ -67,6 +67,8 @@
     display: flex;
     flex-direction: column;
     flex: 1;
+    text-align: left;
+    align-items: flex-start;
 }
 
 .menu-item-name {

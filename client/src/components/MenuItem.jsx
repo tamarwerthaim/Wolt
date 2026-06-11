@@ -10,12 +10,22 @@ const MenuItem = ({ product, onAdd }) => {
         }
     };
 
+    const getImageUrl = (image) => {
+        if (!image) {
+            return "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg";
+        }
+        if (image.startsWith('/uploads')) {
+            return `http://localhost:3000${image}`;
+        }
+        return image;
+    };
+
     return (
         <div className="menu-item-card">
             {/* צד שמאל: תמונה וכפתור פלוס */}
             <div className="menu-item-image-wrapper">
-                <img 
-                    src={product.image || "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
+                <img
+                    src={getImageUrl(product.image)}
                     alt={product.name}
                     className="menu-item-image"
                 />

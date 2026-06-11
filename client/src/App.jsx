@@ -9,6 +9,7 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import RestaurantDetails from './pages/RestaurantDetails';
 import AddRestaurant from './pages/AddRestaurant';
+import AddProduct from './pages/AddProduct';
 import Cart from './components/Cart.jsx';
 
 function App() {
@@ -204,11 +205,13 @@ function App() {
 
             <Route path="/restaurant/:id" element={
               <RestaurantDetails 
+                currentUser={currentUser}
                 cart={cart}
                 addToCart={addToCart}
                 removeFromCart={removeFromCart}
               />
             } />
+            <Route path="/restaurant/:id/add-product" element={<AddProduct />} />
             <Route path="/admin/add-restaurant" element={<AddRestaurant />} />
 
             {/* Main application routes */}
