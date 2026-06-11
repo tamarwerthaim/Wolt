@@ -261,3 +261,31 @@
     color: var(--wolt-dark);
     font-family: 'Nunito', sans-serif;
 }
+
+/* כפתור הוספת מוצר למנהל */
+.add-product-btn {
+    width: 45px;
+    height: 45px;
+    background-color: var(--wolt-cyan);
+    border: none;
+    border-radius: 50%;
+    color: var(--wolt-white);
+    font-size: 26px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.add-product-btn:hover {
+    transform: scale(1.08);
+    background-color: #00a085;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.add-product-btn:active {
+    transform: scale(0.95);
+}

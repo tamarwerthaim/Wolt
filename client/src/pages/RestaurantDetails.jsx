@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import MenuItem from '../components/MenuItem';
 import './RestaurantDetails.css';
 
-const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
+const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => {
     const { id } = useParams();
     const navigate = useNavigate();
 
     // 1. פלטת הצבעים והפונטים של וולט
     const woltPalette = {
-        cyan: '#00c1a1',
+        cyan: '#00c2e8',
         dark: '#202125',
         gray: '#8a8d91',
         lightGray: '#f8f8f8',
@@ -137,18 +138,6 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
         }
     };
 
-    // קומפוננטה לעיצוב MenuItem
-    const menuItemPlaceholder = (product) => (
-        <div key={product.id || product._id} className="menu-item-card">
-            {/* צד שמאל: תמונה וכפתור פלוס */}
-            <div className="menu-item-image-wrapper">
-                <img 
-                    src={product.image || "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
-                    alt={product.name}
-                    className="menu-item-image"
-                />
-                <button className="menu-item-add-btn">+</button>
-            </div>
 
             {/* צד ימין: טקסט ומחיר */}
             <div className="menu-item-text-wrapper">
@@ -176,14 +165,13 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
                 </svg>
             </button>
             {/* חלק 1: הבאנר הענק */}
-            <div 
+            <div
                 className="details-banner"
                 style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%), url('${
-                        restaurant?.image 
-                            ? `http://localhost:3000${restaurant.image}` 
+                    backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%), url('${restaurant?.image
+                            ? `http://localhost:3000${restaurant.image}`
                             : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg'
-                    }')`
+                        }')`
                 }}
             ></div>
 
@@ -197,7 +185,7 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
                     <div className="details-ratings-count">
                         ⭐️ ({getRatingsCount()} ratings)
                     </div>
-                    
+
                     {/* בחירת כוכבים דינמית למשתמשים מחוברים */}
                     {localStorage.getItem('token') ? (
                         <div className="details-stars-row">
@@ -208,11 +196,10 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
                                     onClick={() => handleRate(star)}
                                     onMouseEnter={() => setHoverRating(star)}
                                     onMouseLeave={() => setHoverRating(0)}
-                                    className={`details-star-btn ${
-                                        star <= (hoverRating || userRating) 
-                                            ? 'details-star-active' 
+                                    className={`details-star-btn ${star <= (hoverRating || userRating)
+                                            ? 'details-star-active'
                                             : 'details-star-inactive'
-                                    }`}
+                                        }`}
                                     title={`Rate ${star} stars`}
                                 >
                                     ★
@@ -248,7 +235,18 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
 
             {/* חלק 3: רשימת המוצרים */}
             <div className="details-products-area">
-                <h2 className="details-menu-title">The Entire Menu</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h2 className="details-menu-title" style={{ margin: 0 }}>The Entire Menu</h2>
+                    {currentUser?.isAdmin && (
+                        <button 
+                            className="add-product-btn" 
+                            onClick={() => navigate(`/restaurant/${id}/add-product`)}
+                            title="Add New Product"
+                        >
+                            +
+                        </button>
+                    )}
+                </div>
 
                 {/* הצגת מצבי טעינה, שגיאה או תפריט ריק */}
                 {loading && (
@@ -272,7 +270,13 @@ const RestaurantDetails = ({ cart, addToCart, removeFromCart }) => {
                 {/* הגריד של המוצרים האמיתיים מהשרת */}
                 {!loading && !error && products.length > 0 && (
                     <div className="details-products-grid">
-                        {products.map(product => menuItemPlaceholder(product))}
+                        {products.map(product => (
+                            <MenuItem
+                                key={product.id || product._id}
+                                product={product}
+                                onAdd={addToCart}
+                            />
+                        ))}
                     </div>
                 )}
             </div>

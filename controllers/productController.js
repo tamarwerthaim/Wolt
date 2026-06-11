@@ -72,7 +72,11 @@ class ProductController {
     static async createProduct(req, res) {
         // extract the restaurant id from the request parameters and the product data from the request body
         const { id } = req.params;
-        const { name, price, description, image } = req.body;
+        const name = req.body?.name;
+        const price = req.body?.price;
+        const description = req.body?.description;
+        const image = req.file ? `/uploads/${req.file.filename}` : req.body?.image;
+
         //if the name is not provided in the request body, return a 400 status with an error message
         if (!name || !price || !description || !image) {
             return res.status(400).json({ error: "All fields are required: name, price, description, and image must be provided." });
@@ -88,7 +92,7 @@ class ProductController {
             return res.status(400).json({ error: "Product image must be a valid non-empty string path" });
         }
         // use the ProductModel to create a new product and add it to the restaurant's menu
-        const newProduct = ProductModel.create(id, { name, price, description, image });
+        const newProduct = ProductModel.create(id, { name, price: numPrice, description, image });
         // if the restaurant is not found, the model will return null
         if (!newProduct) {
             return res.status(404).json({ error: "Restaurant not found" });
