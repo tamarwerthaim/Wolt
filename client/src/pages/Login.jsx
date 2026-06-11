@@ -87,15 +87,14 @@ const Login = ({ setCurrentUser, setIsCartOpen }) => {
         return (
             <div className="auth-container">
                 <div className="auth-card">
-                    <div className="auth-logo-container" style={{ marginBottom: '0px' }}>
+                    <div className="auth-logo-container auth-splash-logo-container">
                         <img 
                             src={foodImage} 
                             alt="Getting Hungry" 
-                            className="auth-logo" 
-                            style={{ width: '340px', height: '340px', objectFit: 'contain' }}
+                            className="auth-logo auth-splash-image"
                         />
                     </div>
-                    <h1 className="auth-heading wolt-brand-color" style={{ direction: 'ltr' }}>
+                    <h1 className="auth-heading wolt-brand-color auth-splash-heading">
                         Getting hungry?
                     </h1>
                 </div>
@@ -111,7 +110,7 @@ const Login = ({ setCurrentUser, setIsCartOpen }) => {
 
             <div className="auth-card">
                 <button className="back-button" onClick={() => navigate(fromPath)} title="Back">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>

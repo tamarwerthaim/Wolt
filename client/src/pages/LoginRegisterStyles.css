@@ -262,3 +262,17 @@ body.dark-mode .auth-cancel-button:hover {
     font-size: 18px;
     font-weight: bold;
 }
+
+.auth-splash-logo-container {
+    margin-bottom: 0px;
+}
+
+.auth-splash-image {
+    width: 340px;
+    height: 340px;
+    object-fit: contain;
+}
+
+.auth-splash-heading {
+    direction: ltr;
+}

@@ -8,7 +8,7 @@
 .hero-banner {
   background-color: var(--primary-btn-bg);
   width: 100%;
-  height: calc(100vh - 72px); 
+  height: calc(100vh - 72px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,7 +56,7 @@
   position: relative;
   margin-top: -120px;
   z-index: 10;
-  direction: ltr; 
+  direction: ltr;
 }
 
 /* Flex layout ribbon tracking sliding component nodes side by side */
@@ -179,7 +179,9 @@
 .all-restaurants-section {
   width: 100%;
   padding-top: 20px;
-  text-align: left; 
+  text-align: left;
+  direction: ltr;
+  margin-top: 60px;
 }
 
 /* Heading item structure preparing custom positioning anchors for baseline pseudo-borders */
@@ -198,7 +200,7 @@
   content: '';
   position: absolute;
   bottom: -6px;
-  left: 0; 
+  left: 0;
   width: 40px;
   height: 4px;
   background-color: var(--primary-btn-bg);
@@ -231,6 +233,7 @@
   width: 100%;
   padding: 10px 0;
   text-align: left;
+  direction: ltr;
 }
 
 /* Typography configuration defining the main search filter result headings status */
@@ -239,7 +242,7 @@
   font-size: 28px;
   font-weight: 700;
   color: var(--text-color);
-  margin-bottom: 12px; 
+  margin-bottom: 12px;
 }
 
 /* Inline text override utility forcing highlighted query keywords to render brand colors */
@@ -279,17 +282,39 @@
   gap: 8px;
 }
 
+.no-results p {
+  margin: 0;
+}
+
 /* Responsive constraints handling failure graphics and protecting presentation heights */
 .no-results-img {
   width: 100%;
-  max-width: 300px; 
+  max-width: 300px;
   height: auto;
   object-fit: contain;
   border-radius: 16px;
-  margin-top: -10px; 
+  margin-top: -10px;
 }
 
 /* Layout divider spacing grouping matching item matrices together */
 .results-group {
   margin-bottom: 40px;
+}
+
+.results-group-dishes {
+  margin-top: 40px;
+}
+
+.home-fallback-emoji {
+  font-size: 40px;
+}
+
+@keyframes scrollMarquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }

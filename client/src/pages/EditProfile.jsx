@@ -148,10 +148,10 @@ const EditProfile = ({ currentUser, setCurrentUser }) => {
             }
 
             console.log('Profile updated successfully!', data);
-            
+
             // Update the global state immediately
             setCurrentUser(data);
-            setSuccessMsg('Profile updated successfully! 🚀');
+            setSuccessMsg('Profile updated successfully!');
 
             setTimeout(() => {
                 navigate('/');

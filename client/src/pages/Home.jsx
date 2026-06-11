@@ -222,7 +222,7 @@ const Home = ({ currentUser }) => {
         {searchQuery ? (
           
           /* Search results matching view container */
-          <div ref={resultsRef} className="search-results-section" style={{ direction: 'ltr' }}>
+          <div ref={resultsRef} className="search-results-section">
             <h2 className="results-title">
               Search results for: <span className="search-query-highlight">"{searchQuery}"</span>
             </h2>
@@ -235,7 +235,7 @@ const Home = ({ currentUser }) => {
             {!loading && !error && searchResults.restaurants.length === 0 && searchResults.products.length === 0 && (
               <div className="no-results">
                 <img src={cryImage} alt="No results" className="no-results-img" />
-                <p style={{ margin: 0 }}>No restaurants or dishes found matching your query. Try something else!</p>
+                <p>No restaurants or dishes found matching your query. Try something else!</p>
               </div>
             )}
 
@@ -286,7 +286,7 @@ const Home = ({ currentUser }) => {
 
             {/* Section mapping out individual matching dishes */}
             {!loading && searchResults.products.length > 0 && (
-              <div className="results-group" style={{ marginTop: '40px' }}>
+              <div className="results-group results-group-dishes">
                 <h3 className="group-title">Menu Items ({searchResults.products.length})</h3>
                 <div className="results-grid">
                   {searchResults.products.map((product) => (
@@ -354,7 +354,7 @@ const Home = ({ currentUser }) => {
                             className="restaurant-card-img"
                           />
                         ) : (
-                          <span style={{ fontSize: '40px' }}>🍔</span>
+                          <span className="home-fallback-emoji">🍔</span>
                         )}
                       </div>
                       <h3>{restaurant.name}</h3>
@@ -393,7 +393,7 @@ const Home = ({ currentUser }) => {
                             className="restaurant-card-img"
                           />
                         ) : (
-                          <span style={{ fontSize: '40px' }}>🍔</span>
+                          <span className="home-fallback-emoji">🍔</span>
                         )}
                       </div>
                       <h3>{restaurant.name}</h3>
@@ -412,7 +412,7 @@ const Home = ({ currentUser }) => {
 
             {/* Grid displaying the complete restaurant phone-book catalog index */}
             {sortedRestaurants.length > 0 && (
-              <div className="all-restaurants-section" style={{ direction: 'ltr', marginTop: '60px' }}>
+              <div className="all-restaurants-section">
                 <h2 className="all-rests-title">All Our Restaurants ({sortedRestaurants.length})</h2>
                 <div className="all-rests-grid">
                   {sortedRestaurants.map((restaurant) => {
