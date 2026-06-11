@@ -60,12 +60,12 @@ const Login = ({ setCurrentUser }) => {
                 setCurrentUser(userData); // מעדכן את האפליקציה באופן מיידי!
             }
 
-            // Trigger splash page for 5 seconds before home navigation
+            // Trigger splash page for 3 seconds before home navigation
             setShowSplash(true);
             
             setTimeout(() => {
                 navigate('/');
-            }, 5000);
+            }, 3000);
         }
         catch (err) {
             setError(err.message || 'Server connection error. Please try again later.');
