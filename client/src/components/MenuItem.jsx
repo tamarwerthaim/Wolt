@@ -12,7 +12,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     const quantity = cartItem ? cartItem.quantity : 0;
 
     const handleCardClick = () => {
-        setTempQuantity(1);
+        setTempQuantity(quantity > 0 ? quantity : 1);
         setIsModalOpen(true);
     };
 
@@ -48,8 +48,17 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     const handleAddToOrder = (e) => {
         e.stopPropagation();
         if (onAdd) {
-            for (let i = 0; i < tempQuantity; i++) {
-                onAdd(product, restaurantId, restaurantName);
+            const diff = tempQuantity - quantity;
+            if (diff > 0) {
+                for (let i = 0; i < diff; i++) {
+                    onAdd(product, restaurantId, restaurantName);
+                }
+            } else if (diff < 0) {
+                if (onRemove) {
+                    for (let i = 0; i < Math.abs(diff); i++) {
+                        onRemove(productId);
+                    }
+                }
             }
         }
         setIsModalOpen(false);
@@ -139,7 +148,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
 
                         <div className="product-modal-footer">
                             <button className="product-modal-add-btn" onClick={handleAddToOrder}>
-                                ₪{(product.price * tempQuantity).toFixed(2)} Add to cart
+                                ₪{(product.price * tempQuantity).toFixed(2)} {quantity > 0 ? 'Update cart' : 'Add to cart'}
                             </button>
 
                             <div className="product-modal-qty-selector">
