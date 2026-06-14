@@ -227,10 +227,6 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                       <span className="order-timestamp">{orderDate} at {orderTime}</span>
                     </div>
                   </div>
-
-                  <span className={`order-status-badge ${order.status.toLowerCase()}`}>
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </span>
                 </div>
 
                 <div className="order-card-body">
@@ -314,13 +310,6 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                     <div className="modal-reference-row">
                       <span className="modal-reference-label">Reference:</span>
                       <code className="modal-reference-code">#{selectedOrder.id}</code>
-                    </div>
-
-                    <div className="modal-status-row">
-                      <span className="modal-status-label">Status:</span>
-                      <span className={`order-status-badge ${selectedOrder.status.toLowerCase()}`}>
-                        {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
-                      </span>
                     </div>
 
                     <div className="modal-items-section">

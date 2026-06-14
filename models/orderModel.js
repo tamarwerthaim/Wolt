@@ -22,7 +22,6 @@ class OrderModel {
             userId: orderData.userId,
             restaurantId: orderData.restaurantId,
             items: orderData.items, // array of { productId, quantity }
-            status: 'pending', // initial status of the order
             createdAt: new Date().toISOString() //timestamp of when the order was created
         };
         // add the new order to the in-memory array
@@ -37,7 +36,6 @@ class OrderModel {
         if (!order) return null; // if the order doesn't exist, return null
 
         // update the order's fields only if they are provided in the updatedData
-        if (updatedData.status) order.status = updatedData.status;
         if (updatedData.items) order.items = updatedData.items;
 
         return order;
