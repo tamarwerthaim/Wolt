@@ -2,7 +2,7 @@
 
 > 📌 **Assignment Note:** The main branch for this part of the assignment is 'WOLT-Part4'.
 
-This project is a full-stack Wolt-style food delivery application. It features a modern **React (Vite)** single-page application frontend, an **Express (Node.js)** REST API gateway backend,communicating via TCP sockets. The system enforces secure stateless **JWT Authentication**, input validation rules, custom dark/light theme switching, and image uploads.
+This project is a full-stack Wolt-style food delivery application. It features a modern **React (Vite)** single-page application frontend and an **Express (Node.js)** REST API gateway backend. The application supports user registration, authentication, restaurant and menu management, order placement, and global search functionality. The system enforces secure stateless **JWT Authentication**, input validation rules, custom dark/light theme switching, and synchronizes user product views and orders to the recommendation engine in real-time.
 
 ---
 
@@ -141,6 +141,30 @@ When creating a new account on the **Sign Up** screen:
 ### 4. Single-Restaurant Cart Rule
 - The shopping cart restricts items to a single restaurant.
 - If a user attempts to add items from a different restaurant, they are prompted to clear their current cart or cancel the action.
+
+### 5. User Roles & Permissions
+During registration on the **Sign Up** screen, users can choose whether to register as a **Restaurant Owner** (by checking a box) or as a regular customer.
+
+Permissions are defined as follows:
+- **Guest (Non-Registered User):**
+  - Browse restaurants and categories.
+  - Search for restaurants or products using the global search bar.
+  - View restaurant menus and product details.
+- **Registered Customer:**
+  - All Guest features.
+  - Add products to the shopping cart and checkout (place orders).
+  - View order placement history.
+  - Rate restaurants.
+  - Edit their profile details.
+  - Toggle the application theme between **Dark Mode** and **Light Mode**.
+- **Restaurant Owner (Admin):**
+  - All Customer features.
+  - Create new restaurants (Admin panel).
+  - Edit existing restaurant profiles.
+  - Delete restaurants.
+  - Add new products to restaurant menus.
+  - Edit existing menu products (prices, names, descriptions).
+  - Delete products from the menus.
 
 ---
 
