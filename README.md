@@ -237,6 +237,9 @@ All endpoints receive and return data in **JSON format**.
 - **Admin Dashboard Home:** Lists restaurants with edit/delete buttons and create options:
   ![Admin Dashboard Home](images_readme/admin/home_page.png)
 
+- **Restaurant Menu Page:** Displays the restaurant's menu — admins can add a new product to the menu or navigate to edit the restaurant's details directly from this page:
+  ![Restaurant Menu Page Admin](images_readme/admin/restaurant_page.jpeg)
+
 - **Add New Restaurant:** Form to upload banner and set restaurant metadata:
   ![Add New Restaurant](images_readme/admin/add_restaurant.png)
 
