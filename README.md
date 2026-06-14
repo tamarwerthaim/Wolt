@@ -183,11 +183,12 @@ All endpoints receive and return data in **JSON format**.
 - **Home Page (Lower section):** Displays available restaurants grouped by promotions:
   ![Home Page Lower](images_readme/general/home_page_downer.png)
 
+- **Register Screen:** Register screen featuring input fields, credentials validation, and profile image file upload:
+  ![Register Screen](images_readme/general/register.png)
+  
 - **Login Screen:** Screen to authenticate existing users:
   ![Login Screen](images_readme/general/login.png)
 
-- **Register Screen:** Register screen featuring input fields, credentials validation, and profile image file upload:
-  ![Register Screen](images_readme/general/register.png)
 
 - **Restaurant Menu Page:** Lists products of the selected restaurant:
   ![Restaurant Menu Page](images_readme/general/restaurant_page.png)
