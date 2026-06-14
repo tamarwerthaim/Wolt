@@ -141,13 +141,14 @@ const Register = () => {
                     <img src={woltLogo} alt="Wolt Logo" className="auth-logo" />
                 </div>
 
-                {/* 🎯 התנאי החדש שמציג מסך הצלחה מותאם במקום הטופס */}
                 {isSuccess ? (
                     <div>
                         <h1 className="auth-heading wolt-brand-color">!Welcome to Wolt Family</h1>
                     </div>
                 ) : (
-                    <form onSubmit={handleRegisterSubmit}>
+                    <>
+                        <h1 className="auth-heading">Sign up to Wolt</h1>
+                        <form onSubmit={handleRegisterSubmit}>
                         {/* שם משתמש */}
                         <div className="auth-input-wrapper">
                             <label htmlFor="username" className="auth-label">:Enter your username</label>
@@ -293,7 +294,8 @@ const Register = () => {
                             Sign Up
                         </button>
                     </form>
-                )}
+                </>
+            )}
             </div>
         </div>
     );
