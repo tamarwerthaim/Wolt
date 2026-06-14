@@ -1,99 +1,102 @@
-/* Global top navigation bar wrapper locked at the top of the viewport */
+/* Main header bar fixed at the top of the page */
 .wolt-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 72px;
-  background-color: var(--header-bg); 
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+  background-color: var(--header-bg);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   display: flex;
   align-items: center;
-  transition: background-color 0.3s ease, color 0.3s ease; 
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Inner alignment layout container forcing strict left-to-right flow and edge paddings */
+/* Inner container to space out items and force left-to-right direction */
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 100%; 
+  max-width: 100%;
   margin: 0;
-  padding: 0 20px; 
-  direction: ltr; 
+  padding: 0 20px;
+  direction: ltr;
   box-sizing: border-box;
 }
 
-/* Equal flex-grow distribution to ensure the middle search block is perfectly centered */
-.header-center, .header-right {
-  flex: 1; 
+/* Give center and right blocks equal space to keep things balanced */
+.header-center,
+.header-right {
+  flex: 1;
   display: flex;
   align-items: center;
 }
 
-/* Shared typography configuration for authentication control buttons */
-.login-btn, .register-btn, .logout-btn {
+/* Use the Nunito font for all auth buttons */
+.login-btn,
+.register-btn,
+.logout-btn {
   font-family: "Nunito", sans-serif;
 }
 
-/* Left portion of the header housing the main brand identity */
+/* Left section to align the logo to the start */
 .header-left {
   flex: 1;
   display: flex;
-  justify-content: flex-start; 
+  justify-content: flex-start;
 }
 
-/* Center portion dedicated entirely to global search navigation */
+/* Center section to keep the search bar right in the middle */
 .header-center {
   flex: 1;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
 }
 
-/* Right portion grouping system utilities, authentication status, and cart access */
+/* Right section to push buttons, cart, and theme toggle to the end */
 .header-right {
   flex: 1;
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
 }
 
-/* Structural wrapper for branding elements */
+/* Wrapper for the logo image */
 .wolt-logo-container {
   display: flex;
   align-items: center;
 }
 
-/* Logo image scaling with a negative left margin to pull it close to the viewport edge */
+/* Logo sizing and negative margin to push it closer to the edge */
 .wolt-official-logo {
-  height: 70px; 
+  height: 70px;
   object-fit: contain;
   cursor: pointer;
-  margin-left: -16px; 
+  margin-left: -16px;
 }
 
-/* Search bar control panel layout with a restricted max-width limit */
+/* Search bar background, rounding, and max width */
 .header-search-bar {
   display: flex;
   align-items: center;
   background-color: var(--btn-secondary-bg);
   border-radius: 24px;
   width: 100%;
-  max-width: 400px; 
+  max-width: 400px;
   padding: 8px 16px;
   transition: all 0.2s ease;
 }
 
-/* Active focus layout changing background contrast and appending an outline shadow ring */
+/* Change background and add a shadow ring when the search input is focused */
 .header-search-bar:focus-within {
   background-color: var(--header-bg);
   box-shadow: 0 0 0 2px var(--address-text);
 }
 
-/* Search magnifying glass decorative icon alignment styling */
+/* Style and opacity for the magnifying glass icon */
 .search-icon {
   font-size: 14px;
   opacity: 0.5;
@@ -101,7 +104,7 @@
   color: var(--text-color);
 }
 
-/* Core search input tag normalization removing native borders and focus outlines */
+/* Reset input styles, make it fill the space and remove borders */
 .search-input {
   flex: 1;
   border: none;
@@ -111,13 +114,13 @@
   outline: none;
 }
 
-/* Muted visibility modifier applied directly onto the input text placeholder placeholder */
+/* Make the placeholder text semi-transparent */
 .search-input::placeholder {
   color: var(--text-color);
   opacity: 0.5;
 }
 
-/* Semi-bold dynamic widget displaying user address or metadata values */
+/* Style for the box showing the user's current address */
 .user-address-box {
   display: flex;
   align-items: center;
@@ -129,18 +132,19 @@
   font-weight: 600;
 }
 
-/* Space separators for specific internal address icons and textual sub-labels */
+/* Small space next to the address pin icon */
 .address-icon {
   margin-left: 6px;
 }
 
+/* Style for the address label text */
 .address-label {
   margin-left: 4px;
   font-weight: 400;
   opacity: 0.8;
 }
 
-/* Light/Dark theme configuration utility toggle switch with hover transforms */
+/* Button to switch between light and dark mode with smooth hover transition */
 .theme-toggle-btn {
   border: none;
   background-color: var(--btn-secondary-bg);
@@ -156,11 +160,12 @@
   transition: all 0.2s ease;
 }
 
+/* Scale up slightly on hover */
 .theme-toggle-btn:hover {
   transform: scale(1.05);
 }
 
-/* Authenticated user summary profile component row container */
+/* Container for the user name and avatar image */
 .user-profile-section {
   display: flex;
   align-items: center;
@@ -168,7 +173,7 @@
   position: relative;
 }
 
-/* Circular user avatar image layout sizing configurations */
+/* Circular user avatar image with scale transition */
 .profile-img {
   width: 34px;
   height: 34px;
@@ -178,7 +183,7 @@
   transition: transform 0.2s ease;
 }
 
-/* Compact display username label settings */
+/* User name label style */
 .user-name {
   font-family: "Nunito", sans-serif;
   font-weight: 600;
@@ -188,8 +193,9 @@
   user-select: none;
 }
 
-/* Standardized button layout attributes shared between login and logout controls */
-.logout-btn, .login-btn {
+/* General styles shared between login and logout buttons */
+.logout-btn,
+.login-btn {
   border: none;
   padding: 6px 12px;
   border-radius: 12px;
@@ -198,21 +204,21 @@
   cursor: pointer;
 }
 
-/* Secondary outline style option for session termination actions */
+/* Outline style button for log out */
 .logout-btn {
-  background-color: transparent; 
-  border: 1px solid var(--primary-btn-bg); 
-  color: var(--primary-btn-bg); 
+  background-color: transparent;
+  border: 1px solid var(--primary-btn-bg);
+  color: var(--primary-btn-bg);
 }
 
-/* High-contrast solid primary theme styling applied onto authentication entry points */
+/* Blue solid button for log in */
 .login-btn {
   background-color: var(--primary-btn-bg);
   color: white;
   transition: background-color 0.3s ease;
 }
 
-/* Secondary alternative button display configuration for client registration prompts */
+/* Gray button style for sign up */
 .register-btn {
   border: none;
   background-color: var(--btn-secondary-bg);
@@ -224,11 +230,12 @@
   transition: background 0.2s;
 }
 
+/* Change background color on hover */
 .register-btn:hover {
   background-color: var(--btn-secondary-hover);
 }
 
-/* Interactive navigation cart control utility supporting a relative micro-badge context */
+/* Cart button layout, position relative for the badge */
 .header-cart-btn {
   border: none;
   background-color: var(--btn-secondary-bg);
@@ -245,12 +252,13 @@
   transition: transform 0.2s, background-color 0.2s;
 }
 
+/* Hover scale effect for the cart button */
 .header-cart-btn:hover {
   background-color: var(--btn-secondary-hover);
   transform: scale(1.05);
 }
 
-/* Absolutely anchored top-right quantity count badge supporting pop keyframe states */
+/* Absolute blue badge showing item count with a pop animation */
 .cart-badge {
   background-color: var(--primary-btn-bg);
   color: white;
@@ -265,13 +273,18 @@
   animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Scale elastic pop interpolation transformation rules */
+/* Scale animation for the cart badge */
 @keyframes popIn {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
-/* Interactive item tracking hover feedback transitions for standard profile avatars */
+/* Hover scale transition for the active profile image */
 .profile-img.interactive {
   transition: transform 0.2s ease;
 }
@@ -280,7 +293,7 @@
   transform: scale(1.08);
 }
 
-/* Interactive text tracking hover fade transitions for display names */
+/* Hover opacity change for the interactive user name text */
 .user-name.interactive {
   transition: opacity 0.2s ease;
 }
@@ -289,7 +302,7 @@
   opacity: 0.8;
 }
 
-/* Absolutely positioned floating context panel mapping detailed user account operations */
+/* Dropdown menu showing detailed profile options below the header */
 .profile-dropdown-card {
   position: absolute;
   top: calc(100% + 12px);
@@ -305,22 +318,23 @@
   gap: 14px;
   z-index: 1000;
   animation: slideDownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  direction: ltr; 
+  direction: ltr;
 }
 
-/* Dropdown presentation transition keyframe mapping entry fades and translations */
+/* Dropdown appearance animation with slide down and fade in effects */
 @keyframes slideDownFade {
   from {
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Structural summary block separating avatar graphics from context action records */
+/* Top section of the dropdown menu separating user info */
 .profile-dropdown-header {
   display: flex;
   align-items: center;
@@ -329,7 +343,7 @@
   padding-bottom: 12px;
 }
 
-/* Prominent themed avatar border frame mapping internal account properties */
+/* Larger avatar image with a blue border inside the dropdown */
 .profile-dropdown-avatar {
   width: 48px;
   height: 48px;
@@ -338,7 +352,7 @@
   border: 2px solid var(--primary-btn-bg);
 }
 
-/* Truncating column alignment container protecting layout bounds from name lengths */
+/* Stack name, username, and admin badge in a column */
 .profile-dropdown-info {
   display: flex;
   flex-direction: column;
@@ -347,7 +361,7 @@
   text-align: left;
 }
 
-/* Ellipsis clipping constraints targeting primary client display credentials */
+/* Text style for the full name inside the dropdown */
 .profile-dropdown-name {
   margin: 0;
   font-size: 15px;
@@ -359,7 +373,7 @@
   text-overflow: ellipsis;
 }
 
-/* Ellipsis clipping constraints targeting secondary client identifier tags */
+/* Text style for the username inside the dropdown */
 .profile-dropdown-username {
   font-size: 12px;
   color: var(--text-color);
@@ -370,7 +384,7 @@
   text-overflow: ellipsis;
 }
 
-/* Static descriptive label tag evaluating permissions level roles */
+/* Badge for admin roles inside the dropdown */
 .profile-dropdown-badge {
   align-self: flex-start;
   background-color: var(--address-bg);
@@ -384,7 +398,7 @@
   font-family: var(--main-font);
 }
 
-/* Meta status data presentation columns listing core credentials fields */
+/* Column layout for profile fields like phone and location */
 .profile-dropdown-details {
   display: flex;
   flex-direction: column;
@@ -392,7 +406,7 @@
   padding: 4px 0;
 }
 
-/* Standard icon/text combo metadata item horizontal listing format */
+/* Row style for individual profile data items */
 .profile-detail-item {
   display: flex;
   align-items: center;
@@ -403,7 +417,7 @@
   text-align: left;
 }
 
-/* Icon layout grid normalization centering descriptive sub-elements */
+/* Center the icon for the profile detail row */
 .profile-detail-item .detail-icon {
   font-size: 14px;
   opacity: 0.8;
@@ -413,21 +427,21 @@
   width: 20px;
 }
 
-/* Break rules enforcing text wrapping over complex mail paths inside columns */
+/* Ensure long text wraps correctly inside columns */
 .profile-detail-item .detail-text {
   word-break: break-all;
 }
 
-/* Action button grouping container located at the base of the dropdown menu */
+/* Bottom section containing action buttons inside the dropdown */
 .profile-dropdown-actions {
   border-top: 1px solid var(--btn-secondary-hover);
   padding-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px; 
+  gap: 8px;
 }
 
-/* Standardized configuration attributes supporting secondary system actions */
+/* Button style for the order history link */
 .orders-history-btn {
   width: 100%;
   padding: 10px;
@@ -454,7 +468,7 @@
   transform: translateY(0);
 }
 
-/* Secondary account alteration trigger button with hover translations */
+/* Button style for editing the profile link */
 .edit-profile-btn {
   width: 100%;
   padding: 10px;
@@ -481,7 +495,7 @@
   transform: translateY(0);
 }
 
-/* High-priority contextual critical failure action button for explicit logouts */
+/* Red button styling for logging out inside the dropdown */
 .dropdown-logout-btn {
   width: 100%;
   padding: 10px;

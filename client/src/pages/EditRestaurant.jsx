@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './FormStyles.css';
 
+/* Component to edit or delete an existing restaurant profile */
 const EditRestaurant = () => {
+    /* Get the unique restaurant ID from the URL path parameters */
     const { id: restaurantId } = useParams();
+
+    /* Form state hooks to handle input data, image uploads, and server responses */
     const [name, setName] = useState('');
     const [lat, setLat] = useState('');
     const [lng, setLng] = useState('');
@@ -17,6 +21,7 @@ const EditRestaurant = () => {
 
     const navigate = useNavigate();
 
+    /* Fetch the current restaurant details from the server when the component loads */
     useEffect(() => {
         const fetchRestaurant = async () => {
             try {
@@ -43,6 +48,7 @@ const EditRestaurant = () => {
         fetchRestaurant();
     }, [restaurantId]);
 
+    /* Create a local URL preview when a new image file is chosen */
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -52,6 +58,7 @@ const EditRestaurant = () => {
         }
     };
 
+    /* Discard the new image file selection and revert back to the original database image */
     const handleClearImage = () => {
         setRestaurantImage(null);
         if (existingImage) {
@@ -61,11 +68,13 @@ const EditRestaurant = () => {
         }
     };
 
+    /* Validate inputs and send the updated fields to the backend server */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
+        /* Check that required fields are not left empty */
         if (!name || !lat || !lng || !prepTime) {
             setError('All fields except selecting a new image file are required!');
             return;
@@ -75,6 +84,7 @@ const EditRestaurant = () => {
         const lngNum = parseFloat(lng);
         const prepNum = parseInt(prepTime);
 
+        /* Validate that geographical coordinates fit within proper boundaries */
         if (isNaN(latNum) || latNum < -90 || latNum > 90) {
             setError('Invalid Latitude.\nIt must be a valid number between -90 and 90.');
             return;
@@ -85,12 +95,14 @@ const EditRestaurant = () => {
             return;
         }
 
+        /* Verify that preparation time is a real number above zero */
         if (isNaN(prepNum) || prepNum <= 0) {
             setError('Invalid preparation time.\nIt must be a valid number greater than zero.');
             return;
         }
 
         try {
+            /* Pack fields into a FormData object to handle optional image uploads */
             const formData = new FormData();
             formData.append('name', name);
             formData.append('lat', lat);
@@ -104,7 +116,6 @@ const EditRestaurant = () => {
             }
 
             const token = localStorage.getItem('token');
-
             const response = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}`, {
                 method: 'PATCH',
                 headers: {
@@ -118,12 +129,13 @@ const EditRestaurant = () => {
                 try {
                     const data = await response.json();
                     errorMsg = data.error || errorMsg;
-                } catch (_) {}
+                } catch (_) { }
                 throw new Error(errorMsg);
             }
 
             setSuccess('Restaurant details updated successfully! Redirecting...');
 
+            /* Wait 2 seconds before redirecting the admin back to the detailed restaurant view */
             setTimeout(() => {
                 navigate(`/restaurant/${restaurantId}`);
             }, 2000);
@@ -133,6 +145,7 @@ const EditRestaurant = () => {
         }
     };
 
+    /* Ask for user confirmation and send a delete request to remove the restaurant */
     const handleDelete = async () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this restaurant? This action cannot be undone.");
         if (!confirmDelete) return;
@@ -154,12 +167,13 @@ const EditRestaurant = () => {
                 try {
                     const data = await response.json();
                     errorMsg = data.error || errorMsg;
-                } catch (_) {}
+                } catch (_) { }
                 throw new Error(errorMsg);
             }
 
             setSuccess('Restaurant deleted successfully! Redirecting...');
 
+            /* Wait 2 seconds before sending the admin user back to the main dashboard page */
             setTimeout(() => {
                 navigate('/');
             }, 2000);
@@ -169,6 +183,7 @@ const EditRestaurant = () => {
         }
     };
 
+    /* Display a basic loading state card while fetching the restaurant data */
     if (loading) {
         return (
             <div className="auth-container">
@@ -182,6 +197,8 @@ const EditRestaurant = () => {
     return (
         <div className="auth-container">
             <div className="auth-card">
+
+                {/* Back button to return to the previous screen using browser navigation history */}
                 <button className="back-button" onClick={() => navigate(-1)} title="Back">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -192,7 +209,8 @@ const EditRestaurant = () => {
                 <h1 className="auth-heading wolt-brand-color">Edit Restaurant Details</h1>
 
                 <form onSubmit={handleSubmit} noValidate>
-                    {/* שם המסעדה */}
+
+                    {/* Restaurant name input field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="name" className="auth-label">:Restaurant Name</label>
                         <input
@@ -205,11 +223,12 @@ const EditRestaurant = () => {
                         />
                     </div>
 
-                    {/* שדות מיקום משולבים */}
+                    {/* Combined location layout row holding latitude and longitude fields */}
                     <div className="auth-input-wrapper">
                         <label className="auth-label">:Location</label>
                         <div className="auth-input-row">
-                            {/* שדה Latitude */}
+
+                            {/* Latitude coordinate text input */}
                             <div className="auth-input-col">
                                 <input
                                     type="number"
@@ -222,7 +241,7 @@ const EditRestaurant = () => {
                                 />
                             </div>
 
-                            {/* שדה Longitude */}
+                            {/* Longitude coordinate text input */}
                             <div className="auth-input-col">
                                 <input
                                     type="number"
@@ -237,7 +256,7 @@ const EditRestaurant = () => {
                         </div>
                     </div>
 
-                    {/* Preparation Time (minutes) */}
+                    {/* Preparation time in minutes input field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="prepTime" className="auth-label">:Preparation Time (minutes)</label>
                         <input
@@ -251,7 +270,7 @@ const EditRestaurant = () => {
                         />
                     </div>
 
-                    {/* העלאת תמונת באנר */}
+                    {/* Restaurant banner image file upload input and preview logic */}
                     <div className="auth-input-wrapper">
                         <label className="auth-label">:Restaurant Image</label>
                         <div className="auth-file-input-container">
@@ -267,9 +286,11 @@ const EditRestaurant = () => {
                             </label>
                         </div>
 
+                        {/* Render the preview container if an image preview path is available */}
                         {imagePreview && (
                             <div className="auth-preview-container">
                                 <img src={imagePreview} alt="Restaurant Banner Preview" className="auth-banner-preview" />
+                                {/* Show the revert button only if a new local image file was chosen */}
                                 {restaurantImage && (
                                     <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
                                         Revert to Original
@@ -279,7 +300,7 @@ const EditRestaurant = () => {
                         )}
                     </div>
 
-                    {/* הודעות שגיאה או הצלחה */}
+                    {/* Display feedback error and success messages to the user if they exist */}
                     {error && <div className="auth-error-text">{error}</div>}
                     {success && <div className="auth-success-text">{success}</div>}
 
@@ -287,17 +308,17 @@ const EditRestaurant = () => {
                         Save Changes
                     </button>
 
-                    <button 
-                        type="button" 
-                        onClick={handleDelete} 
+                    <button
+                        type="button"
+                        onClick={handleDelete}
                         className="auth-submit-button auth-danger-button"
                     >
                         Delete Restaurant
                     </button>
 
-                    <button 
-                        type="button" 
-                        onClick={() => navigate(`/restaurant/${restaurantId}`)} 
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/restaurant/${restaurantId}`)}
                         className="auth-submit-button auth-cancel-button"
                     >
                         Cancel

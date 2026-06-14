@@ -1,23 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@800&family=Nunito:wght@400;600;700&display=swap');
 
-/* Global normalization resets to eliminate browser default spacing and protect layout bounds */
-html, body {
+/* Reset default browser padding and margin, and prevent horizontal scrolling */
+html,
+body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow-x: hidden; 
+  overflow-x: hidden;
 }
 
+/* Force the app container layout to render from right-to-left */
 .app-container {
   direction: rtl;
 }
 
-/* Enforce alternative box-sizing globally across all elements and pseudo-elements */
-*, *:before, *:after {
+/* Make box-sizing inherit everywhere for easier layout calculations */
+*,
+*:before,
+*:after {
   box-sizing: inherit;
 }
 
-/* Centralized design system custom property variables mapping out the default light mode theme */
+/* Global variables for the default light mode theme */
 :root {
   --header-bg: #ffffff;
   --text-color: #202125;
@@ -32,7 +36,7 @@ html, body {
   --wolt-hero-font: "Dosis", sans-serif;
   --hero-text-color: #ffffff;
 
-  /* Wolt Theme Variables */
+  /* Custom Wolt theme colors */
   --wolt-cyan: #00c1a1;
   --wolt-dark: #202125;
   --wolt-gray: #8a8d91;
@@ -44,7 +48,7 @@ html, body {
   --wolt-tag-bg: #e0fbf8;
 }
 
-/* Override palette variable mappings targeting dark mode active view rendering environments */
+/* Theme variables specifically for dark mode overrides */
 body.dark-mode {
   --header-bg: #000000;
   --text-color: #f3f5f6;
@@ -53,12 +57,12 @@ body.dark-mode {
   --btn-secondary-bg: #2d2d2d;
   --btn-secondary-hover: #3d3d3d;
   background-color: var(--header-bg);
-  --danger-bg: #4a2025; 
+  --danger-bg: #4a2025;
   --danger-text: #ff7875;
   --primary-btn-bg: #00c2e8;
   --hero-text-color: #000000;
 
-  /* Wolt Theme Variables - Dark Mode */
+  /* Wolt custom colors for dark mode */
   --wolt-dark: #ffffff;
   --wolt-gray: #b0b3b8;
   --wolt-light-gray: #121212;
@@ -69,7 +73,7 @@ body.dark-mode {
   --wolt-tag-bg: #16302b;
 }
 
-/* Document body properties managing global transitions and adding offset padding for the fixed header */
+/* Global body styles with color transitions and top padding for the fixed header */
 body {
   background-color: var(--header-bg);
   color: var(--text-color);
@@ -77,13 +81,13 @@ body {
   padding-top: 72px;
 }
 
-/* Shared dynamic absolute back navigation control element with deep dimensional box shadows */
+/* Round back button layout positioned absolutely below the fixed header */
 .back-button {
   position: absolute;
-  top: 92px; 
+  top: 92px;
   left: 20px;
   z-index: 100;
-  background-color: var(--header-bg); 
+  background-color: var(--header-bg);
   color: var(--text-color);
   border: none;
   width: 40px;
@@ -98,14 +102,14 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-/* Interactive hover feedback properties computing micro-elevation scales and extending depth shadows */
+/* Hover effects to make the back button scale up slightly and deepen the shadow */
 .back-button:hover {
   background-color: var(--btn-secondary-hover);
-  transform: scale(1.1); 
+  transform: scale(1.1);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Helper utility to replace inline style={{ display: 'block' }} on SVGs */
+/* Helper utility class to replace inline block displays on SVG elements */
 .svg-icon-block {
   display: block;
 }

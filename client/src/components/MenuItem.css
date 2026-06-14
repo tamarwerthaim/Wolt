@@ -1,5 +1,4 @@
-/* MenuItem.css */
-
+/* Main card container for a single food or product item */
 .menu-item-card {
     position: relative;
     display: flex;
@@ -12,11 +11,13 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Lift the card up and make the shadow darker when hovering */
 .menu-item-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 6px 16px var(--wolt-shadow);
 }
 
+/* Box wrapper to give the image a fixed layout size */
 .menu-item-image-wrapper {
     position: relative;
     flex: 0 0 100px;
@@ -24,6 +25,7 @@
     height: 100px;
 }
 
+/* Item thumbnail image styling */
 .menu-item-image {
     width: 100px;
     height: 100px;
@@ -31,6 +33,7 @@
     object-fit: cover;
 }
 
+/* Round plus button to quickly add an item to the cart */
 .menu-item-add-btn {
     position: absolute;
     bottom: -35px;
@@ -51,16 +54,18 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
+/* Change button color and grow slightly on hover */
 .menu-item-add-btn:hover {
     background-color: #00a085;
     transform: scale(1.05);
 }
 
+/* Shrink a bit when clicked to give a tactile feel */
 .menu-item-add-btn:active {
     transform: scale(0.95);
 }
 
-/* Quantity Selector Pill */
+/* Quantity selector pill container that forces LTR alignment */
 .menu-item-qty-selector {
     position: absolute;
     bottom: -35px;
@@ -77,9 +82,9 @@
     z-index: 10;
     gap: 10px;
     direction: ltr;
-    /* Ensure layout order (+ value -) regardless of RTL wrapper */
 }
 
+/* Round plus and minus buttons inside the quantity pill */
 .menu-item-qty-btn {
     width: 32px;
     height: 32px;
@@ -99,15 +104,18 @@
     line-height: 1;
 }
 
+/* Hover effect for the quantity buttons */
 .menu-item-qty-btn:hover {
     background-color: var(--wolt-light-gray);
     transform: scale(1.05);
 }
 
+/* Shrink effect when clicking the quantity buttons */
 .menu-item-qty-btn:active {
     transform: scale(0.95);
 }
 
+/* Style for the current number text inside the selector pill */
 .menu-item-qty-val {
     font-size: 18px;
     font-weight: 700;
@@ -117,6 +125,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Wrapper to stack name, description, and price in a column */
 .menu-item-text-wrapper {
     display: flex;
     flex-direction: column;
@@ -126,6 +135,7 @@
     direction: ltr;
 }
 
+/* Food item name headline */
 .menu-item-name {
     margin: 0 0 8px 0;
     font-size: 18px;
@@ -134,6 +144,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Food item description layout and spacing */
 .menu-item-desc {
     margin: 0 0 16px 0;
     font-size: 14px;
@@ -142,12 +153,14 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Container to push the price text to the absolute bottom of the card */
 .menu-item-price-wrapper {
     margin-top: auto;
     display: flex;
     align-items: center;
 }
 
+/* Bold price text styling */
 .menu-item-price {
     font-size: 16px;
     font-weight: 700;
@@ -155,7 +168,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
-/* Product Details Modal */
+/* Fixed full-screen dark overlay for the pop-up window backdrop */
 .product-modal-backdrop {
     position: fixed;
     top: 0;
@@ -170,6 +183,7 @@
     cursor: default;
 }
 
+/* Centered white container holding the modal details */
 .product-modal-container {
     background-color: var(--wolt-white);
     border-radius: 16px;
@@ -185,6 +199,7 @@
     animation: product-modal-show 0.25s ease-out;
 }
 
+/* Zoom-in and fade animation for showing the modal window */
 @keyframes product-modal-show {
     from {
         opacity: 0;
@@ -197,6 +212,7 @@
     }
 }
 
+/* Small circle close button located at the top left of the modal */
 .product-modal-close-btn {
     position: absolute;
     top: 20px;
@@ -217,11 +233,13 @@
     z-index: 10;
 }
 
+/* Close button hover background switch */
 .product-modal-close-btn:hover {
     background-color: var(--wolt-light-gray);
     transform: scale(1.05);
 }
 
+/* Image bounding container inside the modal */
 .product-modal-image-wrapper {
     width: 100%;
     max-height: 220px;
@@ -230,12 +248,14 @@
     margin-bottom: 24px;
 }
 
+/* Main product image inside the modal window */
 .product-modal-image {
     max-width: 100%;
     max-height: 220px;
     object-fit: contain;
 }
 
+/* Centered bold product title */
 .product-modal-title {
     font-size: 26px;
     font-weight: 800;
@@ -245,6 +265,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Gray sub-heading showing the item price */
 .product-modal-price {
     font-size: 18px;
     font-weight: 600;
@@ -254,6 +275,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Centered paragraph for the item's main description text */
 .product-modal-description {
     font-size: 15px;
     color: var(--wolt-gray);
@@ -264,6 +286,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Footer layout splitting buttons and forcing left-to-right behavior */
 .product-modal-footer {
     width: 100%;
     border-top: 1px solid var(--wolt-light-gray);
@@ -274,9 +297,9 @@
     justify-content: space-between;
     gap: 16px;
     direction: ltr;
-    /* Keeps buttons left-aligned and selector right-aligned */
 }
 
+/* Wide cyan button to submit or add items from inside the modal */
 .product-modal-add-btn {
     flex: 1;
     height: 44px;
@@ -294,14 +317,17 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Add button hover option */
 .product-modal-add-btn:hover {
     background-color: #00a085;
 }
 
+/* Add button click response */
 .product-modal-add-btn:active {
     transform: scale(0.98);
 }
 
+/* Quantity selector container structure for the modal footer view */
 .product-modal-qty-selector {
     height: 44px;
     background-color: var(--wolt-qty-bg);
@@ -316,6 +342,7 @@
     direction: ltr;
 }
 
+/* Round calculation modifiers for the modal picker toolbar */
 .product-modal-qty-btn {
     width: 32px;
     height: 32px;
@@ -335,15 +362,18 @@
     line-height: 1;
 }
 
+/* Hover styling for modal quantity modifiers */
 .product-modal-qty-btn:hover {
     background-color: var(--wolt-light-gray);
     transform: scale(1.05);
 }
 
+/* Click styling for modal quantity modifiers */
 .product-modal-qty-btn:active {
     transform: scale(0.95);
 }
 
+/* Spacing and weights for the quantity indicator count string */
 .product-modal-qty-val {
     font-size: 18px;
     font-weight: 700;
@@ -353,6 +383,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
+/* Floating circle button for administrators to edit menu item parameters */
 .menu-item-edit-btn {
     position: absolute;
     top: 10px;
@@ -372,6 +403,7 @@
     font-size: 14px;
 }
 
+/* Scale up the edit button and change background on hover */
 .menu-item-edit-btn:hover {
     transform: scale(1.1);
     background-color: var(--wolt-light-gray);

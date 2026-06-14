@@ -3,32 +3,33 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import MenuItem from '../components/MenuItem';
 import './RestaurantDetails.css';
 
+/* Main page component displaying detailed restaurant info, user rating options, and their full dish catalog menu */
 const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 1. פלטת הצבעים והפונטים של וולט הועברו ל-CSS הגלובלי והמקומי
+    // 1. Wolt colors and fonts have been moved to local and global CSS files
 
-    // 2. סטייטים לניהול הנתונים מהשרת
-    const [restaurant, setRestaurant] = useState(null); // פרטי המסעדה
-    const [products, setProducts] = useState([]); // מתחיל כמערך ריק
-    const [loading, setLoading] = useState(true); // סטייט טעינה
-    const [error, setError] = useState('');       // סטייט שגיאה
+    // 2. State hooks for managing backend server data
+    const [restaurant, setRestaurant] = useState(null); // Restaurant profile details
+    const [products, setProducts] = useState([]); // Array list for storing menu items
+    const [loading, setLoading] = useState(true); // Loading status spinner flag
+    const [error, setError] = useState('');      // Network or server error message state
 
-    // סטייטים לדירוג
+    // States for tracking user review ratings and hover interactions
     const [userRating, setUserRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [ratingStatus, setRatingStatus] = useState('');
 
-    // אפקט משיכת הנתונים מהשרת
+    // Fetch restaurant and menu data when the component mounts or ID changes
     useEffect(() => {
         const fetchRestaurantAndProducts = async () => {
             try {
                 setLoading(true);
                 setError('');
 
-                // בקשת GET לפרטי המסעדה
+                // GET request to fetch general restaurant information details
                 const resResponse = await fetch(`http://localhost:3000/api/restaurants/${id}`);
                 if (!resResponse.ok) {
                     throw new Error('Failed to fetch restaurant details.');
@@ -36,8 +37,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                 const resData = await resResponse.json();
                 setRestaurant(resData);
 
-
-                // בקשת GET למוצרי המסעדה
+                // GET request to fetch all menu products for this restaurant
                 const prodResponse = await fetch(`http://localhost:3000/api/restaurants/${id}/products`);
                 if (!prodResponse.ok) {
                     throw new Error('Failed to fetch menu products for this restaurant.');
@@ -56,7 +56,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
         }
     }, [id]);
 
-    // Update user rating when restaurant or currentUser changes
+    // Update user rating state when restaurant data or currentUser updates
     useEffect(() => {
         if (currentUser && restaurant && restaurant.ratings && typeof restaurant.ratings === 'object' && !Array.isArray(restaurant.ratings)) {
             const existingUserRating = restaurant.ratings[currentUser.id];
@@ -70,7 +70,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
         }
     }, [restaurant, currentUser]);
 
-    // חישוב ממוצע הדירוגים של המסעדה
+    // Calculate the average rating score out of all user reviews
     const getAverageRating = () => {
         if (!restaurant || !restaurant.ratings) {
             return '—';
@@ -87,6 +87,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
         return (sum / scores.length).toFixed(1);
     };
 
+    // Count how many unique users left a review score
     const getRatingsCount = () => {
         if (!restaurant || !restaurant.ratings) {
             return 0;
@@ -96,7 +97,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
             : restaurant.ratings.length;
     };
 
-    // פונקציית שליחת דירוג
+    // Submit a new review star rating score to the backend server
     const handleRate = async (score) => {
         const token = localStorage.getItem('token');
         if (!currentUser || !token) {
@@ -125,7 +126,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
             setRatingStatus('Thank you for rating!');
             setUserRating(score);
 
-            // רענון נתוני המסעדה מהשרת
+            // Refresh restaurant profile data to sync and show the updated average scores
             const resResponse = await fetch(`http://localhost:3000/api/restaurants/${id}`);
             if (resResponse.ok) {
                 const resData = await resResponse.json();
@@ -136,7 +137,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
         }
     };
 
-    // Calculate dynamic pickup and delivery times
+    // Calculate dynamic straight-line distance in kilometers using coordinates
     const getDistance = (lat1, lon1, lat2, lon2) => {
         if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return null;
         if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) return null;
@@ -151,7 +152,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
             Math.sin(dLon / 2) *
             Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Distance in km
+        return R * c;
     };
 
     const prepTime = restaurant?.prepTime || 15;
@@ -181,7 +182,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
             </button>
-            {/* חלק 1: הבאנר הענק */}
+
+            {/* Part 1: Wide background banner header section */}
             <div className="details-banner-container">
                 <img
                     src={restaurant?.image
@@ -193,9 +195,10 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                 <div className="details-banner-overlay"></div>
             </div>
 
-            {/* חלק 2: כרטיסיית הראש ה"צפה" */}
+            {/* Part 2: Floating information header card layout container */}
             <div className="details-header-card">
-                {/* דירוגים - כעת בצד ימין */}
+
+                {/* Ratings block aligned to the right side */}
                 <div className="details-ratings-section">
                     <div className="details-ratings-average">
                         {getAverageRating()}
@@ -204,7 +207,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                         ⭐️ ({getRatingsCount()} ratings)
                     </div>
 
-                    {/* בחירת כוכבים דינמית למשתמשים מחוברים / מנוטרלת למשתמשים אורחים */}
+                    {/* Dynamic star selection row for logged-in accounts, disabled for guest users */}
                     <div className="details-stars-row">
                         <span className="details-rate-label">Rate:</span>
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -232,7 +235,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                     {ratingStatus && <div className="details-rating-status">{ratingStatus}</div>}
                 </div>
 
-                {/* פרטי המסעדה - כעת בצד שמאל */}
+                {/* Restaurant profile text fields aligned to the left side */}
                 <div className="details-info-section">
                     <h1 className="details-restaurant-name">
                         {restaurant?.name || 'Restaurant Menu'}
@@ -260,7 +263,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                 </div>
             </div>
 
-            {/* חלק 3: רשימת המוצרים */}
+            {/* Part 3: Complete menu products list catalog */}
             <div className="details-products-area">
                 <div className="details-menu-header">
                     <h2 className="details-menu-title">The Entire Menu</h2>
@@ -275,7 +278,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                     )}
                 </div>
 
-                {/* הצגת מצבי טעינה, שגיאה או תפריט ריק */}
+                {/* Show helpful loading spinners, error alerts, or empty menu placeholders conditionally */}
                 {loading && (
                     <div className="details-loading">
                         🚴‍♂️ Loading restaurant's delicious menu...
@@ -294,7 +297,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                     </div>
                 )}
 
-                {/* הגריד של המוצרים האמיתיים מהשרת */}
+                {/* Responsive menu grid rendering real product cards fetched from the database */}
                 {!loading && !error && products.length > 0 && (
                     <div className="details-products-grid">
                         {products.map(product => (

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Orders.css';
 import cartImage from '../assets/cart.png';
 
+/* Component that displays the user's past order history and handles order edits or deletions */
 const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -13,6 +14,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  /* Ask for confirmation and send a DELETE request to completely remove an order */
   const handleDeleteOrder = async (orderId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this order?");
     if (!confirmDelete) return;
@@ -47,6 +49,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
     }
   };
 
+  /* Load an existing order back into the global cart state to allow editing it */
   const handleEditOrder = (order) => {
     const newCart = {
       restaurantId: order.restaurantId,
@@ -70,6 +73,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
     navigate(`/restaurant/${order.restaurantId}`);
   };
 
+  /* Fetch all orders, restaurants, and menu items when the page loads */
   useEffect(() => {
     console.log("Orders component mounted. Current User:", currentUser);
     const fetchOrderHistory = async () => {
@@ -84,7 +88,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
         setLoading(true);
         setError('');
 
-        // 1. Fetch user's orders
+        // 1. Fetch the user's order list from the server
         const ordersRes = await fetch('http://localhost:3000/api/orders', {
           method: 'GET',
           headers: {
@@ -97,13 +101,13 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
         }
 
         const ordersData = await ordersRes.json();
-        
-        // Sort orders so the newest are shown first
+
+        // Sort the list so the newest orders appear first
         const sortedOrders = ordersData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setOrders(sortedOrders);
 
         if (sortedOrders.length > 0) {
-          // 2. Fetch all restaurants to map restaurant names & images
+          // 2. Fetch all restaurants to easily match up names and images
           const restRes = await fetch('http://localhost:3000/api/restaurants');
           if (restRes.ok) {
             const restData = await restRes.json();
@@ -114,10 +118,10 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
             setRestaurantsMap(rMap);
           }
 
-          // 3. Fetch product menus for each restaurant in the orders list to map product names & prices
+          // 3. Get the product menus for these restaurants to match item names and prices
           const uniqueRestaurantIds = [...new Set(sortedOrders.map(o => o.restaurantId))];
           const pMap = {};
-          
+
           await Promise.all(uniqueRestaurantIds.map(async (restId) => {
             try {
               const prodRes = await fetch(`http://localhost:3000/api/restaurants/${restId}/products`);
@@ -148,12 +152,16 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
 
   return (
     <div className="orders-container">
+
+      {/* Back button to return to the home dashboard page */}
       <button className="back-button" onClick={() => navigate('/')} title="Back">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
       </button>
+
+      {/* Top greeting header section with welcome message */}
       <div className="orders-top-section">
         <div className="orders-top-left">
           <h2 className="orders-title">My Orders</h2>
@@ -164,6 +172,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
         <img src={cartImage} alt="Cart" className="orders-hero-cart-img" />
       </div>
 
+      {/* Loading and error status display messages feedback */}
       {loading && (
         <div className="orders-status-msg loading">
           🚴‍♂️ Loading your orders history...
@@ -176,6 +185,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
         </div>
       )}
 
+      {/* Empty state template display if the user has no orders inside the array list */}
       {!loading && !error && orders.length === 0 && (
         <div className="orders-empty">
           <div className="orders-empty-icon">🍽️</div>
@@ -184,6 +194,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
         </div>
       )}
 
+      {/* Render list container mapping out individual past order cards */}
       {!loading && !error && orders.length > 0 && (
         <div className="orders-list">
           {orders.map((order) => {
@@ -198,7 +209,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
               minute: '2-digit'
             });
 
-            // Calculate order total price using the products map
+            // Add up the total price of the order using our products map lookup
             const orderTotal = order.items.reduce((sum, item) => {
               const product = productsMap[item.productId];
               const price = product ? Number(product.price) : 0;
@@ -206,20 +217,20 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
             }, 0);
 
             return (
-              <div 
-                key={order.id} 
-                className="order-card" 
+              <div
+                key={order.id}
+                className="order-card"
                 onClick={() => {
                   console.log("Order card clicked!", order);
                   setSelectedOrder(order);
                 }}
               >
-                {/* Restaurant Banner Header inside Card */}
+                {/* Card header showing restaurant info and order timestamp */}
                 <div className="order-card-header">
                   <div className="order-restaurant-details">
-                    <img 
-                      src={restaurant?.image ? `http://localhost:3000${restaurant.image}` : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg'} 
-                      alt={restaurant?.name || 'Restaurant'} 
+                    <img
+                      src={restaurant?.image ? `http://localhost:3000${restaurant.image}` : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg'}
+                      alt={restaurant?.name || 'Restaurant'}
                       className="order-restaurant-img"
                     />
                     <div className="order-restaurant-meta">
@@ -229,13 +240,14 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                   </div>
                 </div>
 
+                {/* Card body area showing references and a short receipt layout summary */}
                 <div className="order-card-body">
                   <div className="order-id-section">
                     <span className="order-id-label">Order Reference:</span>
                     <code className="order-id-code">#{order.id.slice(0, 8)}</code>
                   </div>
 
-                  {/* Receipt Items List */}
+                  {/* Breakdown of the items in this receipt card */}
                   <div className="order-receipt">
                     <h4 className="receipt-title">Receipt Breakdown</h4>
                     <div className="receipt-items">
@@ -257,6 +269,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                   </div>
                 </div>
 
+                {/* Card footer displaying the final calculated price total */}
                 <div className="order-card-footer">
                   <span className="order-total-label">Total Paid</span>
                   <span className="order-total-value">₪{orderTotal.toFixed(2)}</span>
@@ -267,7 +280,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
         </div>
       )}
 
-      {/* Modal for selected order details */}
+      {/* Detailed popup modal overlay displaying extra records for a selected order card */}
       {selectedOrder && (
         <div className="order-modal-backdrop" onClick={(e) => {
           if (e.target.className === 'order-modal-backdrop') setSelectedOrder(null);
@@ -276,11 +289,11 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
             <button className="order-modal-close-btn" onClick={() => setSelectedOrder(null)} aria-label="Close modal">
               ✕
             </button>
-            
+
             <div className="order-modal-header">
               <h2 className="modal-title">Order Details</h2>
             </div>
-            
+
             <div className="order-modal-body">
               {(() => {
                 const restaurant = restaurantsMap[selectedOrder.restaurantId];
@@ -293,7 +306,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                   hour: '2-digit',
                   minute: '2-digit'
                 });
-                
+
                 const orderTotal = selectedOrder.items.reduce((sum, item) => {
                   const product = productsMap[item.productId];
                   const price = product ? Number(product.price) : 0;
@@ -302,6 +315,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
 
                 return (
                   <>
+                    {/* Modal body restaurant summary context fields */}
                     <div className="modal-restaurant-section">
                       <h3 className="modal-restaurant-name">{restaurant?.name || 'Premium Restaurant'}</h3>
                       <span className="modal-timestamp">{orderDate} at {orderTime}</span>
@@ -312,6 +326,7 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                       <code className="modal-reference-code">#{selectedOrder.id}</code>
                     </div>
 
+                    {/* Full detail list mapping out item rows and quantity multipliers inside the modal */}
                     <div className="modal-items-section">
                       <h4 className="modal-items-title">Receipt Breakdown</h4>
                       <div className="modal-items-list">
@@ -340,17 +355,18 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                 );
               })()}
             </div>
-            
+
+            {/* Modal action toolbar layouts handling delete or edit modifiers redirects */}
             <div className="order-modal-actions">
-              <button 
-                className="order-modal-btn edit" 
+              <button
+                className="order-modal-btn edit"
                 onClick={() => handleEditOrder(selectedOrder)}
                 disabled={isDeleting}
               >
                 Edit Order
               </button>
-              <button 
-                className="order-modal-btn delete" 
+              <button
+                className="order-modal-btn delete"
                 onClick={() => handleDeleteOrder(selectedOrder.id)}
                 disabled={isDeleting}
               >
