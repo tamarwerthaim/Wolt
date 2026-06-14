@@ -2,15 +2,14 @@ import express from 'express';
 import productController from '../controllers/productController.js';
 import { authenticateAdmin, upload } from '../middleware/auth.js';
 
-//create a new router instance with mergeParams option set to true
+/* Enable mergeParams so we can inherit parent route variables, like the restaurant ':id' */
 const router = express.Router({ mergeParams: true });
 
-// define the routes for managing products in a restaurant's menu
-// Public routes
+/* Public menu endpoints */
 router.get('/', productController.getAllProducts);
 router.get('/:pld', productController.getProductById);
 
-// Protected Admin-only routes
+/* Protected restaurant owner / admin endpoints */
 router.post('/', authenticateAdmin, upload.single('productImage'), productController.createProduct);
 router.patch('/:pld', authenticateAdmin, upload.single('productImage'), productController.updateProduct);
 router.delete('/:pld', authenticateAdmin, productController.deleteProduct);

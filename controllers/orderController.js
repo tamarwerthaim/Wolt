@@ -1,17 +1,18 @@
-import { sendToCpp } from '../socket.js'; 
+import { sendToCpp } from '../socket.js';
 import orderModel from '../models/orderModel.js';
 import * as userModel from '../models/userModel.js';
 import { getIntId } from '../idMapper.js';
 
+/* Controller handling order management and synchronization with the C++ recommendation engine */
 class OrderController {
 
-    // GET /api/orders - Returns the list of orders for the logged in user.
+    /* GET /api/orders - Get all past orders for the logged-in user */
     static async getAllOrders(req, res) {
         try {
-            // Extract verified user ID attached to the request object by the authenticateToken middleware
+            /* Grab the user ID attached by the auth token middleware */
             const userId = req.user.id;
 
-            // get all orders from the model and filter them by user ID
+            /* Pull all orders and filter them down to this specific user */
             const allOrders = orderModel.findAll();
             const userOrders = allOrders.filter(order => order.userId === userId);
 
@@ -22,17 +23,12 @@ class OrderController {
         }
     }
 
-    // GET /api/orders/:id - Gives the order details
+    /* GET /api/orders/:id - Get details for a specific single order */
     static async getOrderById(req, res) {
         try {
-            // extract the order ID from the request parameters
             const { id } = req.params;
-            
-            // use the orderModel to find the order by its ID 
-            // findById should return the order object if found, or null if not found
             const order = orderModel.findById(id);
 
-            // if the order is not found, return a 404 status with an error message
             if (!order) {
                 return res.status(404).json({ error: 'Order not found' });
             }
@@ -44,25 +40,24 @@ class OrderController {
         }
     }
 
-    // 3. POST /api/orders - Creates a new order.
+    /* POST /api/orders - Create a brand new order */
     static async createOrder(req, res) {
         try {
-            // Extract verified user ID from the request object populated by the JWT middleware
             const userId = req.user.id;
-            // extract restaurantId and items from the request body, which are required to create a new order
             const { restaurantId, items } = req.body;
 
+            /* Quick validation to make sure we have a restaurant and a proper items array list */
             if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
                 return res.status(400).json({ error: 'Restaurant ID and a non-empty items array are required' });
             }
+
             const user = userModel.findUserById(userId);
-            // If user not found in memory (e.g., server restarted and in-memory data was cleared),
-            // return 401 so the client knows to log in again with a fresh session
+            /* If the user is missing from memory (e.g. server restarted), ask them to log in again */
             if (!user) {
                 return res.status(401).json({ error: "Session expired. Please log in again." });
             }
 
-            // update the C++ recommendation system in the background asynchronously
+            /* Update the C++ recommendation engine asynchronously in the background */
             (async () => {
                 for (const item of items) {
                     const intUserId = getIntId(userId);
@@ -73,6 +68,7 @@ class OrderController {
                     try {
                         let cppResponse = await sendToCpp(cppCommand);
 
+                        /* If a POST request fails with 404, fall back to a PATCH update command */
                         if (commandType === 'POST' && cppResponse.includes("404 Not Found")) {
                             commandType = 'PATCH';
                             cppCommand = `${commandType} ${intUserId} ${intProductId}`;
@@ -80,17 +76,17 @@ class OrderController {
                         }
 
                         if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
-                            user.isSyncedWithCpp = true; 
+                            user.isSyncedWithCpp = true;
                         }
                     } catch (cppError) {
-                        // C++ server error is non-critical, so we silence it
+                        /* C++ sync is non-critical, so we safely silence errors here */
                     }
                 }
             })().catch(err => {
-                // background sync error is non-critical, so we silence it
+                /* Silence background loop errors safely */
             });
 
-            // create a new order using the orderModel's create function
+            /* Save the new order data to our model store */
             const newOrder = orderModel.create({ userId, restaurantId, items });
 
             return res.status(201).json(newOrder);
@@ -100,57 +96,50 @@ class OrderController {
         }
     }
 
-    // 4. PATCH /api/orders/:id - Updating the private invitation
+    /* PATCH /api/orders/:id - Update order cart items fields */
     static async updateOrder(req, res) {
         try {
-            // extract the order ID from the request parameters
             const { id } = req.params;
-            
-            // use the orderModel to update the order with the given ID using the data from the request body
             const updatedOrder = orderModel.update(id, req.body);
 
-            // if the order is not found, return a 404 status with an error message
             if (!updatedOrder) {
                 return res.status(404).json({ error: 'Order not found' });
             }
 
-            // extract the userId from the order that returned
             const userId = updatedOrder.userId;
-        
-            // find the user by the extracted userId to check if they are synced with the C++ server
             const user = userModel.findUserById(userId);
 
-            // if the request body contains an items array, we need to send the appropriate commands to the C++ server to update the user's interactions
+            /* If the update request contains items, sync the new data with the C++ server */
             if (req.body.items && Array.isArray(req.body.items) && req.body.items.length > 0) {
-            
+
                 if (!user) {
                     return res.status(404).json({ error: "User not found" });
                 }
 
-                // update the C++ recommendation system in the background asynchronously
+                /* Run C++ updates in the background without blocking the client's HTTP response cycle */
                 (async () => {
                     for (const item of req.body.items) {
                         const intUserId = getIntId(userId);
                         const intProductId = getIntId(item.productId);
                         const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
                         const cppCommand = `${commandType} ${intUserId} ${intProductId}`;
-                    
+
                         try {
                             const cppResponse = await sendToCpp(cppCommand);
 
                             if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
-                                user.isSyncedWithCpp = true; 
+                                user.isSyncedWithCpp = true;
                             }
                         } catch (cppError) {
-                            // C++ server error is non-critical, so we silence it
+                            /* Silence background sync faults safely */
                         }
                     }
                 })().catch(err => {
-                    // background sync error is non-critical, so we silence it
+                    /* Silence non-critical background errors */
                 });
-            }   
+            }
 
-            // return the updated order in the response with a 204 status code
+            /* Send back a clean 204 No Content status on a successful update patch */
             return res.status(204).send();
 
         } catch (error) {
@@ -158,16 +147,12 @@ class OrderController {
         }
     }
 
-    // 5. DELETE /api/orders/:id - Deleting an order.
+    /* DELETE /api/orders/:id - Cancel and delete a specific order record */
     static async deleteOrder(req, res) {
         try {
-            // extract the order ID from the request parameters
             const { id } = req.params;
-            
-            // call the delete function of the orderModel 
             const wasDeleted = orderModel.delete(id);
 
-            // if the order was not found and therefore not deleted, return a 404 status with an error message
             if (!wasDeleted) {
                 return res.status(404).json({ error: 'Order not found' });
             }
@@ -180,5 +165,4 @@ class OrderController {
     }
 }
 
-// export the OrderController class so it can be used in other parts of the application, such as in route handlers
 export default OrderController;

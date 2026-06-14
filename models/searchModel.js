@@ -1,29 +1,27 @@
-// Import your actual RestaurantModel class to reuse its data access methods
 import RestaurantModel from './restaurantModel.js';
 
-// Filter restaurants and products by matching terms based on your real schema
+/* Query memory arrays to find matching restaurants and specific dishes */
 export const searchRestaurantsAndProducts = (query) => {
     const lowerQuery = query.toLowerCase();
 
-    // Retrieve the active list of restaurants using your class method
+    /* Fetch all active restaurant entries from the memory store */
     const allRestaurants = RestaurantModel.findAll();
 
-    // Filter restaurants matching the query ONLY by name 
-    // filer - inside loop that make new array by the reqiurments
+    /* Filter restaurants whose name matches the keyword */
     const matchedRestaurants = allRestaurants.filter(restaurant =>
         restaurant.name && restaurant.name.toLowerCase().includes(lowerQuery)
     );
 
     const matchedProducts = [];
 
-    // Scan through all restaurants to search within their product menus
+    /* Scan through all restaurant menus to find matching product names or descriptions */
     allRestaurants.forEach(restaurant => {
-        //making sure that the resturnt have a menu
         if (restaurant.menu && Array.isArray(restaurant.menu)) {
-            // loop on all the products and seek for our word in the products or in the description
             restaurant.menu.forEach(product => {
                 if ((product.name && product.name.toLowerCase().includes(lowerQuery)) ||
                     (product.description && product.description.toLowerCase().includes(lowerQuery))) {
+
+                    /* Inject parent restaurant metadata directly into the product object payload */
                     matchedProducts.push({
                         ...product,
                         restaurantId: restaurant.id,

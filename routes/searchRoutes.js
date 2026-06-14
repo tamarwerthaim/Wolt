@@ -3,8 +3,7 @@ import * as searchController from '../controllers/searchController.js';
 
 const router = express.Router();
 
-// Route for text search queries across restaurants and products
-// : a dynamic parameter for what appers after the /
+/* Route handling global keyword search queries using a dynamic URL parameter */
 router.get('/:query', searchController.getSearchResults);
 
 export default router;

@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
-// Fixed identifier for the default system administrator and restaurant owner
+/* Hardcoded ID for the default system admin and restaurant owner */
 export const DEFAULT_ADMIN_ID = 'default-admin-owner-id';
 
-// In-memory data store for volatile user records pre-populated with a default admin owner
+/* In-memory array store keeping track of registered user accounts */
 const users = [
     {
         id: DEFAULT_ADMIN_ID,
@@ -20,13 +20,15 @@ const users = [
         isSyncedWithCpp: false
     }
 ];
-// Insert a new user into the shared array
+
+/* Validate and register a new user account into the memory store */
 export const saveUser = (userData) => {
-    //check if the username already exist in the system
+    /* Enforce unique username constraints to avoid duplicates */
     const existingUser = users.find(user => user.username === userData.username);
     if (existingUser) {
         throw new Error("Username already taken");
     }
+
     const newUser = {
         id: uuidv4(),
         username: userData.username,
@@ -34,48 +36,54 @@ export const saveUser = (userData) => {
         name: userData.name,
         phone: userData.phone,
         geolocation: {
-            lat: parseFloat(userData.lat), 
+            lat: parseFloat(userData.lat),
             lng: parseFloat(userData.lng)
         },
         profileImage: userData.profileImage,
         isAdmin: !!userData.isAdmin,
         isSyncedWithCpp: false
     };
+
     users.push(newUser);
     return newUser;
 };
 
-// Search for a user by their unique auto-generated ID
+/* Find a single user profile matching a specific ID string */
 export function findUserById(id) {
     return users.find(user => user.id === id);
-};
+}
 
-// Search for a user by their unique username credentials
-export function findUserByUsername(username){
+/* Find a user account by their unique username string */
+export function findUserByUsername(username) {
     return users.find(user => user.username === username);
-};
+}
 
-// Update an existing user's details
+/* Update allowed fields on an existing user profile */
 export function updateUser(id, updateData) {
     const user = users.find(user => user.id === id);
     if (!user) {
         throw new Error("User not found");
     }
-    
+
     if (updateData.name !== undefined) user.name = updateData.name;
     if (updateData.phone !== undefined) user.phone = updateData.phone;
+
     if (updateData.lat !== undefined && updateData.lng !== undefined) {
         user.geolocation = {
             lat: parseFloat(updateData.lat),
             lng: parseFloat(updateData.lng)
         };
     }
+
     if (updateData.profileImage !== undefined) {
         user.profileImage = updateData.profileImage;
     }
+
     if (updateData.password) {
         user.password = updateData.password;
     }
+
+    /* Reset sync status to false so changes are re-pushed to the C++ server on the next event */
     user.isSyncedWithCpp = false;
 
     return user;
