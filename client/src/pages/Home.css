@@ -1,10 +1,10 @@
-/* Base wrapper layout for the home container and font configuration */
+/* Main wrapper for the home page layout */
 .home-container {
   width: 100%;
   font-family: var(--main-font);
 }
 
-/* Full screen banner matching viewport height minus the fixed top header navigation */
+/* Big banner that fills the screen height, minus the header height */
 .hero-banner {
   background-color: var(--primary-btn-bg);
   width: 100%;
@@ -17,7 +17,7 @@
   padding: 20px;
 }
 
-/* Typographic rules for the main massive banner text with drop shadows */
+/* Large title text inside the banner with a slight shadow */
 .hero-text {
   color: var(--hero-text-color);
   font-family: var(--wolt-hero-font);
@@ -30,7 +30,7 @@
   line-height: 1.1;
 }
 
-/* Styling for the highlighted keyword using negative margins to tighten spacing */
+/* Huge highlighted word with a negative top margin to pull it closer */
 .hero-accent-word {
   display: block;
   font-size: 140px;
@@ -39,7 +39,7 @@
   line-height: 1.0;
 }
 
-/* Main layout boundaries establishing a relative coordinate reference for children */
+/* Main content area centered with a max-width limit */
 .home-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -48,7 +48,7 @@
   position: relative;
 }
 
-/* Ticker viewport container hiding overflowing elements and forcing left-to-right alignment */
+/* Horizontal marquee box that hides whatever overflows and sets LTR direction */
 .marquee-wrapper {
   width: 100%;
   overflow: hidden;
@@ -59,24 +59,24 @@
   direction: ltr;
 }
 
-/* Flex layout ribbon tracking sliding component nodes side by side */
+/* Flex container to place marquee items side by side */
 .marquee-track {
   display: flex;
   gap: 20px;
   width: max-content;
 }
 
-/* Triggers continuous linear animation loops across the horizontal axis */
+/* Starts the continuous sliding animation loop horizontally */
 .marquee-track.enable-scroll {
   animation: scrollMarquee 25s linear infinite;
 }
 
-/* Freezes continuous timeline scrolling animations whenever an active pointer hovers over */
+/* Pause the scrolling animation completely when hovering with the mouse */
 .marquee-wrapper:hover .marquee-track {
   animation-play-state: paused;
 }
 
-/* Core modular restaurant card item component configuration with default shadows */
+/* Card design for a single restaurant with rounded corners and a light shadow */
 .restaurant-card {
   width: 200px;
   background-color: var(--btn-secondary-bg);
@@ -88,12 +88,12 @@
   transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
-/* Interactive hover feedback properties lifting cards slightly along the vertical axis */
+/* Lift the card up slightly on hover */
 .restaurant-card:hover {
   transform: translateY(-5px);
 }
 
-/* Bounding box wrapper framing graphic placeholders or fallback loading vectors */
+/* Background box used as a fallback placeholder if there is no image */
 .card-image-placeholder {
   width: 100%;
   height: 120px;
@@ -106,7 +106,7 @@
   margin-bottom: 12px;
 }
 
-/* Typography definition rules handling individual item component titles */
+/* Restaurant card heading title style */
 .restaurant-card h3 {
   font-size: 16px;
   font-weight: 700;
@@ -114,14 +114,14 @@
   margin: 0 0 4px 0;
 }
 
-/* Text formatting layout variables processing metadata descriptions and captions */
+/* Muted text style for descriptions and captions inside the card */
 .restaurant-card p {
   font-size: 14px;
   color: #737373;
   margin: 0;
 }
 
-/* Absolutely positioned floating action control button separating actions from layout grids */
+/* Floating button positioned on the left side to add a new restaurant */
 .add-restaurant-btn {
   position: absolute;
   left: -10px;
@@ -144,24 +144,24 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Modifies scales parameters and drops pronounced background shading on button hover */
+/* Grow slightly and darken background when hovering the add button */
 .add-restaurant-btn:hover {
   background-color: var(--btn-secondary-hover);
   transform: translateY(-50%) scale(1.08);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Interactive down-click state scaling buttons backwards to offer tactile response clicks */
+/* Shrink a bit when clicked to give a nice tactile feedback click */
 .add-restaurant-btn:active {
   transform: translateY(-50%) scale(0.95);
 }
 
-/* Explicit cursor utility indicating actionable click coordinates */
+/* Helper class to show a pointer cursor on clickable items */
 .clickable {
   cursor: pointer;
 }
 
-/* Image containment normalization rules managing structural transitions */
+/* Restaurant image styling with a smooth transition setup */
 .restaurant-card-img {
   width: 100%;
   height: 100%;
@@ -170,12 +170,12 @@
   transition: transform 0.3s ease;
 }
 
-/* Targets component hover interactions to expand internal graphic element scale dimensions */
+/* Zoom in on the restaurant image slightly when hovering over a clickable card */
 .restaurant-card.clickable:hover .restaurant-card-img {
   transform: scale(1.05);
 }
 
-/* Structural block separating categories and resetting typography text layouts */
+/* Container section spacing out the main restaurant list block */
 .all-restaurants-section {
   width: 100%;
   padding-top: 20px;
@@ -184,7 +184,7 @@
   margin-top: 60px;
 }
 
-/* Heading item structure preparing custom positioning anchors for baseline pseudo-borders */
+/* Title style for the main restaurant list section */
 .all-rests-title {
   font-family: "Nunito", sans-serif;
   font-size: 26px;
@@ -195,7 +195,7 @@
   display: inline-block;
 }
 
-/* Pseudo-element dynamically manufacturing an abstract colored design underline metric ribbon */
+/* Create a small blue underline ribbon directly below the section title */
 .all-rests-title::after {
   content: '';
   position: absolute;
@@ -207,7 +207,7 @@
   border-radius: 2px;
 }
 
-/* Automated responsive CSS layout grid mapping columns seamlessly matching screen widths */
+/* Responsive grid layout that automatically arranges columns based on screen width */
 .all-rests-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -215,20 +215,20 @@
   width: 100%;
 }
 
-/* Overrides card components dimensions to take up full available fraction track space blocks */
+/* Make restaurant cards fill the full width of their grid column track */
 .all-rests-grid .restaurant-card {
   width: 100%;
   margin: 0;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Amplifies multi-axis translate coordinates and casts deep lighting depth values on hover */
+/* Give grid cards a slightly deeper hover lift effect and drop shadow */
 .all-rests-grid .restaurant-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* Layout section housing live filtering data streams returned from query checks */
+/* Layout section wrapping live search filter data streams */
 .search-results-section {
   width: 100%;
   padding: 10px 0;
@@ -236,7 +236,7 @@
   direction: ltr;
 }
 
-/* Typography configuration defining the main search filter result headings status */
+/* Title typography handling search result section headers */
 .results-title {
   font-family: "Nunito", sans-serif;
   font-size: 28px;
@@ -245,12 +245,12 @@
   margin-bottom: 12px;
 }
 
-/* Inline text override utility forcing highlighted query keywords to render brand colors */
+/* Highlight matching search terms with the primary brand color text */
 .search-query-highlight {
   color: var(--primary-btn-bg);
 }
 
-/* Status loading element centered within views using heavy internal layout padding offsets */
+/* Center and space out the loading text spinner element inside views */
 .loading-spinner {
   text-align: center;
   font-size: 18px;
@@ -259,7 +259,7 @@
   font-weight: 600;
 }
 
-/* Warning alert card interface styling utilizing custom designated error typography colors */
+/* Red warning text style used for displaying form or connection errors */
 .error-message {
   text-align: center;
   font-size: 18px;
@@ -267,7 +267,7 @@
   color: var(--danger-text);
 }
 
-/* Multi-axis flex block centering empty state placeholder elements when database records return null */
+/* Flexbox column to center text and empty state assets when no results are found */
 .no-results {
   font-family: "Nunito", sans-serif;
   text-align: center;
@@ -286,7 +286,7 @@
   margin: 0;
 }
 
-/* Responsive constraints handling failure graphics and protecting presentation heights */
+/* Sizing constraints preventing empty status graphics from overflowing */
 .no-results-img {
   width: 100%;
   max-width: 300px;
@@ -296,7 +296,7 @@
   margin-top: -10px;
 }
 
-/* Layout divider spacing grouping matching item matrices together */
+/* Outer layout grouping margins for matching item lists */
 .results-group {
   margin-bottom: 40px;
 }
@@ -309,7 +309,7 @@
   font-size: 40px;
 }
 
-/* Search Results Grid Layout */
+/* Grid layout for search results columns mapping */
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -328,6 +328,7 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Sub-heading group titles style inside search listings */
 .group-title {
   font-family: "Nunito", sans-serif;
   font-size: 22px;
@@ -338,6 +339,7 @@
   display: inline-block;
 }
 
+/* Create a small decorative underline under search group titles */
 .group-title::after {
   content: '';
   position: absolute;
@@ -349,7 +351,7 @@
   border-radius: 1.5px;
 }
 
-/* Product Card Search Results Styling */
+/* Card component layout used to display dishes found in search results */
 .product-result-card {
   width: 100%;
   background-color: var(--btn-secondary-bg);
@@ -365,17 +367,20 @@
   justify-content: space-between;
 }
 
+/* Lift product card and cast a deeper shadow on hover triggers */
 .product-result-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Top anchoring segment layout wrapper of the product card */
 .product-card-header {
   position: relative;
   width: 100%;
   margin-bottom: 12px;
 }
 
+/* Gray box placeholder framing product images */
 .product-image-container {
   width: 100%;
   height: 120px;
@@ -387,6 +392,7 @@
   overflow: hidden;
 }
 
+/* Thumbnail preview image styling inside product search cards */
 .product-card-img {
   width: 100%;
   height: 100%;
@@ -395,10 +401,12 @@
   transition: transform 0.3s ease;
 }
 
+/* Zoom in on product image when hovering over the card wrapper */
 .product-result-card:hover .product-card-img {
   transform: scale(1.05);
 }
 
+/* Absolute black badge overlay displaying item price on top of the image */
 .product-price {
   position: absolute;
   bottom: 8px;
@@ -413,6 +421,7 @@
   direction: ltr;
 }
 
+/* Main inner text wrapper container inside product search results cards */
 .product-card-body {
   display: flex;
   flex-direction: column;
@@ -420,6 +429,7 @@
   text-align: left;
 }
 
+/* Food product headline text style */
 .product-card-body h3 {
   font-size: 16px;
   font-weight: 700;
@@ -427,6 +437,7 @@
   margin: 0 0 6px 0;
 }
 
+/* Limit descriptions text blocks to a maximum line-clamp of 2 rows */
 .product-description {
   font-size: 13px;
   color: #737373;
@@ -440,6 +451,7 @@
   line-height: 18px;
 }
 
+/* Muted dashed line item showing which restaurant sells this dish */
 .product-restaurant-ref {
   font-size: 12px;
   color: #737373;
@@ -448,11 +460,13 @@
   border-top: 1px dashed var(--btn-secondary-hover);
 }
 
+/* Highlight the source restaurant reference text with primary blue brand color */
 .restaurant-ref-name {
   font-weight: 700;
   color: var(--primary-btn-bg);
 }
 
+/* Horizontal track marquee shifting transformation translation keyframes */
 @keyframes scrollMarquee {
   0% {
     transform: translateX(0);

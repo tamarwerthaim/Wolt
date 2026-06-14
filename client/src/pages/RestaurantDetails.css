@@ -6,7 +6,7 @@
     font-family: 'Nunito', sans-serif;
 }
 
-/* חלק 1: הבאנר הענק */
+/* Part 1: Large banner section */
 .details-banner-container {
     width: 100%;
     height: 300px;
@@ -30,7 +30,7 @@
     pointer-events: none;
 }
 
-/* חלק 2: כרטיסיית הראש ה"צפה" */
+/* Part 2: Floating header card */
 .details-header-card {
     max-width: 1200px;
     margin: -80px auto 40px auto;
@@ -44,7 +44,7 @@
     justify-content: space-between;
 }
 
-/* דירוגים - כעת בצד ימין (האלמנט הראשון ב-RTL) */
+/* Ratings section aligned to the right */
 .details-ratings-section {
     display: flex;
     flex-direction: column;
@@ -122,7 +122,7 @@ body.dark-mode .details-star-inactive {
     margin-top: 4px;
 }
 
-/* פרטי המסעדה - כעת בצד שמאל (האלמנט השני ב-RTL) */
+/* Restaurant info section aligned to the left */
 .details-info-section {
     text-align: left;
     direction: ltr;
@@ -159,7 +159,7 @@ body.dark-mode .details-star-inactive {
     font-weight: 600;
 }
 
-/* חלק 3: רשימת המוצרים (כותרת וגריד של MenuItem) */
+/* Part 3: Products area with header and menu items grid */
 .details-products-area {
     max-width: 1200px;
     margin: 0 auto;
@@ -211,7 +211,7 @@ body.dark-mode .details-star-inactive {
     padding-bottom: 60px;
 }
 
-/* כפתור הוספת מוצר למנהל */
+/* Admin button to add a new product */
 .add-product-btn {
     width: 45px;
     height: 45px;
@@ -239,6 +239,7 @@ body.dark-mode .details-star-inactive {
     transform: scale(0.95);
 }
 
+/* Button style for owners to edit their restaurant details */
 .edit-restaurant-btn {
     background: none;
     border: 1px solid var(--wolt-cyan);

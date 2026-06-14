@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './FormStyles.css';
 
+/* Component to edit or delete an existing menu product */
 const EditProduct = () => {
+    /* Get restaurant and product IDs from the URL path */
     const { id: restaurantId, pld: productId } = useParams();
+
+    /* Form states to hold input data, image previews, and server messages */
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [description, setDescription] = useState('');
@@ -16,6 +20,7 @@ const EditProduct = () => {
 
     const navigate = useNavigate();
 
+    /* Fetch the current product data from the server when the page loads */
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -41,6 +46,7 @@ const EditProduct = () => {
         fetchProduct();
     }, [restaurantId, productId]);
 
+    /* Create a temporary preview URL when a new image file is chosen */
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -50,6 +56,7 @@ const EditProduct = () => {
         }
     };
 
+    /* Cancel the newly selected image and roll back to the original one */
     const handleClearImage = () => {
         setProductImage(null);
         if (existingImage) {
@@ -59,6 +66,7 @@ const EditProduct = () => {
         }
     };
 
+    /* Validate inputs and send the updated product fields to the backend */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -116,6 +124,7 @@ const EditProduct = () => {
         }
     };
 
+    /* Ask for confirmation and send a delete request to the server */
     const handleDelete = async () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this product? This action cannot be undone.");
         if (!confirmDelete) return;
@@ -152,6 +161,7 @@ const EditProduct = () => {
         }
     };
 
+    /* Show a basic loading message card while waiting for the product data */
     if (loading) {
         return (
             <div className="auth-container">
@@ -165,6 +175,8 @@ const EditProduct = () => {
     return (
         <div className="auth-container">
             <div className="auth-card">
+
+                {/* Back button to go to the previous screen using browser navigation history */}
                 <button className="back-button" onClick={() => navigate(-1)} title="Back">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -175,7 +187,8 @@ const EditProduct = () => {
                 <h1 className="auth-heading wolt-brand-color">Edit Product Details</h1>
 
                 <form onSubmit={handleSubmit} noValidate>
-                    {/* שם המוצר */}
+
+                    {/* Product name input field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="name" className="auth-label">:Product Name</label>
                         <input
@@ -188,7 +201,7 @@ const EditProduct = () => {
                         />
                     </div>
 
-                    {/* מחיר */}
+                    {/* Price input field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="price" className="auth-label">:Price (₪)</label>
                         <input
@@ -202,7 +215,7 @@ const EditProduct = () => {
                         />
                     </div>
 
-                    {/* תיאור */}
+                    {/* Description textarea input field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="description" className="auth-label">:Description</label>
                         <textarea
@@ -214,7 +227,7 @@ const EditProduct = () => {
                         />
                     </div>
 
-                    {/* העלאת תמונת מוצר */}
+                    {/* Product image upload input and preview area */}
                     <div className="auth-input-wrapper">
                         <label className="auth-label">:Product Image</label>
                         <div className="auth-file-input-container">
@@ -230,6 +243,7 @@ const EditProduct = () => {
                             </label>
                         </div>
 
+                        {/* Render the image preview container if an image path exists */}
                         {imagePreview && (
                             <div className="auth-preview-container">
                                 <img
@@ -237,6 +251,7 @@ const EditProduct = () => {
                                     alt="Product Preview"
                                     className="auth-product-preview"
                                 />
+                                {/* Show the revert button only if a new image file has been chosen */}
                                 {productImage && (
                                     <button type="button" onClick={handleClearImage} className="auth-remove-image-btn">
                                         Revert to Original
@@ -246,7 +261,7 @@ const EditProduct = () => {
                         )}
                     </div>
 
-                    {/* הודעות שגיאה או הצלחה */}
+                    {/* Display error or success messages to the user if they exist */}
                     {error && <div className="auth-error-text">{error}</div>}
                     {success && <div className="auth-success-text">{success}</div>}
 

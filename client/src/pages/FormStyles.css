@@ -1,6 +1,6 @@
-/* src/pages/LoginRegisterStyles.css */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;900&display=swap');
 
+/* Main page wrapper that centers the form card on the screen */
 .auth-container {
     display: flex;
     justify-content: center;
@@ -12,6 +12,7 @@
     transition: background-color 0.3s ease;
 }
 
+/* The box box card that holds all form inputs and buttons */
 .auth-card {
     width: 100%;
     max-width: 520px;
@@ -20,18 +21,21 @@
     box-sizing: border-box;
 }
 
+/* Center alignment wrapper for the brand logo image */
 .auth-logo-container {
     margin-bottom: 24px;
     display: flex;
     justify-content: center;
 }
 
+/* Sizing constraints for the logo image */
 .auth-logo {
     display: block;
     width: 200px;
     height: auto;
 }
 
+/* Main form title style with bold text and letter spacing */
 .auth-heading {
     font-family: "Nunito", sans-serif;
     font-size: 34px;
@@ -42,11 +46,13 @@
     transition: color 0.3s ease;
 }
 
+/* Row wrapper spacing out individual input fields */
 .auth-input-wrapper {
     margin-bottom: 20px;
     text-align: left;
 }
 
+/* Form input label style aligned to the left */
 .auth-label {
     display: block;
     font-family: "Nunito", sans-serif;
@@ -59,6 +65,7 @@
     transition: color 0.3s ease;
 }
 
+/* Standard text input fields styled with rounded corners and LTR text direction */
 .auth-input {
     width: 100%;
     padding: 16px 20px;
@@ -76,15 +83,18 @@
     transition: all 0.3s ease;
 }
 
+/* Container wrapper for hidden file input parameters */
 .auth-file-input-container {
     position: relative;
     width: 100%;
 }
 
+/* Hide the default ugly browser file input completely */
 .auth-hidden-file-input {
     display: none;
 }
 
+/* Styled label box that acts as a clickable file upload container button */
 .auth-file-input-label {
     display: block;
     width: 100%;
@@ -102,6 +112,7 @@
     transition: all 0.3s ease;
 }
 
+/* Red alert text box for displaying form error messages */
 .auth-error-text {
     font-family: "Nunito", sans-serif;
     color: var(--danger-text);
@@ -114,6 +125,7 @@
     white-space: pre-line;
 }
 
+/* Main primary submit action button style with push click animations */
 .auth-submit-button {
     width: 100%;
     padding: 16px;
@@ -129,6 +141,7 @@
     transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
+/* Flex container layout for wrapping uploaded image preview files */
 .auth-preview-container {
     margin-top: 15px;
     display: flex;
@@ -137,6 +150,7 @@
     gap: 8px;
 }
 
+/* Circular thumbnail preview used specifically for user avatar pictures */
 .auth-profile-preview {
     width: 90px;
     height: 90px;
@@ -147,10 +161,12 @@
     transition: transform 0.2s ease;
 }
 
+/* Scale up the profile image preview slightly on hover */
 .auth-profile-preview:hover {
     transform: scale(1.05);
 }
 
+/* Simple underlined text button style to remove or revert chosen files */
 .auth-remove-image-btn {
     background: none;
     border: none;
@@ -164,25 +180,30 @@
     padding: 4px 8px;
 }
 
+/* Mute the remove text slightly on hover */
 .auth-remove-image-btn:hover {
     opacity: 0.8;
 }
 
+/* Flexbox horizontal row used to show two inputs side-by-side */
 .auth-input-row {
     display: flex;
     gap: 16px;
     width: 100%;
 }
 
+/* Column track rule ensuring equal fractions space layout distribution */
 .auth-input-col {
     flex: 1;
     margin: 0 !important;
 }
 
+/* Global helper utility class to force cyan brand colors over text elements */
 .wolt-brand-color {
     color: #00c2e8 !important;
 }
 
+/* Sizing and colors configurations for form subtitle descriptions */
 .auth-subtitle {
     color: #8a8d91;
     margin-bottom: 24px;
@@ -190,6 +211,7 @@
     font-size: 16px;
 }
 
+/* Brand colored text field style used for displaying form success notes */
 .auth-success-text {
     color: #00c2e8;
     font-family: "Nunito", sans-serif;
@@ -200,6 +222,7 @@
     direction: ltr;
 }
 
+/* Wide rectangle banner container used for restaurant layout previews */
 .auth-banner-preview {
     width: 100%;
     height: 160px;
@@ -208,13 +231,14 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Custom reusable form helper classes */
+/* Custom reusable text-area helper attributes disabling user resizing handles */
 .auth-textarea {
     height: 80px;
     resize: none;
     padding: 12px;
 }
 
+/* Squared container shape used for product item file previews */
 .auth-product-preview {
     width: 150px;
     height: 150px;
@@ -223,15 +247,18 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* Gray fallback cancel button style options */
 .auth-cancel-button {
     background-color: #ccc;
     margin-top: 10px;
 }
 
+/* Darken background slightly on hover for the cancel button */
 .auth-cancel-button:hover {
     background-color: #b3b3b3;
 }
 
+/* Dark mode variations tracking theme overrides for cancel buttons */
 body.dark-mode .auth-cancel-button {
     background-color: #444;
     color: #fff;
@@ -241,15 +268,18 @@ body.dark-mode .auth-cancel-button:hover {
     background-color: #555;
 }
 
+/* Red secondary button configurations used for destructive item actions like delete */
 .auth-danger-button {
     background-color: var(--danger-text);
     margin-top: 10px;
 }
 
+/* Shift brightness parameters slightly up on hover for danger actions */
 .auth-danger-button:hover {
     filter: brightness(1.08);
 }
 
+/* Layout card wrapping full center parameters for active fetching loading states */
 .auth-loading-card {
     display: flex;
     justify-content: center;
@@ -257,26 +287,31 @@ body.dark-mode .auth-cancel-button:hover {
     padding: 40px;
 }
 
+/* Bold cyan font styles handling form loading descriptions text */
 .auth-loading-text {
     color: var(--wolt-cyan);
     font-size: 18px;
     font-weight: bold;
 }
 
-.auth-splash-logo-container {
+/* Reset margin rule container values for background splash logo headers */
+.auth-loading-card {
     margin-bottom: 0px;
 }
 
+/* Fixed sizing parameters handling large splash graphic image vectors */
 .auth-splash-image {
     width: 340px;
     height: 340px;
     object-fit: contain;
 }
 
+/* Force left-to-right text layout rules specifically over splash headings titles */
 .auth-splash-heading {
     direction: ltr;
 }
 
+/* Fixed presentation size handling large success image graphics vectors */
 .auth-success-image {
     width: 400px;
     height: 400px;

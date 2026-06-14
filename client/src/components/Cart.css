@@ -1,4 +1,4 @@
-/* Backdrop blur and background */
+/* Dark overlay covering the whole screen with a blur effect */
 .cart-backdrop {
   position: fixed;
   top: 0;
@@ -9,17 +9,23 @@
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
-  justify-content: flex-start; /* Slides from right in RTL, so drawer on the right side */
+  justify-content: flex-start;
   flex-direction: row-reverse;
   animation: fadeIn 0.25s ease-out forwards;
 }
 
+/* Animation to fade in the background overlay */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
-/* Drawer panel styling */
+/* Main cart panel that slides in from the right side */
 .cart-drawer {
   width: 440px;
   max-width: 90%;
@@ -36,16 +42,18 @@
   text-align: left;
 }
 
+/* Animation to slide the cart from right to left */
 @keyframes slideIn {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
 }
 
-/* Header */
+/* Header section containing the title and close button */
 .cart-header {
   display: flex;
   align-items: center;
@@ -54,6 +62,7 @@
   border-bottom: 1px solid rgba(128, 128, 128, 0.1);
 }
 
+/* Cart title style */
 .cart-title {
   font-family: var(--main-font);
   font-size: 22px;
@@ -61,6 +70,7 @@
   margin: 0;
 }
 
+/* Close button style resets and basic transitions */
 .cart-close-btn {
   background: none;
   border: none;
@@ -78,13 +88,14 @@
   height: 32px;
 }
 
+/* Hover effect for the close button */
 .cart-close-btn:hover {
   opacity: 1;
   background-color: var(--btn-secondary-bg);
   transform: scale(1.05);
 }
 
-/* Content Container */
+/* Main content container for cart items */
 .cart-content {
   flex: 1;
   display: flex;
@@ -93,7 +104,7 @@
   overflow: hidden;
 }
 
-/* Empty State */
+/* Center items and text when the cart is empty */
 .cart-empty {
   flex: 1;
   display: flex;
@@ -104,17 +115,27 @@
   padding: 40px 20px;
 }
 
+/* Large icon with a bouncing animation for empty state */
 .cart-empty-icon {
   font-size: 64px;
   margin-bottom: 20px;
   animation: bounce 2s infinite ease-in-out;
 }
 
+/* Bouncing animation moving slightly up and down */
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
+/* Main headline text for empty cart */
 .cart-empty-text {
   font-family: var(--main-font);
   font-size: 18px;
@@ -122,6 +143,7 @@
   margin: 0 0 10px 0;
 }
 
+/* Muted gray subtext for empty cart */
 .cart-empty-subtext {
   font-family: var(--main-font);
   font-size: 14px;
@@ -129,6 +151,7 @@
   margin: 0 0 24px 0;
 }
 
+/* Button to start shopping and close cart */
 .cart-start-btn {
   background-color: var(--primary-btn-bg);
   color: white;
@@ -142,12 +165,13 @@
   transition: transform 0.2s, background-color 0.2s;
 }
 
+/* Hover effects for the start shopping button */
 .cart-start-btn:hover {
   transform: translateY(-2px);
   filter: brightness(0.95);
 }
 
-/* Active Cart State */
+/* Container showing the current active restaurant name */
 .cart-restaurant-info {
   background-color: var(--btn-secondary-bg);
   padding: 12px 16px;
@@ -157,16 +181,18 @@
   font-size: 15px;
 }
 
+/* Muted label text for the restaurant section */
 .restaurant-label {
   color: #8a8d91;
   margin-left: 6px;
 }
 
+/* Active restaurant name text color */
 .restaurant-name {
   color: var(--text-color);
 }
 
-/* Scrollable Cart Items List */
+/* Scrollable container for the items list */
 .cart-items-list {
   flex: 1;
   overflow-y: auto;
@@ -174,25 +200,28 @@
   margin-bottom: 20px;
 }
 
-/* Custom Scrollbar for Items List */
+/* Custom scrollbar width */
 .cart-items-list::-webkit-scrollbar {
   width: 6px;
 }
 
+/* Transparent track background for scrollbar */
 .cart-items-list::-webkit-scrollbar-track {
   background: transparent;
 }
 
+/* Custom gray scrollbar thumb styling */
 .cart-items-list::-webkit-scrollbar-thumb {
   background: rgba(128, 128, 128, 0.2);
   border-radius: 3px;
 }
 
+/* Hover effect to make scrollbar thumb darker */
 .cart-items-list::-webkit-scrollbar-thumb:hover {
   background: rgba(128, 128, 128, 0.4);
 }
 
-/* Individual Item Card */
+/* Grid layout for a single item row in the cart */
 .cart-item {
   display: grid;
   grid-template-columns: 60px 1fr;
@@ -202,6 +231,7 @@
   border-bottom: 1px solid rgba(128, 128, 128, 0.08);
 }
 
+/* Item preview image styling */
 .cart-item-img {
   width: 60px;
   height: 60px;
@@ -210,12 +240,14 @@
   grid-row: span 2;
 }
 
+/* Flex container to align item name and single price */
 .cart-item-details {
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
+/* Item name typography */
 .cart-item-name {
   font-family: var(--main-font);
   font-size: 15px;
@@ -223,12 +255,14 @@
   margin: 0 0 4px 0;
 }
 
+/* Gray color for single unit item price */
 .cart-item-price {
   font-family: var(--main-font);
   font-size: 14px;
   color: #8a8d91;
 }
 
+/* Row aligning quantity buttons and total item price */
 .cart-item-controls-wrapper {
   grid-column: 2;
   display: flex;
@@ -237,7 +271,7 @@
   margin-top: 4px;
 }
 
-/* Qty Controller */
+/* Gray background box wrapping the quantity controls */
 .cart-item-controls {
   display: flex;
   align-items: center;
@@ -246,6 +280,7 @@
   padding: 2px;
 }
 
+/* Plus and minus button styling resets */
 .cart-qty-btn {
   background: none;
   border: none;
@@ -262,10 +297,12 @@
   transition: background-color 0.2s;
 }
 
+/* Hover background color change for quantity buttons */
 .cart-qty-btn:hover {
   background-color: var(--btn-secondary-hover);
 }
 
+/* Numeric text value showing the current item quantity */
 .cart-qty-val {
   font-family: var(--main-font);
   font-size: 14px;
@@ -275,6 +312,7 @@
   text-align: center;
 }
 
+/* Bold text for the total price of this specific item */
 .cart-item-total {
   font-family: var(--main-font);
   font-size: 15px;
@@ -282,7 +320,7 @@
   color: var(--text-color);
 }
 
-/* Cart Summary & Price breakdown */
+/* Summary box containing total price breakdown */
 .cart-summary {
   background-color: var(--btn-secondary-bg);
   border-radius: 12px;
@@ -290,6 +328,7 @@
   margin-bottom: 20px;
 }
 
+/* Flex row aligning summary labels and prices on opposite sides */
 .cart-summary-row {
   display: flex;
   justify-content: space-between;
@@ -298,34 +337,39 @@
   margin-bottom: 10px;
 }
 
+/* Spacing adjustment for the delivery summary row */
 .cart-summary-row.delivery {
   margin-bottom: 0;
 }
 
+/* Cyan brand color highlighting free delivery status */
 .delivery-free {
   color: var(--primary-btn-bg);
   font-weight: 600;
 }
 
+/* Light border line separating subtotal from final total */
 .cart-divider {
   border: 0;
   border-top: 1px solid rgba(128, 128, 128, 0.15);
   margin: 12px 0;
 }
 
+/* Larger bold text for the final checkout total price */
 .cart-summary-row.total {
   font-size: 17px;
   font-weight: 700;
   margin-bottom: 0;
 }
 
-/* Footer Buttons */
+/* Grid layout distributing size for footer action buttons */
 .cart-actions {
   display: grid;
   grid-template-columns: 100px 1fr;
   gap: 12px;
 }
 
+/* Red clear cart button styling */
 .cart-clear-btn {
   background-color: var(--danger-bg);
   color: var(--danger-text);
@@ -338,11 +382,13 @@
   transition: transform 0.2s, opacity 0.2s;
 }
 
+/* Hover effects for the clear cart button */
 .cart-clear-btn:hover {
   transform: translateY(-2px);
   filter: brightness(0.95);
 }
 
+/* Cyan checkout submission button styling */
 .cart-checkout-btn {
   background-color: var(--primary-btn-bg);
   color: white;
@@ -356,6 +402,7 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+/* Hover effect adding brand-colored glow shadow to checkout button */
 .cart-checkout-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 194, 232, 0.25);

@@ -4,35 +4,24 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import './Home.css';
 import cryImage from '../assets/cry.png';
 
+/* Main dashboard home page that shows the landing banner, restaurant marquee, and live search filtering results */
 const Home = ({ currentUser }) => {
-  /* Routing and URL navigation hooks */
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
-  /* Extract search term from URL or default to empty string */
   const searchQuery = searchParams.get('search') || '';
-  
-  /* Ref used to programmatically scroll down to search results */
   const resultsRef = useRef(null);
 
-  /* Ref to track if we have already scrolled to search results in the current session */
-  const hasScrolledRef = useRef(false);
-
-  /* State for storing the global list of restaurants */
+  /* Component states to hold data arrays, loading indicators, and error notes */
   const [restaurants, setRestaurants] = useState([]);
-  
-  /* State for separating search results into categories */
   const [searchResults, setSearchResults] = useState({ restaurants: [], products: [] });
-  
-  /* Global status states for loading and error handling */
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  /* Calculate distance in kilometers using the Haversine formula */
+  /* Calculate the straight-line distance between two coordinates in kilometers */
   const getDistance = (lat1, lon1, lat2, lon2) => {
     if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return null;
     if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
-    const R = 6371; 
+    const R = 6371; /* Earth's radius in km */
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -42,20 +31,19 @@ const Home = ({ currentUser }) => {
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; 
+    return R * c;
   };
 
-  /* Sort all available restaurants based on user proximity */
+  /* Sort the primary restaurant list by who is closest to the user's current location coordinates */
   const sortedRestaurants = React.useMemo(() => {
     const userLat = currentUser?.geolocation?.lat;
     const userLng = currentUser?.geolocation?.lng;
 
-    /* Return unsorted if user location data is missing or invalid */
+    /* If the user location data is missing, just return the default unsorted array list */
     if (userLat === undefined || userLng === undefined || isNaN(userLat) || isNaN(userLng)) {
       return restaurants;
     }
 
-    /* Sort array by ascending distance from the user */
     return [...restaurants].sort((a, b) => {
       const aLat = a.geolocation?.lat;
       const aLng = a.geolocation?.lng;
@@ -72,17 +60,15 @@ const Home = ({ currentUser }) => {
     });
   }, [restaurants, currentUser]);
 
-  /* Sort active search results based on user proximity */
+  /* Sort the search results restaurant matches by proximity to the user's location values */
   const sortedSearchResultsRestaurants = React.useMemo(() => {
     const userLat = currentUser?.geolocation?.lat;
     const userLng = currentUser?.geolocation?.lng;
 
-    /* Return unsorted search results if user location is unavailable */
     if (userLat === undefined || userLng === undefined || isNaN(userLat) || isNaN(userLng)) {
       return searchResults.restaurants;
     }
 
-    /* Sort array by ascending distance from the user */
     return [...searchResults.restaurants].sort((a, b) => {
       const aLat = a.geolocation?.lat;
       const aLng = a.geolocation?.lng;
@@ -99,7 +85,7 @@ const Home = ({ currentUser }) => {
     });
   }, [searchResults.restaurants, currentUser]);
 
-  /* Fetch all restaurants from backend on mount when no search query exists */
+  /* Load all restaurants from the database when there is no active search query typing */
   useEffect(() => {
     const fetchAllRestaurants = async () => {
       try {
@@ -122,7 +108,7 @@ const Home = ({ currentUser }) => {
     }
   }, [searchQuery]);
 
-  /* Fetch dynamic search results whenever the user types a search query */
+  /* Call the backend search endpoint query when a user types something into the navigation search bar */
   useEffect(() => {
     const fetchSearchResults = async () => {
       try {
@@ -130,7 +116,6 @@ const Home = ({ currentUser }) => {
         setError('');
         const res = await fetch(`http://localhost:3000/api/search/${encodeURIComponent(searchQuery)}`);
         if (!res.ok) {
-          /* Clear previous results on invalid or bad requests */
           if (res.status === 400) {
             setSearchResults({ restaurants: [], products: [] });
             return;
@@ -150,44 +135,33 @@ const Home = ({ currentUser }) => {
     if (searchQuery) {
       fetchSearchResults();
     } else {
-      /* Reset search state immediately when query is deleted */
       setSearchResults({ restaurants: [], products: [] });
     }
   }, [searchQuery]);
 
-  /* Reset the scroll tracker when search query is cleared */
+  /* Automatically scroll down smoothly to the results area when a search operation finishes loading */
   useEffect(() => {
-    if (!searchQuery) {
-      hasScrolledRef.current = false;
-    }
-  }, [searchQuery]);
-
-  /* Automatically scroll screen down to search results container when loaded */
-  useEffect(() => {
-    if (searchQuery && resultsRef.current && !hasScrolledRef.current) {
+    if (searchQuery && resultsRef.current) {
       const timer = setTimeout(() => {
         resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        hasScrolledRef.current = true;
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [searchQuery, searchResults]);
 
-  /* Navigate admin users to the restaurant creation dashboard */
+  /* Redirect privileged administrator users to the add restaurant form view page link */
   const handleAddRestaurantClick = () => {
     if (currentUser?.isAdmin) {
       navigate('/admin/add-restaurant');
     }
   };
 
-  /* Process image path or return a static placeholder fallback URL */
+  /* Process restaurant upload image file paths or return a placeholder fallback link */
   const getRestaurantImage = (restaurant) => {
     if (restaurant.image) {
-      /* Use directly if it is an external absolute URL link */
       if (restaurant.image.startsWith('http://') || restaurant.image.startsWith('https://')) {
         return restaurant.image;
       }
-      /* Prepend local server URL while avoiding nested upload paths */
       if (restaurant.image.startsWith('/uploads')) {
         return `http://localhost:3000${restaurant.image}`;
       }
@@ -196,7 +170,7 @@ const Home = ({ currentUser }) => {
     return 'https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg';
   };
 
-  /* Route user to a specific detailed view of a selected restaurant */
+  /* Handle card click redirect routing to specific menu pages */
   const handleRestaurantClick = (restaurant) => {
     if (typeof restaurant.id === 'string') {
       navigate(`/restaurant/${restaurant.id}`);
@@ -204,14 +178,14 @@ const Home = ({ currentUser }) => {
   };
 
   const displayRestaurants = sortedRestaurants;
-  
-  /* Trigger layout scrolling effect only if row contains more than 4 items */
+
+  /* Only run marquee scroll animations if there are enough restaurant card entries (> 4) */
   const shouldScroll = displayRestaurants.length > 4;
 
   return (
     <div className="home-container">
 
-      {/* Hero banner presentation branding header */}
+      {/* Primary visual hero presentation banner */}
       <div className="hero-banner">
         <h1 className="hero-text">
           WHAT IS YOUR
@@ -219,44 +193,42 @@ const Home = ({ currentUser }) => {
         </h1>
       </div>
 
-      {/* Main interactive section body */}
+      {/* Core content block container section located below the banner views */}
       <div className="home-content">
-        
-        {/* Render create button exclusively for administrative users */}
+
+        {/* Render a floating create restaurant circle action button layout exclusively for admin status sessions */}
         {currentUser?.isAdmin && (
           <button className="add-restaurant-btn" onClick={handleAddRestaurantClick} title="Add New Restaurant">
             +
           </button>
         )}
 
-        {/* View conditional rendering toggle split between search query and default view */}
         {searchQuery ? (
-          
-          /* Search results matching view container */
-          <div ref={resultsRef} className="search-results-section">
+
+          /* --- Search filtering view layouts results --- */
+          <div ref={resultsRef} className="search-results-section" style={{ direction: 'ltr' }}>
             <h2 className="results-title">
               Search results for: <span className="search-query-highlight">"{searchQuery}"</span>
             </h2>
 
-            {/* Status alerts for active loading and unexpected errors */}
+            {/* Loading status notes and server network error fallback warnings alerts */}
             {loading && <div className="loading-spinner">🚴‍♂️ Searching for the best results...</div>}
             {error && <div className="error-message">❌ {error}</div>}
 
-            {/* Empty state markup if search yielded zero database returns */}
+            {/* Empty matching search response placeholder layout view */}
             {!loading && !error && searchResults.restaurants.length === 0 && searchResults.products.length === 0 && (
               <div className="no-results">
                 <img src={cryImage} alt="No results" className="no-results-img" />
-                <p>No restaurants or dishes found matching your query. Try something else!</p>
+                <p style={{ margin: 0 }}>No restaurants or dishes found matching your query. Try something else!</p>
               </div>
             )}
 
-            {/* Section mapping out found restaurants */}
+            {/* Found restaurant row grid maps */}
             {!loading && searchResults.restaurants.length > 0 && (
               <div className="results-group">
                 <h3 className="group-title">Restaurants ({searchResults.restaurants.length})</h3>
                 <div className="results-grid">
                   {sortedSearchResultsRestaurants.map((restaurant) => {
-                    /* Calculate distance value inline for every loop element */
                     const dist = currentUser?.geolocation
                       ? getDistance(
                         currentUser.geolocation.lat,
@@ -279,8 +251,6 @@ const Home = ({ currentUser }) => {
                           />
                         </div>
                         <h3>{restaurant.name}</h3>
-                        
-                        {/* Display specific calculated mileage or fallback text metadata */}
                         <p>
                           {dist !== null
                             ? `📍 ${dist.toFixed(1)} km away`
@@ -295,24 +265,24 @@ const Home = ({ currentUser }) => {
               </div>
             )}
 
-            {/* Section mapping out individual matching dishes */}
+            {/* Found product and menu dishes row grid maps */}
             {!loading && searchResults.products.length > 0 && (
-              <div className="results-group results-group-dishes">
+              <div className="results-group" style={{ marginTop: '40px' }}>
                 <h3 className="group-title">Menu Items ({searchResults.products.length})</h3>
                 <div className="results-grid">
                   {searchResults.products.map((product) => (
                     <div
                       key={product.id}
                       className="product-result-card"
-                      onClick={() => navigate(`/restaurant/${product.restaurantId}?product=${product.id}`)}
+                      onClick={() => navigate(`/restaurant/${product.restaurantId}`)}
                     >
                       <div className="product-card-header">
                         <div className="product-image-container">
                           <img
                             src={product.image
                               ? (product.image.startsWith('/uploads')
-                                  ? `http://localhost:3000${product.image}`
-                                  : `http://localhost:3000/uploads/${product.image}`)
+                                ? `http://localhost:3000${product.image}`
+                                : `http://localhost:3000/uploads/${product.image}`)
                               : "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg"}
                             alt={product.name}
                             className="product-card-img"
@@ -334,14 +304,14 @@ const Home = ({ currentUser }) => {
             )}
           </div>
         ) : (
-          
-          /* Default dashboard screen template layout when search is unused */
+
+          /* --- Default standard guest landing view layouts --- */
           <>
-            {/* Infinite looping carousel element for highlighted restaurants */}
+            {/* Infinite looping sliding horizontal marquee banner container tracks */}
             <div className="marquee-wrapper">
               <div className={`marquee-track ${shouldScroll ? 'enable-scroll' : ''}`}>
-                
-                {/* First primary loop iteration of the slider data tracking row */}
+
+                {/* First replication track list mapping */}
                 {displayRestaurants.map((restaurant, index) => {
                   const dist = currentUser?.geolocation
                     ? getDistance(
@@ -365,7 +335,7 @@ const Home = ({ currentUser }) => {
                             className="restaurant-card-img"
                           />
                         ) : (
-                          <span className="home-fallback-emoji">🍔</span>
+                          <span style={{ fontSize: '40px' }}>🍔</span>
                         )}
                       </div>
                       <h3>{restaurant.name}</h3>
@@ -379,8 +349,8 @@ const Home = ({ currentUser }) => {
                     </div>
                   );
                 })}
-                
-                {/* Second cloned loop iteration block to seamlessly connect scrolling gap boundaries */}
+
+                {/* Second tracking replica copy block to achieve flawless loop transitions seamlessly */}
                 {shouldScroll && displayRestaurants.map((restaurant, index) => {
                   const dist = currentUser?.geolocation
                     ? getDistance(
@@ -404,7 +374,7 @@ const Home = ({ currentUser }) => {
                             className="restaurant-card-img"
                           />
                         ) : (
-                          <span className="home-fallback-emoji">🍔</span>
+                          <span style={{ fontSize: '40px' }}>🍔</span>
                         )}
                       </div>
                       <h3>{restaurant.name}</h3>
@@ -421,9 +391,9 @@ const Home = ({ currentUser }) => {
               </div>
             </div>
 
-            {/* Grid displaying the complete restaurant phone-book catalog index */}
+            {/* Complete main dashboard grid mapping out every registered supplier profile profile lists */}
             {sortedRestaurants.length > 0 && (
-              <div className="all-restaurants-section">
+              <div className="all-restaurants-section" style={{ direction: 'ltr', marginTop: '60px' }}>
                 <h2 className="all-rests-title">All Our Restaurants ({sortedRestaurants.length})</h2>
                 <div className="all-rests-grid">
                   {sortedRestaurants.map((restaurant) => {

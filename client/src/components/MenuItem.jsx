@@ -2,17 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './MenuItem.css';
 
+/* Component for a single food item card and its details modal window */
 const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName, currentUser }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const productId = product.id || product._id;
+
+    /* Local states for managing the modal view and item counts inside it */
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tempQuantity, setTempQuantity] = useState(1);
 
+    /* Find if this item is already inside the cart to show its current count */
     const cartItem = cart?.items?.find(item => item.productId === productId);
     const quantity = cartItem ? cartItem.quantity : 0;
 
-    // Sync modal state with URL search param
+    /* Open the modal automatically if someone shares a link with the product ID in the URL params */
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         if (params.get('product') === productId) {
@@ -23,11 +27,13 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
         }
     }, [location.search, productId, quantity]);
 
+    /* Open the modal view when the user clicks anywhere on the food card container */
     const handleCardClick = () => {
         setTempQuantity(quantity > 0 ? quantity : 1);
         setIsModalOpen(true);
     };
 
+    /* Close the modal view and clean up the product parameters from the URL path */
     const handleCloseModal = (e) => {
         e.stopPropagation();
         setIsModalOpen(false);
@@ -39,6 +45,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
         }
     };
 
+    /* Add exactly one item unit to the cart directly from the main card view layout */
     const handleIncrement = (e) => {
         e.stopPropagation();
         if (onAdd) {
@@ -46,6 +53,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
         }
     };
 
+    /* Remove or decrease item quantity thresholds from the main card view layout */
     const handleDecrement = (e) => {
         e.stopPropagation();
         if (onRemove) {
@@ -53,25 +61,30 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
         }
     };
 
+    /* Increase the local temporary item count inside the popup modal box context */
     const handleModalIncrement = (e) => {
         e.stopPropagation();
         setTempQuantity(prev => prev + 1);
     };
 
+    /* Decrease the local temporary item count inside the modal box but do not go under 1 */
     const handleModalDecrement = (e) => {
         e.stopPropagation();
         setTempQuantity(prev => Math.max(1, prev - 1));
     };
 
+    /* Save selections made inside the modal view by tracking changes and syncing with the main cart */
     const handleAddToOrder = (e) => {
         e.stopPropagation();
         if (onAdd) {
             const diff = tempQuantity - quantity;
             if (diff > 0) {
+                /* Loop operation adding missing items into sequence collections */
                 for (let i = 0; i < diff; i++) {
                     onAdd(product, restaurantId, restaurantName);
                 }
             } else if (diff < 0) {
+                /* Loop operation removing extra item units cleanly */
                 if (onRemove) {
                     for (let i = 0; i < Math.abs(diff); i++) {
                         onRemove(productId);
@@ -80,6 +93,8 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
             }
         }
         setIsModalOpen(false);
+
+        /* Clean up shared URL parameters immediately after updating selection changes */
         const params = new URLSearchParams(location.search);
         if (params.has('product')) {
             params.delete('product');
@@ -88,6 +103,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
         }
     };
 
+    /* Small utility helper to process direct image upload paths or provide fallbacks */
     const getImageUrl = (image) => {
         if (!image) {
             return "https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg";
@@ -101,6 +117,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     return (
         <>
             <div className="menu-item-card" onClick={handleCardClick}>
+                {/* Show the editing button route link exclusively if admin status flags verify true */}
                 {currentUser?.isAdmin && (
                     <button
                         className="menu-item-edit-btn"
@@ -113,13 +130,15 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
                         ✏️
                     </button>
                 )}
-                {/* צד שמאל: תמונה וכפתור פלוס או בורר כמות */}
+
+                {/* Left side layout area: food graphic element preview and quantitative toolbars */}
                 <div className="menu-item-image-wrapper">
                     <img
                         src={getImageUrl(product.image)}
                         alt={product.name}
                         className="menu-item-image"
                     />
+                    {/* Toggle between simple additive buttons and multi-selector quantity fields dynamically */}
                     {quantity > 0 ? (
                         <div className="menu-item-qty-selector" onClick={(e) => e.stopPropagation()}>
                             <button className="menu-item-qty-btn" onClick={handleIncrement}>+</button>
@@ -131,7 +150,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
                     )}
                 </div>
 
-                {/* צד ימין: טקסט ומחיר */}
+                {/* Right side layout area: textual product information summary and price rows */}
                 <div className="menu-item-text-wrapper">
                     <h3 className="menu-item-name">
                         {product.name}
@@ -147,7 +166,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
                 </div>
             </div>
 
-            {/* חלון פרטי מוצר (Modal) */}
+            {/* Detailed food product popup modal overlay view container */}
             {isModalOpen && (
                 <div className="product-modal-backdrop" onClick={handleCloseModal}>
                     <div className="product-modal-container" onClick={(e) => e.stopPropagation()}>
@@ -170,6 +189,7 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
                             <p className="product-modal-description">{product.description}</p>
                         )}
 
+                        {/* Modal action toolbar layout footer pairing temporary state counts with checkout updates */}
                         <div className="product-modal-footer">
                             <button className="product-modal-add-btn" onClick={handleAddToOrder}>
                                 ₪{(product.price * tempQuantity).toFixed(2)} {quantity > 0 ? 'Update cart' : 'Add to cart'}

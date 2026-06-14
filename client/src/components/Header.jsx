@@ -1,25 +1,24 @@
-// src/components/Header.jsx
 import React, { useState, useEffect } from 'react';
 import './Header.css';
 import woltLogoLight from '../assets/wolt-delivery1310.logowik.com.PNG';
 import woltLogoDark from '../assets/WhatsApp Image 2026-06-09 at 16.00.16.JPG';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
-/* Navigation header component managing authentication states, search synchronization, theme options, and shopping cart toggles */
+/* Header component that handles search, dark mode theme toggle, user profile dropdown, and cart status */
 const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setIsCartOpen, clearCart }) => {
 
-  /* Determine user login authentication status dynamically based on current context existence */
+  /* Check if the user is logged in based on the currentUser prop */
   const isLoggedIn = !!currentUser;
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  /* Extract query parameters from URL and manage synchronized internal state */
+  /* Get the initial search query from the URL and setup local states */
   const searchQuery = searchParams.get('search') || '';
   const [searchVal, setSearchVal] = useState(searchQuery);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  /* Listener hook tracking external page clicks to automatically collapse open dropdown menus */
+  /* Close the profile dropdown menu when clicking anywhere else on the screen */
   useEffect(() => {
     if (!isProfileOpen) return;
     const handleOutsideClick = (e) => {
@@ -31,12 +30,12 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
     return () => document.removeEventListener('click', handleOutsideClick);
   }, [isProfileOpen]);
 
-  /* Sync internal input text field values whenever the global URL search changes */
+  /* Update the search input text whenever the URL search query changes */
   useEffect(() => {
     setSearchVal(searchQuery);
   }, [searchQuery]);
 
-  /* Monitor keystrokes and immediately modify the primary application URL parameters */
+  /* Handle live search typing and update the URL query parameter instantly */
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchVal(val);
@@ -47,13 +46,12 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
     }
   };
 
-  /* Terminate active user sessions, drop client tokens, reset local state, and wipe the cart */
+  /* Log out the user by clearing localStorage, resetting app states, and emptying the cart */
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('wolt_cart');
 
-    /* Update top-level application states to trigger instant layout re-renders */
     setCurrentUser(null);
     clearCart();
 
@@ -61,14 +59,14 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
     navigate('/login');
   };
 
-  /* Aggregate total quantities cumulative calculation across all cart item fields */
+  /* Calculate the total number of items inside the shopping cart */
   const totalItems = cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
 
   return (
     <header className="wolt-header">
       <div className="header-container">
 
-        {/* Left layout area: Brand identity logo display */}
+        {/* Left section: Logo container with redirect option */}
         <div className="header-left">
           <div className="wolt-logo-container">
             <img
@@ -80,7 +78,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
           </div>
         </div>
 
-        {/* Center layout area: Global interactive search bar input */}
+        {/* Center section: Search bar with icon and text input */}
         <div className="header-center">
           <div className="header-search-bar">
             <span className="search-icon">🔍</span>
@@ -94,10 +92,10 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
           </div>
         </div>
 
-        {/* Right layout area: Utilities, theme options, cart status, and user profile account access */}
+        {/* Right section: Address box, shopping cart button, theme switch, and profile options */}
         <div className="header-right">
 
-          {/* Render authenticated client primary shipping address if available */}
+          {/* Show user address if they are logged in and have an address configured */}
           {isLoggedIn && currentUser && currentUser.address && (
             <div className="user-address-box">
               <span className="address-icon">📍</span>
@@ -105,7 +103,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             </div>
           )}
 
-          {/* Interactive shopping cart trigger action with authentication gate checks */}
+          {/* Shopping cart button that redirects unlogged users to login page */}
           <button className="header-cart-btn" onClick={() => {
             if (!isLoggedIn) {
               navigate('/login', { state: { from: location.pathname, openCart: true } });
@@ -117,7 +115,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
           </button>
 
-          {/* Vector path icon toggle action to switch between system color modes */}
+          {/* Theme toggle button showing sun/moon icons depending on light/dark mode */}
           {isLoggedIn && (
             <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
               {darkMode ? (
@@ -140,10 +138,10 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             </button>
           )}
 
-          {/* Conditional layout branch split between explicit profile submenus and simple auth prompts */}
+          {/* Show user profile details if logged in, otherwise show login/signup buttons */}
           {isLoggedIn && currentUser ? (
 
-            /* Render user info greeting menu and interactive avatar toggle */
+            /* Profile layout wrapping user welcome message and avatar thumbnail image */
             <div className="user-profile-section">
               <span
                 className="user-name interactive"
@@ -158,7 +156,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               />
 
-              {/* Account overlay card revealing metadata fields and global route navigation links */}
+              {/* Floating profile dropdown card containing user info and action links */}
               {isProfileOpen && (
                 <div className="profile-dropdown-card">
                   <div className="profile-dropdown-header">
@@ -174,7 +172,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                     </div>
                   </div>
 
-                  {/* Detailed profile contact metadata records row elements */}
+                  /* Display phone number and geo-location details rows inside dropdown */
                   <div className="profile-dropdown-details">
                     <div className="profile-detail-item">
                       <span className="detail-icon">📞</span>
@@ -190,7 +188,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                     )}
                   </div>
 
-                  {/* Action group compilation footer executing navigation redirects or explicit logouts */}
+                  {/* Action buttons to go to order history, edit profile, or log out */}
                   <div className="profile-dropdown-actions">
                     <button className="orders-history-btn" onClick={() => { setIsProfileOpen(false); navigate('/orders'); }}>
                       Order History
@@ -205,7 +203,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
             </div>
           ) : (
 
-            /* Fallback dual button presentation layouts targeting completely unauthenticated visitors */
+            /* Default log in and sign up buttons if guest user is visiting */
             <>
               <button className="login-btn" onClick={() => navigate('/login')}>
                 Log in

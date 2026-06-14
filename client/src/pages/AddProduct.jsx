@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import './FormStyles.css'; // שימוש בעיצוב הקיים של טפסים לקבלת מראה אחיד
+import './FormStyles.css';
 
+/* Component for adding a new product dish to a specific restaurant */
 const AddProduct = () => {
-    const { id: restaurantId } = useParams(); // מזהה המסעדה מה-URL
+    /* Get the unique restaurant ID from the URL path */
+    const { id: restaurantId } = useParams();
+
+    /* Form states to track input fields, images, and submission responses */
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [description, setDescription] = useState('');
@@ -14,37 +18,42 @@ const AddProduct = () => {
 
     const navigate = useNavigate();
 
-    // Scroll to top when the page loads so the title is always visible
+    /* Scroll to the top when the page mounts so the user sees the title */
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, []);
 
+    /* Create a local URL preview for the chosen image file */
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setProductImage(file);
             setImagePreview(URL.createObjectURL(file));
 
-            // איפוס ערך ה-DOM של ה-Input
+            /* Clear the native input value so the same file can be re-uploaded if cleared */
             e.target.value = '';
         }
     };
 
+    /* Remove the chosen image file and clear its preview state */
     const handleClearImage = () => {
         setProductImage(null);
         setImagePreview(null);
     };
 
+    /* Handle form validation and upload product data using FormData */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
+        /* Simple frontend check to verify all inputs are filled */
         if (!name || !price || !description || !productImage) {
             setError('All fields are required!');
             return;
         }
 
+        /* Validate that the price input is a real number above zero */
         const numPrice = parseFloat(price);
         if (isNaN(numPrice) || numPrice <= 0) {
             setError('Price must be a valid number greater than 0.');
@@ -52,6 +61,7 @@ const AddProduct = () => {
         }
 
         try {
+            /* Pack form fields into a FormData object to handle the image file upload */
             const formData = new FormData();
             formData.append('name', name);
             formData.append('price', numPrice);
@@ -74,6 +84,7 @@ const AddProduct = () => {
 
             setSuccess('Product added successfully! Redirecting...');
 
+            /* Wait 2 seconds before sending the user back to the restaurant page */
             setTimeout(() => {
                 navigate(`/restaurant/${restaurantId}`);
             }, 2000);
@@ -89,7 +100,8 @@ const AddProduct = () => {
                 <h1 className="auth-heading wolt-brand-color">Add New Product</h1>
 
                 <form onSubmit={handleSubmit} noValidate>
-                    {/* שם המוצר */}
+
+                    {/* Product name input field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="name" className="auth-label">:Product Name</label>
                         <input
@@ -102,7 +114,7 @@ const AddProduct = () => {
                         />
                     </div>
 
-                    {/* מחיר */}
+                    {/* Price input field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="price" className="auth-label">:Price (₪)</label>
                         <input
@@ -116,7 +128,7 @@ const AddProduct = () => {
                         />
                     </div>
 
-                    {/* תיאור */}
+                    {/* Description textarea field */}
                     <div className="auth-input-wrapper">
                         <label htmlFor="description" className="auth-label">:Description</label>
                         <textarea
@@ -128,7 +140,7 @@ const AddProduct = () => {
                         />
                     </div>
 
-                    {/* העלאת תמונת מוצר */}
+                    {/* Product image upload and preview area */}
                     <div className="auth-input-wrapper">
                         <label className="auth-label">:Upload Product Image</label>
                         <div className="auth-file-input-container">
@@ -144,6 +156,7 @@ const AddProduct = () => {
                             </label>
                         </div>
 
+                        {/* Render preview image container if a file was selected */}
                         {imagePreview && (
                             <div className="auth-preview-container">
                                 <img
@@ -158,7 +171,7 @@ const AddProduct = () => {
                         )}
                     </div>
 
-                    {/* הודעות שגיאה או הצלחה */}
+                    {/* Error and success message feedback displays */}
                     {error && <div className="auth-error-text">{error}</div>}
                     {success && <div className="auth-success-text">{success}</div>}
 
