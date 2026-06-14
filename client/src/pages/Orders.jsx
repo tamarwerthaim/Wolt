@@ -209,10 +209,10 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
               minute: '2-digit'
             });
 
-            // Add up the total price of the order using our products map lookup
+            // Add up the total price of the order using snapshot values or fallback products map lookup for backward compatibility
             const orderTotal = order.items.reduce((sum, item) => {
               const product = productsMap[item.productId];
-              const price = product ? Number(product.price) : 0;
+              const price = item.price !== undefined ? Number(item.price) : (product ? Number(product.price) : 0);
               return sum + price * item.quantity;
             }, 0);
 
@@ -253,13 +253,15 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                     <div className="receipt-items">
                       {order.items.map((item) => {
                         const product = productsMap[item.productId];
-                        const unitPrice = product ? Number(product.price) : 0;
+                        // Use historical snapshot price, falling back to current product menu price
+                        const unitPrice = item.price !== undefined ? Number(item.price) : (product ? Number(product.price) : 0);
                         const subtotal = unitPrice * item.quantity;
 
                         return (
                           <div key={item.productId} className="receipt-item-row">
                             <span className="receipt-item-name">
-                              <span className="receipt-item-qty">{item.quantity}x</span> {product?.name || `Item ID: ${item.productId.slice(0, 6)}`}
+                              {/* Use historical snapshot name, falling back to current product menu name or item ID */}
+                              <span className="receipt-item-qty">{item.quantity}x</span> {item.name || product?.name || `Item ID: ${item.productId.slice(0, 6)}`}
                             </span>
                             <span className="receipt-item-subtotal">₪{subtotal.toFixed(2)}</span>
                           </div>
@@ -307,9 +309,10 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                   minute: '2-digit'
                 });
 
+                // Calculate total order price using historical snapshot values with fallback map lookup
                 const orderTotal = selectedOrder.items.reduce((sum, item) => {
                   const product = productsMap[item.productId];
-                  const price = product ? Number(product.price) : 0;
+                  const price = item.price !== undefined ? Number(item.price) : (product ? Number(product.price) : 0);
                   return sum + price * item.quantity;
                 }, 0);
 
@@ -332,13 +335,15 @@ const Orders = ({ currentUser, setCart, setIsCartOpen }) => {
                       <div className="modal-items-list">
                         {selectedOrder.items.map((item) => {
                           const product = productsMap[item.productId];
-                          const unitPrice = product ? Number(product.price) : 0;
+                          // Read historical snapshot price or fallback to current menu price
+                          const unitPrice = item.price !== undefined ? Number(item.price) : (product ? Number(product.price) : 0);
                           const subtotal = unitPrice * item.quantity;
 
                           return (
                             <div key={item.productId} className="modal-item-row">
                               <span className="modal-item-name">
-                                <span className="modal-item-qty">{item.quantity}x</span> {product?.name || `Item ID: ${item.productId.slice(0, 6)}`}
+                                {/* Read historical snapshot name or fallback to current menu name */}
+                                <span className="modal-item-qty">{item.quantity}x</span> {item.name || product?.name || `Item ID: ${item.productId.slice(0, 6)}`}
                               </span>
                               <span className="modal-item-subtotal">₪{subtotal.toFixed(2)}</span>
                             </div>
