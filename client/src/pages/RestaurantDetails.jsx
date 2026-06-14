@@ -36,14 +36,6 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                 const resData = await resResponse.json();
                 setRestaurant(resData);
 
-                // עדכון הדירוג של המשתמש הנוכחי אם הוא כבר דירג בעבר
-                const currentUserId = localStorage.getItem('userId');
-                if (currentUserId && resData.ratings && typeof resData.ratings === 'object' && !Array.isArray(resData.ratings)) {
-                    const existingUserRating = resData.ratings[currentUserId];
-                    if (existingUserRating) {
-                        setUserRating(existingUserRating);
-                    }
-                }
 
                 // בקשת GET למוצרי המסעדה
                 const prodResponse = await fetch(`http://localhost:3000/api/restaurants/${id}/products`);
@@ -63,6 +55,20 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
             fetchRestaurantAndProducts();
         }
     }, [id]);
+
+    // Update user rating when restaurant or currentUser changes
+    useEffect(() => {
+        if (currentUser && restaurant && restaurant.ratings && typeof restaurant.ratings === 'object' && !Array.isArray(restaurant.ratings)) {
+            const existingUserRating = restaurant.ratings[currentUser.id];
+            if (existingUserRating) {
+                setUserRating(existingUserRating);
+            } else {
+                setUserRating(0);
+            }
+        } else {
+            setUserRating(0);
+        }
+    }, [restaurant, currentUser]);
 
     // חישוב ממוצע הדירוגים של המסעדה
     const getAverageRating = () => {
@@ -93,7 +99,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
     // פונקציית שליחת דירוג
     const handleRate = async (score) => {
         const token = localStorage.getItem('token');
-        if (!token) {
+        if (!currentUser || !token) {
             // Redirect to login, remembering to come back here with rating intent
             navigate('/login', { state: { from: location.pathname, openRating: true } });
             return;
@@ -179,8 +185,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
             <div className="details-banner-container">
                 <img
                     src={restaurant?.image
-                            ? `http://localhost:3000${restaurant.image}`
-                            : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg'}
+                        ? `http://localhost:3000${restaurant.image}`
+                        : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg'}
                     alt={restaurant?.name || 'Restaurant Banner'}
                     className="details-banner-img"
                 />
@@ -208,16 +214,17 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                                 onMouseEnter={() => setHoverRating(star)}
                                 onMouseLeave={() => setHoverRating(0)}
                                 className={`details-star-btn ${star <= (hoverRating || userRating)
-                                        ? 'details-star-active'
-                                        : 'details-star-inactive'
+                                    ? 'details-star-active'
+                                    : 'details-star-inactive'
                                     }`}
-                                title={localStorage.getItem('token') ? `Rate ${star} stars` : 'Log in to rate'}
+                                title={currentUser ? `Rate ${star} stars` : 'Log in to rate'}
+                                disabled={!currentUser}
                             >
                                 ★
                             </button>
                         ))}
                     </div>
-                    {!localStorage.getItem('token') && (
+                    {!currentUser && (
                         <div className="details-login-to-rate" onClick={() => navigate('/login', { state: { from: location.pathname, openRating: true } })}>
                             Log in to rate
                         </div>
@@ -248,7 +255,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
 
                     <div className="details-tags-row">
                         <div className="details-tag">{pickupStr}</div>
-                        {localStorage.getItem('token') && <div className="details-tag">{deliveryStr}</div>}
+                        {currentUser && <div className="details-tag">{deliveryStr}</div>}
                     </div>
                 </div>
             </div>
@@ -258,8 +265,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                 <div className="details-menu-header">
                     <h2 className="details-menu-title">The Entire Menu</h2>
                     {currentUser?.isAdmin && (
-                        <button 
-                            className="add-product-btn" 
+                        <button
+                            className="add-product-btn"
                             onClick={() => navigate(`/restaurant/${id}/add-product`)}
                             title="Add New Product"
                         >
