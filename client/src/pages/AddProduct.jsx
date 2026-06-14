@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './FormStyles.css';
 
 /* Component for adding a new product dish to a specific restaurant */
-const AddProduct = () => {
+const AddProduct = ({ currentUser }) => {
     /* Get the unique restaurant ID from the URL path */
     const { id: restaurantId } = useParams();
 
@@ -15,13 +15,41 @@ const AddProduct = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(true); // Flag to track if the restaurant details are loading
+    const [isOwner, setIsOwner] = useState(true); // Flag to track if the logged-in user owns the restaurant
 
     const navigate = useNavigate();
 
-    /* Scroll to the top when the page mounts so the user sees the title */
+    /* Fetch the restaurant details to verify ownership and scroll to the top when the page mounts */
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
-    }, []);
+        
+        const checkRestaurantOwnership = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load restaurant details.');
+                }
+                const data = await response.json();
+
+                // Enforce restaurant ownership check
+                if (currentUser && data.ownerId !== currentUser.id) {
+                    setIsOwner(false);
+                    setError('You are not authorized to add products to this restaurant since you are not the owner.');
+                    return;
+                }
+            } catch (err) {
+                setError(err.message || 'Error loading restaurant details.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        if (currentUser) {
+            checkRestaurantOwnership();
+        }
+    }, [restaurantId, currentUser]);
 
     /* Create a local URL preview for the chosen image file */
     const handleFileChange = (e) => {
@@ -93,6 +121,42 @@ const AddProduct = () => {
             setError(err.message || 'Server error. Please try again.');
         }
     };
+
+    /* Display a loading message while verifying ownership details */
+    if (loading) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card auth-loading-card">
+                    <p className="auth-loading-text">Verifying Restaurant Ownership...</p>
+                </div>
+            </div>
+        );
+    }
+
+    /* Display access denied if the authenticated user does not own the restaurant */
+    if (!isOwner) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card">
+                    <button className="back-button" onClick={() => navigate(-1)} title="Back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 className="auth-heading wolt-brand-color">Access Denied</h1>
+                    <div className="auth-error-text" style={{ marginBottom: '20px' }}>{error}</div>
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/restaurant/${restaurantId}`)}
+                        className="auth-submit-button auth-cancel-button"
+                    >
+                        Back to Restaurant
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-container">

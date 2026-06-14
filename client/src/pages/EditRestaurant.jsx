@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './FormStyles.css';
 
 /* Component to edit or delete an existing restaurant profile */
-const EditRestaurant = () => {
+const EditRestaurant = ({ currentUser }) => {
     /* Get the unique restaurant ID from the URL path parameters */
     const { id: restaurantId } = useParams();
 
@@ -18,10 +18,11 @@ const EditRestaurant = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
+    const [isOwner, setIsOwner] = useState(true); // Flag to track if the logged-in user owns the restaurant
 
     const navigate = useNavigate();
 
-    /* Fetch the current restaurant details from the server when the component loads */
+    /* Fetch the current restaurant details from the server when the component loads and verify ownership */
     useEffect(() => {
         const fetchRestaurant = async () => {
             try {
@@ -31,6 +32,14 @@ const EditRestaurant = () => {
                     throw new Error('Failed to load restaurant details.');
                 }
                 const data = await response.json();
+
+                // Enforce restaurant ownership check
+                if (currentUser && data.ownerId !== currentUser.id) {
+                    setIsOwner(false);
+                    setError('You are not authorized to edit this restaurant since you are not the owner.');
+                    return;
+                }
+
                 setName(data.name || '');
                 setLat(data.geolocation?.lat?.toString() || '');
                 setLng(data.geolocation?.lng?.toString() || '');
@@ -45,8 +54,10 @@ const EditRestaurant = () => {
                 setLoading(false);
             }
         };
-        fetchRestaurant();
-    }, [restaurantId]);
+        if (currentUser) {
+            fetchRestaurant();
+        }
+    }, [restaurantId, currentUser]);
 
     /* Create a local URL preview when a new image file is chosen */
     const handleFileChange = (e) => {
@@ -189,6 +200,31 @@ const EditRestaurant = () => {
             <div className="auth-container">
                 <div className="auth-card auth-loading-card">
                     <p className="auth-loading-text">Loading Restaurant Details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    /* Display access denied if the authenticated user is not the owner */
+    if (!isOwner) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card">
+                    <button className="back-button" onClick={() => navigate(-1)} title="Back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 className="auth-heading wolt-brand-color">Access Denied</h1>
+                    <div className="auth-error-text" style={{ marginBottom: '20px' }}>{error}</div>
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/restaurant/${restaurantId}`)}
+                        className="auth-submit-button auth-cancel-button"
+                    >
+                        Back to Restaurant
+                    </button>
                 </div>
             </div>
         );

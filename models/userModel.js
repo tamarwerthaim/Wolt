@@ -1,6 +1,25 @@
 import { v4 as uuidv4 } from 'uuid';
-// In-memory data store for volatile user records
-const users = [];
+
+// Fixed identifier for the default system administrator and restaurant owner
+export const DEFAULT_ADMIN_ID = 'default-admin-owner-id';
+
+// In-memory data store for volatile user records pre-populated with a default admin owner
+const users = [
+    {
+        id: DEFAULT_ADMIN_ID,
+        username: 'admin',
+        password: 'Password123',
+        name: 'Default Admin',
+        phone: '0501234567',
+        geolocation: {
+            lat: 32.0801,
+            lng: 34.7805
+        },
+        profileImage: 'default_avatar.png',
+        isAdmin: true,
+        isSyncedWithCpp: false
+    }
+];
 // Insert a new user into the shared array
 export const saveUser = (userData) => {
     //check if the username already exist in the system

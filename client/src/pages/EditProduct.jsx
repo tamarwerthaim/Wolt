@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './FormStyles.css';
 
 /* Component to edit or delete an existing menu product */
-const EditProduct = () => {
+const EditProduct = ({ currentUser }) => {
     /* Get restaurant and product IDs from the URL path */
     const { id: restaurantId, pld: productId } = useParams();
 
@@ -17,14 +17,30 @@ const EditProduct = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
+    const [isOwner, setIsOwner] = useState(true); // Flag to track if the logged-in user owns the restaurant
 
     const navigate = useNavigate();
 
-    /* Fetch the current product data from the server when the page loads */
+    /* Fetch the current product data and restaurant details from the server and verify ownership */
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchProductAndRestaurant = async () => {
             try {
                 setLoading(true);
+
+                // Fetch restaurant details to check ownership
+                const resResponse = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}`);
+                if (!resResponse.ok) {
+                    throw new Error('Failed to load restaurant details.');
+                }
+                const resData = await resResponse.json();
+
+                // Enforce restaurant ownership check
+                if (currentUser && resData.ownerId !== currentUser.id) {
+                    setIsOwner(false);
+                    setError('You are not authorized to edit this product since you are not the owner of this restaurant.');
+                    return;
+                }
+
                 const response = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}/products/${productId}`);
                 if (!response.ok) {
                     throw new Error('Failed to load product details.');
@@ -43,8 +59,10 @@ const EditProduct = () => {
                 setLoading(false);
             }
         };
-        fetchProduct();
-    }, [restaurantId, productId]);
+        if (currentUser) {
+            fetchProductAndRestaurant();
+        }
+    }, [restaurantId, productId, currentUser]);
 
     /* Create a temporary preview URL when a new image file is chosen */
     const handleFileChange = (e) => {
@@ -167,6 +185,31 @@ const EditProduct = () => {
             <div className="auth-container">
                 <div className="auth-card auth-loading-card">
                     <p className="auth-loading-text">Loading Product Details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    /* Display access denied if the authenticated user does not own the restaurant */
+    if (!isOwner) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card">
+                    <button className="back-button" onClick={() => navigate(-1)} title="Back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="svg-icon-block">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 className="auth-heading wolt-brand-color">Access Denied</h1>
+                    <div className="auth-error-text" style={{ marginBottom: '20px' }}>{error}</div>
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/restaurant/${restaurantId}`)}
+                        className="auth-submit-button auth-cancel-button"
+                    >
+                        Back to Restaurant
+                    </button>
                 </div>
             </div>
         );

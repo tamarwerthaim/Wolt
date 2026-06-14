@@ -239,7 +239,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                 <div className="details-info-section">
                     <h1 className="details-restaurant-name">
                         {restaurant?.name || 'Restaurant Menu'}
-                        {currentUser?.isAdmin && (
+                        {/* Only allow editing the restaurant profile if the logged-in user is an administrator and the owner of this restaurant */}
+                        {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
                             <button
                                 className="edit-restaurant-btn"
                                 onClick={() => navigate(`/restaurant/${id}/edit`)}
@@ -267,7 +268,8 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
             <div className="details-products-area">
                 <div className="details-menu-header">
                     <h2 className="details-menu-title">The Entire Menu</h2>
-                    {currentUser?.isAdmin && (
+                    {/* Only allow adding new products if the logged-in user is an administrator and the owner of this restaurant */}
+                    {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
                         <button
                             className="add-product-btn"
                             onClick={() => navigate(`/restaurant/${id}/add-product`)}
@@ -310,6 +312,7 @@ const RestaurantDetails = ({ currentUser, cart, addToCart, removeFromCart }) => 
                                 restaurantId={id}
                                 restaurantName={restaurant?.name}
                                 currentUser={currentUser}
+                                restaurantOwnerId={restaurant?.ownerId} // Pass the restaurant's owner ID to check ownership for product edit capabilities
                             />
                         ))}
                     </div>

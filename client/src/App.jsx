@@ -209,15 +209,19 @@ function App() {
             } />
 
             {/* Administrative route links guarded or restricted to specific workspace rules */}
-            <Route path="/restaurant/:id/add-product" element={<AddProduct />} />
+            <Route path="/restaurant/:id/add-product" element={
+              <ProtectedRoute>
+                <AddProduct currentUser={currentUser} />
+              </ProtectedRoute>
+            } />
             <Route path="/restaurant/:id/edit" element={
               <ProtectedRoute>
-                <EditRestaurant />
+                <EditRestaurant currentUser={currentUser} />
               </ProtectedRoute>
             } />
             <Route path="/restaurant/:id/product/:pld/edit" element={
               <ProtectedRoute>
-                <EditProduct />
+                <EditProduct currentUser={currentUser} />
               </ProtectedRoute>
             } />
             <Route path="/admin/add-restaurant" element={<AddRestaurant />} />
