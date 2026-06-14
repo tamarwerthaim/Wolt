@@ -15,6 +15,9 @@ const Home = ({ currentUser }) => {
   /* Ref used to programmatically scroll down to search results */
   const resultsRef = useRef(null);
 
+  /* Ref to track if we have already scrolled to search results in the current session */
+  const hasScrolledRef = useRef(false);
+
   /* State for storing the global list of restaurants */
   const [restaurants, setRestaurants] = useState([]);
   
@@ -152,11 +155,19 @@ const Home = ({ currentUser }) => {
     }
   }, [searchQuery]);
 
+  /* Reset the scroll tracker when search query is cleared */
+  useEffect(() => {
+    if (!searchQuery) {
+      hasScrolledRef.current = false;
+    }
+  }, [searchQuery]);
+
   /* Automatically scroll screen down to search results container when loaded */
   useEffect(() => {
-    if (searchQuery && resultsRef.current) {
+    if (searchQuery && resultsRef.current && !hasScrolledRef.current) {
       const timer = setTimeout(() => {
         resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        hasScrolledRef.current = true;
       }, 100);
       return () => clearTimeout(timer);
     }
