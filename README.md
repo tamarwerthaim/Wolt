@@ -178,10 +178,10 @@ All endpoints receive and return data in **JSON format**.
 ### 1. Guest (General User) Views
 
 - **Home Page (Upper section):** Displays categories, search bar, and login/signup shortcuts:
-  ![Home Page Upper](images_readme/general/home page upper.png)
+  ![Home Page Upper](images_readme/general/home_page_upper.png)
 
 - **Home Page (Lower section):** Displays available restaurants grouped by promotions:
-  ![Home Page Lower](images_readme/general/home page downer.png)
+  ![Home Page Lower](images_readme/general/home_page_downer.png)
 
 - **Login Screen:** Screen to authenticate existing users:
   ![Login Screen](images_readme/general/login.png)
@@ -190,10 +190,10 @@ All endpoints receive and return data in **JSON format**.
   ![Register Screen](images_readme/general/register.png)
 
 - **Restaurant Menu Page:** Lists products of the selected restaurant:
-  ![Restaurant Menu Page](images_readme/general/restaurant page.png)
+  ![Restaurant Menu Page](images_readme/general/restaurant_page.png)
 
 - **Product Detail View:** Modal popup displaying item details:
-  ![Product Detail View](images_readme/general/product page.png)
+  ![Product Detail View](images_readme/general/product_page.png)
 
 - **Global Search:** Dynamic filtering of matching restaurants and dishes:
   ![Global Search](images_readme/general/search.png)
@@ -203,47 +203,47 @@ All endpoints receive and return data in **JSON format**.
 ### 2. Signed-In (Registered Customer) Views
 
 - **Signed-In Home Page:** Features personalized navigation bar, greetings, and user address:
-  ![Signed-In Home Page](images_readme/signed/home page.png)
+  ![Signed-In Home Page](images_readme/signed/home_page.png)
 
 - **Dark Mode Home Page:** Active Dark Mode theme toggle:
-  ![Dark Mode Home Page](images_readme/signed/dark home page.png)
+  ![Dark Mode Home Page](images_readme/signed/dark_home_page.png)
 
 - **Restaurant Page (Signed-In):** Interactive customer menu view with cart modifiers:
-  ![Restaurant Page Signed-In](images_readme/signed/restaurant page.png)
+  ![Restaurant Page Signed-In](images_readme/signed/restaurant_page.png)
 
 - **Shopping Cart Drawer:** Global cart displaying items and order total price:
   ![Shopping Cart Drawer](images_readme/signed/cart.png)
 
 - **Cart Restaurant Mismatch Prompt:** Notification asking user confirmation before switching restaurants:
-  ![Cart Restaurant Lock](images_readme/signed/edit cart.png)
+  ![Cart Restaurant Lock](images_readme/signed/edit_cart.png)
 
 - **User Profile Dropdown:** Access via top avatar showing details, location, phone, and options:
-  ![User Profile Summary](images_readme/signed/user details.png)
+  ![User Profile Summary](images_readme/signed/user_details.png)
 
 - **Edit Profile Screen:** Form to modify name, phone, address, and profile picture:
-  ![Edit Profile Screen](images_readme/signed/edit user.png)
+  ![Edit Profile Screen](images_readme/signed/edit_user.png)
 
 - **Order Placement History:** Lists user's past orders:
-  ![Order Placement History](images_readme/signed/order history.png)
+  ![Order Placement History](images_readme/signed/order_history.png)
 
 - **Order Receipt Details:** Specific order summary breakdown:
-  ![Order Details Receipt](images_readme/signed/order details.png)
+  ![Order Details Receipt](images_readme/signed/order_details.png)
 
 ---
 
 ### 3. Restaurant Owner (Admin) Views
 
 - **Admin Dashboard Home:** Lists restaurants with edit/delete buttons and create options:
-  ![Admin Dashboard Home](images_readme/admin/home page.png)
+  ![Admin Dashboard Home](images_readme/admin/home_page.png)
 
 - **Add New Restaurant:** Form to upload banner and set restaurant metadata:
-  ![Add New Restaurant](images_readme/admin/add restaurant.png)
+  ![Add New Restaurant](images_readme/admin/add_restaurant.png)
 
 - **Edit Restaurant Details:** Modify restaurant fields and update images:
-  ![Edit Restaurant Details](images_readme/admin/edit restaurant.png)
+  ![Edit Restaurant Details](images_readme/admin/edit_restaurant.png)
 
 - **Add Menu Product:** Admin form to append products to a restaurant's menu:
-  ![Add Menu Product](images_readme/admin/add product.png)
+  ![Add Menu Product](images_readme/admin/add_product.png)
 
 - **Edit Menu Product:** Form to update product names, pricing, descriptions, and pictures:
-  ![Edit Menu Product](images_readme/admin/edit product.png)
+  ![Edit Menu Product](images_readme/admin/edit_product.png)
