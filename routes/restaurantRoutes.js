@@ -8,6 +8,10 @@ const router = express.Router();
 
 /* Publicly accessible restaurant endpoints */
 router.get('/', RestaurantController.getAllRestaurants);
+
+// Get recommended restaurants for the authenticated user based on C++ recommendation system
+router.get('/recommendations', authenticateToken, RestaurantController.getRecommendations);
+
 router.get('/:id', RestaurantController.getRestaurantById);
 
 /* Authenticated user routes */

@@ -16,6 +16,9 @@ const Home = ({ currentUser }) => {
   const [searchResults, setSearchResults] = useState({ restaurants: [], products: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('all'); // State tracker for the active section tab ('all' or 'recommended')
+  const [recommendations, setRecommendations] = useState([]); // Array list storing restaurant recommendations from backend
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false); // Spinner status flag for recommendations request
 
   /* Calculate the straight-line distance between two coordinates in kilometers */
   const getDistance = (lat1, lon1, lat2, lon2) => {
@@ -107,6 +110,37 @@ const Home = ({ currentUser }) => {
       fetchAllRestaurants();
     }
   }, [searchQuery]);
+
+  /* Fetch restaurant recommendations from C++ recommendation system via API gateway */
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        setLoadingRecommendations(true);
+        setError('');
+        const res = await fetch('http://localhost:3000/api/restaurants/recommendations', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!res.ok) throw new Error('Failed to fetch recommended restaurants');
+        const data = await res.json();
+        setRecommendations(data);
+      } catch (err) {
+        console.error('Recommendations error:', err);
+        setError('Error loading personalized recommendations');
+      } finally {
+        setLoadingRecommendations(false);
+      }
+    };
+
+    if (currentUser && activeTab === 'recommended' && !searchQuery) {
+      fetchRecommendations();
+    }
+  }, [activeTab, currentUser, searchQuery]);
 
   /* Call the backend search endpoint query when a user types something into the navigation search bar */
   useEffect(() => {
@@ -394,42 +428,121 @@ const Home = ({ currentUser }) => {
             {/* Complete main dashboard grid mapping out every registered supplier profile profile lists */}
             {sortedRestaurants.length > 0 && (
               <div className="all-restaurants-section" style={{ direction: 'ltr', marginTop: '60px' }}>
-                <h2 className="all-rests-title">All Our Restaurants ({sortedRestaurants.length})</h2>
-                <div className="all-rests-grid">
-                  {sortedRestaurants.map((restaurant) => {
-                    const dist = currentUser?.geolocation
-                      ? getDistance(
-                        currentUser.geolocation.lat,
-                        currentUser.geolocation.lng,
-                        restaurant.geolocation?.lat,
-                        restaurant.geolocation?.lng
-                      )
-                      : null;
-                    return (
-                      <div
-                        key={restaurant.id}
-                        className="restaurant-card clickable"
-                        onClick={() => navigate(`/restaurant/${restaurant.id}`)}
-                      >
-                        <div className="card-image-placeholder">
-                          <img
-                            src={getRestaurantImage(restaurant)}
-                            alt={restaurant.name}
-                            className="restaurant-card-img"
-                          />
-                        </div>
-                        <h3>{restaurant.name}</h3>
-                        <p>
-                          {dist !== null
-                            ? `📍 ${dist.toFixed(1)} km away`
-                            : restaurant.geolocation
-                              ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
-                              : '📍 No location'}
-                        </p>
-                      </div>
-                    );
-                  })}
+                {/* Visual tabs switcher container for general and recommended views */}
+                <div className="home-tabs-container">
+                  <button
+                    className={`home-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('all')}
+                  >
+                    All Our Restaurants
+                  </button>
+                  <button
+                    className={`home-tab-btn ${activeTab === 'recommended' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('recommended')}
+                  >
+                    Especially for You
+                  </button>
                 </div>
+
+                {activeTab === 'all' ? (
+                  <div className="all-rests-grid">
+                    {sortedRestaurants.map((restaurant) => {
+                      const dist = currentUser?.geolocation
+                        ? getDistance(
+                          currentUser.geolocation.lat,
+                          currentUser.geolocation.lng,
+                          restaurant.geolocation?.lat,
+                          restaurant.geolocation?.lng
+                        )
+                        : null;
+                      return (
+                        <div
+                          key={restaurant.id}
+                          className="restaurant-card clickable"
+                          onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                        >
+                          <div className="card-image-placeholder">
+                            <img
+                              src={getRestaurantImage(restaurant)}
+                              alt={restaurant.name}
+                              className="restaurant-card-img"
+                            />
+                          </div>
+                          <h3>{restaurant.name}</h3>
+                          <p>
+                            {dist !== null
+                              ? `📍 ${dist.toFixed(1)} km away`
+                              : restaurant.geolocation
+                                ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
+                                : '📍 No location'}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* --- Especially for You Tab Layout --- */
+                  <>
+                    {!currentUser ? (
+                      /* Guest user alert message */
+                      <div className="recommendations-empty-state">
+                        <div className="empty-state-icon">🔒</div>
+                        <h3>Log in to get personalized recommendations</h3>
+                        <p>We recommend restaurants based on your order history. Log in or sign up to see your recommendations!</p>
+                        <button className="empty-state-btn" onClick={() => navigate('/login')}>
+                          Log In
+                        </button>
+                      </div>
+                    ) : loadingRecommendations ? (
+                      /* Spinner animation while loading recommendations */
+                      <div className="loading-spinner">🚴‍♂️ Searching for recommendations...</div>
+                    ) : recommendations.length === 0 ? (
+                      /* Empty list warning prompt if user has no orders placed yet */
+                      <div className="recommendations-empty-state">
+                        <div className="empty-state-icon">🍽️</div>
+                        <h3>Your recommendations list is empty</h3>
+                        <p>Place your first order to get personalized restaurant recommendations based on what you love!</p>
+                      </div>
+                    ) : (
+                      /* Map out recommended restaurants using similar styled cards */
+                      <div className="all-rests-grid">
+                        {recommendations.map((restaurant) => {
+                          const dist = currentUser?.geolocation
+                            ? getDistance(
+                              currentUser.geolocation.lat,
+                              currentUser.geolocation.lng,
+                              restaurant.geolocation?.lat,
+                              restaurant.geolocation?.lng
+                            )
+                            : null;
+                          return (
+                            <div
+                              key={restaurant.id}
+                              className="restaurant-card clickable"
+                              onClick={() => navigate(`/restaurant/${restaurant.id}`)}
+                            >
+                              <div className="card-image-placeholder">
+                                <img
+                                  src={getRestaurantImage(restaurant)}
+                                  alt={restaurant.name}
+                                  className="restaurant-card-img"
+                                />
+                              </div>
+                              <h3>{restaurant.name}</h3>
+                              <p>
+                                {dist !== null
+                                  ? `📍 ${dist.toFixed(1)} km away`
+                                  : restaurant.geolocation
+                                    ? `📍 Location: ${restaurant.geolocation.lat}, ${restaurant.geolocation.lng}`
+                                    : '📍 No location'}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </>
