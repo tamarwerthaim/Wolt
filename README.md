@@ -33,88 +33,59 @@ The system is built on modern software engineering patterns, focusing on modular
 
 ```text
 Wolt/
-├── client/                  # React Frontend Application (Vite)
+├── client/                  # React frontend
 │   ├── src/
-│   │   ├── components/      # Reusable UI components (Cart, Header, MenuItem, ProtectedRoute)
-│   │   ├── pages/           # Screen page views (Home, Login, Register, RestaurantDetails, Orders, EditProfile, etc.)
-│   │   ├── assets/          # Images, logos, and visual assets
-│   │   ├── App.jsx          # React main component, routing, and global cart/theme states
-│   │   ├── index.css        # Custom CSS variables, colors, and layout configurations
-│   │   └── main.jsx         # Client mount entry point
-│   ├── Dockerfile           # Client containerization settings
-│   └── package.json         # React project dependencies and dev scripts
-├── controllers/             # Backend business logic and JSON responders
-├── models/                  # Backend data structures (Users, Restaurants, Products, Orders)
-├── routes/                  # Express route boundary specifications
-├── middleware/              # Auth verification (JWT) & file upload (Multer) middlewares
-├── socket.js                # TCP Socket connection wrapper to the C++ server
-├── data/                    # Filesystem data storage (users_db.txt)
-├── src/                     # C++ recommendation server source files (.cpp)
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/           # Screen page views
+│   │   ├── assets/          # Visual assets & images
+│   │   ├── App.jsx          # Main App & client routes
+│   │   ├── index.css        # Global CSS variables & styles
+│   │   └── main.jsx         # React mount entry point
+│   ├── Dockerfile           # Frontend Docker config
+│   └── package.json         # Frontend dependencies
+├── controllers/             # Express controllers
+├── models/                  # In-memory models & file storage
+├── routes/                  # Express route definitions
+├── middleware/              # Auth (JWT) & file upload (Multer) middleware
+├── socket.js                # TCP connection client to C++ server
+├── data/                    # Database file (users_db.txt)
+├── src/                     # C++ server source files (.cpp)
 ├── include/                 # C++ header files (.h)
-├── tests/                   # Test suite files
-├── uploads/                 # Uploaded profile and restaurant/product images (Volume Shared)
-├── app.js                   # Express configuration, static serving, and middleware chain
-├── main.js                  # Backend API server startup entry point
-├── CMakeLists.txt           # C++ project build scripts
-├── Dockerfile.server        # C++ Engine Docker settings
-├── Dockerfile.web           # Express REST API Gateway Docker settings
-├── docker-compose.yml       # Multi-container service orchestration
+├── tests/                   # Automated tests
+├── uploads/                 # Static uploads (Volume shared)
+├── app.js                   # Express application setup
+├── main.js                  # Node server entry point
+├── CMakeLists.txt           # C++ compilation script
+├── Dockerfile.server        # C++ server Docker config
+├── Dockerfile.web           # Express server Docker config
+├── docker-compose.yml       # Multi-container orchestration config
 └── README.md                # Project documentation
 ```
 
 ---
 
-## Running the Application
+## Running the Application (Docker Compose)
 
-### Docker Compose Orchestration (Recommended)
-
-The easiest way to compile and run the full stack is using Docker Compose. This starts the React frontend, Express gateway, C++ server, and mounts the necessary files.
+The entire multi-service application (React frontend, Express API backend, and C++ recommendation engine) compiles and runs using Docker Compose.
 
 1. **Build the containers:**
+   This step builds all Docker files, including compiling the C++ recommendation engine and running its automated unit tests:
    ```bash
    docker compose build
    ```
 
 2. **Run all services:**
+   This step runs all servers and mounts the shared uploads folder:
    ```bash
    docker compose up
    ```
 
-Once fully booted, the services map to the following ports:
-- **React Frontend Client:** Available at `http://localhost:5173`
-- **Node.js REST API Server:** Available at `http://localhost:3000`
-- **C++ Recommendation Engine:** Listening internally on port `8080`
+Once booted, the application is mapped to the following local addresses:
+- **React Frontend Client:** `http://localhost:5173`
+- **Node.js REST API Server:** `http://localhost:3000`
+- **C++ Recommendation Engine:** Port `8080` (runs internally inside container context)
 
-> 💡 **Shared Media Volume:** The `uploads/` directory is bound as a shared Docker volume between the host and backend container. Image files uploaded during profile registration, restaurant creation, or product additions are immediately accessible by the React client.
-
----
-
-### Running Locally without Docker
-
-#### 1. Start the C++ Recommendation Server
-Ensure you have CMake installed, then compile and run the C++ server:
-```bash
-cmake -B build
-cmake --build build
-./build/wolt_server 8080
-```
-
-#### 2. Start the Express API Backend
-In the root project directory:
-```bash
-npm install
-npm start
-```
-The API server will listen on `http://localhost:3000`.
-
-#### 3. Start the React Frontend App
-In the `client/` directory:
-```bash
-cd client
-npm install
-npm run dev
-```
-The client app will run on `http://localhost:5173`.
+> 💡 **Shared Uploads Volume:** The `uploads/` directory is bound as a shared Docker volume between the host and backend container. Image files uploaded during profile registration, restaurant creation, or product additions are immediately accessible by the React client.
 
 ---
 
