@@ -65,8 +65,8 @@ class RestaurantController {
             return res.status(400).json({ error: "Restaurant with this name already exists" });
         }
 
-        //create a new restaurant using the model and store the result in newRestaurant
-        const newRestaurant = RestaurantModel.create({ name, image, lat, lng, prepTime: parsedPrepTime });
+        //create a new restaurant using the model and store the result in newRestaurant (assigning the authenticated user's ID as ownerId)
+        const newRestaurant = RestaurantModel.create({ name, image, lat, lng, prepTime: parsedPrepTime, ownerId: req.user.id });
 
         //set the Location header to the URL of the newly created restaurant
         res.location(`/api/restaurants/${newRestaurant.id}`);
@@ -110,13 +110,17 @@ class RestaurantController {
             }
         }
 
-        //use the model to update the restaurant with the given id and new name, and store the result in updatedRestaurant
-        const updatedRestaurant = RestaurantModel.update(id, { name, image, lat, lng, prepTime: parsedPrepTime });
-
-        //if the restaurant to update is not found, return a 404 status with an error message
-        if (!updatedRestaurant) {
+        //find the restaurant to update and check ownership
+        const restaurant = RestaurantModel.findById(id);
+        if (!restaurant) {
             return res.status(404).json({ error: "Restaurant not found" });
         }
+        if (restaurant.ownerId !== req.user.id) {
+            return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
+        }
+
+        //use the model to update the restaurant with the given id and new name, and store the result in updatedRestaurant
+        const updatedRestaurant = RestaurantModel.update(id, { name, image, lat, lng, prepTime: parsedPrepTime });
 
         //if the update is successful, return a 204 status to indicate that the restaurant was updated successfully
         res.status(204).send();
@@ -126,12 +130,18 @@ class RestaurantController {
     static deleteRestaurant(req, res) {
         //extract the id from the request parameters
         const { id } = req.params;
-        const isDeleted = RestaurantModel.delete(id);
 
-        //if the restaurant to delete is not found, return a 404 status with an error message
-        if (!isDeleted) {
+        //find the restaurant to delete and check ownership
+        const restaurant = RestaurantModel.findById(id);
+        if (!restaurant) {
             return res.status(404).json({ error: "Restaurant not found" });
         }
+        if (restaurant.ownerId !== req.user.id) {
+            return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
+        }
+
+        const isDeleted = RestaurantModel.delete(id);
+
         //if the deletion is successful, return a 204 status to indicate that the restaurant was deleted successfully
         res.status(204).send();
     }

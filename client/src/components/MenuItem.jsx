@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import './MenuItem.css';
 
 /* Component for a single food item card and its details modal window */
-const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName, currentUser }) => {
+const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName, currentUser, restaurantOwnerId }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const productId = product.id || product._id;
@@ -117,8 +117,8 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     return (
         <>
             <div className="menu-item-card" onClick={handleCardClick}>
-                {/* Show the editing button route link exclusively if admin status flags verify true */}
-                {currentUser?.isAdmin && (
+                {/* Show the editing button route link exclusively if admin status flags verify true AND the user owns the restaurant */}
+                {currentUser?.isAdmin && restaurantOwnerId === currentUser.id && (
                     <button
                         className="menu-item-edit-btn"
                         onClick={(e) => {

@@ -1,5 +1,6 @@
 //restaurantModel.js - this file defines the RestaurantModel class, which provides methods for managing restaurant data in memory. It includes methods for creating, reading, updating, and deleting restaurants. Each restaurant has a unique id, a name, and a menu (which is an array of dishes).
 import { v4 as uuidv4 } from 'uuid';
+import { DEFAULT_ADMIN_ID } from './userModel.js';
 
 //for storing restaurants in memory
 let restaurants = [
@@ -10,7 +11,8 @@ let restaurants = [
         image: '/uploads/bbb_burger.png',
         geolocation: { lat: 32.0853, lng: 34.7818 },
         prepTime: 15,
-        menu: []
+        menu: [],
+        ownerId: DEFAULT_ADMIN_ID
     },
     {
         id: uuidv4(),
@@ -19,7 +21,8 @@ let restaurants = [
         image: '/uploads/golda_gelato.png',
         geolocation: { lat: 32.0715, lng: 34.7785 },
         prepTime: 10,
-        menu: []
+        menu: [],
+        ownerId: DEFAULT_ADMIN_ID
     },
     {
         id: uuidv4(),
@@ -28,7 +31,8 @@ let restaurants = [
         image: '/uploads/pizzahut_pizza.png',
         geolocation: { lat: 32.0801, lng: 34.7805 },
         prepTime: 20,
-        menu: []
+        menu: [],
+        ownerId: DEFAULT_ADMIN_ID
     },
     {
         id: uuidv4(),
@@ -37,7 +41,8 @@ let restaurants = [
         image: '/uploads/japanjapan_sushi.png',
         geolocation: { lat: 32.0844, lng: 34.7901 },
         prepTime: 25,
-        menu: []
+        menu: [],
+        ownerId: DEFAULT_ADMIN_ID
     },
     {
         id: uuidv4(),
@@ -46,7 +51,8 @@ let restaurants = [
         image: '/uploads/greg_breakfast.png',
         geolocation: { lat: 32.0912, lng: 34.7761 },
         prepTime: 15,
-        menu: []
+        menu: [],
+        ownerId: DEFAULT_ADMIN_ID
     },
     {
         id: uuidv4(),
@@ -55,7 +61,8 @@ let restaurants = [
         image: '/uploads/rebar_smoothie.png',
         geolocation: { lat: 32.0699, lng: 34.7722 },
         prepTime: 10,
-        menu: []
+        menu: [],
+        ownerId: DEFAULT_ADMIN_ID
     },
     {
         id: uuidv4(),
@@ -64,7 +71,8 @@ let restaurants = [
         image: '/uploads/falafel_gabay.png',
         geolocation: { lat: 32.0625, lng: 34.7701 },
         prepTime: 12,
-        menu: []
+        menu: [],
+        ownerId: DEFAULT_ADMIN_ID
     }
 ];
 
@@ -152,7 +160,7 @@ class RestaurantModel {
 
     //create a new restaurant
     static create(restaurantData) {
-        //create a new restaurant object with a unique id
+        //create a new restaurant object with a unique id and assign the owner's ID
         const newRestaurant = {
             id: uuidv4(),
             name: restaurantData.name,
@@ -163,7 +171,8 @@ class RestaurantModel {
                 lng: parseFloat(restaurantData.lng)
             },
             prepTime: parseInt(restaurantData.prepTime) || 15,
-            menu: []
+            menu: [],
+            ownerId: restaurantData.ownerId
         };
         //add the new restaurant to the in-memory array
         restaurants.push(newRestaurant);

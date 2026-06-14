@@ -1,4 +1,5 @@
 import ProductModel from '../models/productModel.js';
+import RestaurantModel from '../models/restaurantModel.js';
 import * as userModel from '../models/userModel.js'
 import { sendToCpp } from '../socket.js';
 import { getIntId } from '../idMapper.js';
@@ -87,6 +88,15 @@ class ProductController {
         if (typeof image !== 'string' || image.trim() === '') {
             return res.status(400).json({ error: "Product image must be a valid non-empty string path" });
         }
+        // find the restaurant to verify ownership
+        const restaurant = RestaurantModel.findById(id);
+        if (!restaurant) {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+        if (restaurant.ownerId !== req.user.id) {
+            return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
+        }
+
         // use the ProductModel to create a new product and add it to the restaurant's menu
         const newProduct = ProductModel.create(id, { name, price: numPrice, description, image });
         // if the restaurant is not found, the model will return null
@@ -124,6 +134,15 @@ class ProductController {
                 return res.status(400).json({ error: "Updated product image must be a valid non-empty string path" });
             }
         }
+        // find the restaurant to verify ownership
+        const restaurant = RestaurantModel.findById(id);
+        if (!restaurant) {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+        if (restaurant.ownerId !== req.user.id) {
+            return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
+        }
+
         // use the ProductModel to update the product with the given restaurant id and product id
         const updatedProduct = ProductModel.update(id, pld, { name, price: numPrice, description, image });
         
@@ -140,6 +159,15 @@ class ProductController {
         // extract the restaurant id and product id from the request parameters
         const { id, pld } = req.params;
         
+        // find the restaurant to verify ownership
+        const restaurant = RestaurantModel.findById(id);
+        if (!restaurant) {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+        if (restaurant.ownerId !== req.user.id) {
+            return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
+        }
+
         // use the ProductModel to delete the product with the given restaurant id and product id, and store the result in isDeleted
         const isDeleted = ProductModel.delete(id, pld);
         
