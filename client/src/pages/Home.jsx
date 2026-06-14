@@ -304,7 +304,7 @@ const Home = ({ currentUser }) => {
                     <div
                       key={product.id}
                       className="product-result-card"
-                      onClick={() => navigate(`/restaurant/${product.restaurantId}`)}
+                      onClick={() => navigate(`/restaurant/${product.restaurantId}?product=${product.id}`)}
                     >
                       <div className="product-card-header">
                         <div className="product-image-container">

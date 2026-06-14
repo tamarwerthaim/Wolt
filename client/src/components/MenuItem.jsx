@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './MenuItem.css';
 
 const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName, currentUser }) => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const productId = product.id || product._id;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tempQuantity, setTempQuantity] = useState(1);
 
-    const productId = product.id || product._id;
     const cartItem = cart?.items?.find(item => item.productId === productId);
     const quantity = cartItem ? cartItem.quantity : 0;
+
+    // Sync modal state with URL search param
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get('product') === productId) {
+            setIsModalOpen(true);
+            setTempQuantity(quantity > 0 ? quantity : 1);
+        } else {
+            setIsModalOpen(false);
+        }
+    }, [location.search, productId, quantity]);
 
     const handleCardClick = () => {
         setTempQuantity(quantity > 0 ? quantity : 1);
@@ -19,6 +31,12 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     const handleCloseModal = (e) => {
         e.stopPropagation();
         setIsModalOpen(false);
+        const params = new URLSearchParams(location.search);
+        if (params.has('product')) {
+            params.delete('product');
+            const newSearch = params.toString();
+            navigate(newSearch ? `?${newSearch}` : location.pathname, { replace: true });
+        }
     };
 
     const handleIncrement = (e) => {
@@ -62,6 +80,12 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
             }
         }
         setIsModalOpen(false);
+        const params = new URLSearchParams(location.search);
+        if (params.has('product')) {
+            params.delete('product');
+            const newSearch = params.toString();
+            navigate(newSearch ? `?${newSearch}` : location.pathname, { replace: true });
+        }
     };
 
     const getImageUrl = (image) => {
