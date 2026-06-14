@@ -33,7 +33,7 @@
 
 .menu-item-add-btn {
     position: absolute;
-    bottom: -10px;
+    bottom: -35px;
     left: -10px;
     width: 44px;
     height: 44px;
@@ -63,7 +63,7 @@
 /* Quantity Selector Pill */
 .menu-item-qty-selector {
     position: absolute;
-    bottom: -10px;
+    bottom: -35px;
     left: -10px;
     height: 44px;
     background-color: var(--wolt-qty-bg);
