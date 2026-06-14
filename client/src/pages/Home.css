@@ -476,3 +476,109 @@
     transform: translateX(-50%);
   }
 }
+
+/* Tabs container for switching views on Home page */
+.home-tabs-container {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--btn-secondary-hover);
+  padding-bottom: 8px;
+  direction: ltr;
+}
+
+/* Individual tab button */
+.home-tab-btn {
+  font-family: "Nunito", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-color);
+  background: none;
+  border: none;
+  padding: 0 0 8px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+  opacity: 0.6;
+}
+
+.home-tab-btn:hover {
+  opacity: 1;
+}
+
+/* Active tab style with primary color text and underline */
+.home-tab-btn.active {
+  opacity: 1;
+  color: var(--primary-btn-bg);
+}
+
+.home-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--primary-btn-bg);
+  border-radius: 2px;
+}
+
+/* Empty state styling for recommendations block */
+.recommendations-empty-state {
+  width: 100%;
+  padding: 60px 20px;
+  text-align: center;
+  background-color: var(--btn-secondary-bg);
+  border-radius: 16px;
+  border: 1px dashed var(--btn-secondary-hover);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  margin-top: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  direction: ltr;
+}
+
+.recommendations-empty-state .empty-state-icon {
+  font-size: 50px;
+  margin-bottom: 16px;
+}
+
+.recommendations-empty-state h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0 0 8px 0;
+}
+
+.recommendations-empty-state p {
+  font-size: 16px;
+  color: #737373;
+  margin: 0 0 20px 0;
+  max-width: 450px;
+  line-height: 1.5;
+}
+
+.recommendations-empty-state .empty-state-btn {
+  background-color: var(--primary-btn-bg);
+  color: var(--hero-text-color);
+  border: none;
+  font-family: "Nunito", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recommendations-empty-state .empty-state-btn:hover {
+  background-color: #00a085;
+  transform: scale(1.03);
+}
+
+.recommendations-empty-state .empty-state-btn:active {
+  transform: scale(0.97);
+}

@@ -13,6 +13,10 @@ const router = express.Router();
 //define the routes:
 // Public routes
 router.get('/', RestaurantController.getAllRestaurants);
+
+// Get recommended restaurants for the authenticated user based on C++ recommendation system
+router.get('/recommendations', authenticateToken, RestaurantController.getRecommendations);
+
 router.get('/:id', RestaurantController.getRestaurantById);
 
 // Allow authenticated users to rate a restaurant
