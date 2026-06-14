@@ -2,7 +2,7 @@ import * as userModel from '../models/userModel.js';
 
 // Handle user sign-up registration and C++ synchronization
 export const registerUser = async (req, res) => {
-    const { username, password, displayName, phone, lat, lng } = req.body;
+    const { username, password, displayName, phone, lat, lng, isAdmin } = req.body;
     const profileImage = req.file;
 
     // Reject request if any required registration field is missing
@@ -58,7 +58,8 @@ export const registerUser = async (req, res) => {
             phone,
             lat,
             lng,
-            profileImage: profileImage ? profileImage.filename : null
+            profileImage: profileImage ? profileImage.filename : null,
+            isAdmin: isAdmin === 'true' || isAdmin === true
         });
         const { password: savedPassword, ...profileData } = newUser;
         return res.status(201).json(profileData);
