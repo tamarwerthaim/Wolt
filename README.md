@@ -2,7 +2,7 @@
 
 > 📌 **Assignment Note:** The main branch for this part of the assignment is 'WOLT-Part4'.
 
-This project is a full-stack Wolt-style food delivery application. It features a modern **React (Vite)** single-page application frontend and an **Express (Node.js)** REST API gateway backend. The application supports user registration, authentication, restaurant and menu management, order placement, and global search functionality. The system enforces secure stateless **JWT Authentication**, input validation rules, custom dark/light theme switching, and synchronizes user product views and orders to the recommendation engine in real-time.
+This project is a full-stack Wolt-style food delivery application. It features a modern **React (Vite)** single-page application frontend and an **Express (Node.js)** REST API gateway backend. The application supports user registration, authentication, restaurant and menu management, order placement, global search, and a **personalized restaurant recommendation system** for logged-in users. The system enforces secure stateless **JWT Authentication**, input validation rules, custom dark/light theme switching, and synchronizes user product views and orders to the recommendation engine in real-time.
 
 ---
 
@@ -128,6 +128,7 @@ Permissions are defined as follows:
   - Rate restaurants.
   - Edit their profile details.
   - Toggle the application theme between **Dark Mode** and **Light Mode**.
+  - View a **Recommended Restaurants** tab on the home page — personalized suggestions based on the last placed order, powered by the C++ recommendation engine.
 - **Restaurant Owner (Admin):**
   - All Customer features.
   - Create new restaurants (Admin panel).
@@ -154,6 +155,7 @@ All endpoints receive and return data in **JSON format**.
 - **GET `/api/restaurants/:id`**: Get details of a specific restaurant.
 - **PATCH `/api/restaurants/:id`**: Update restaurant details (requires admin).
 - **DELETE `/api/restaurants/:id`**: Delete a restaurant (requires admin).
+- **GET `/api/restaurants/recommendations`**: Get personalized restaurant recommendations for the authenticated user based on their last order (requires `Authorization: Bearer <token>`). Queries the C++ engine with the last ordered product ID and returns a list of restaurants the user has not yet ordered from.
 - **POST `/api/restaurants/:id/rate`**: Submit a rating (requires user token).
 - **GET `/api/restaurants/:id/products`**: Get all products (menu) of a restaurant.
 - **POST `/api/restaurants/:id/products`**: Add a new product to a restaurant's menu (requires admin).
@@ -230,6 +232,8 @@ All endpoints receive and return data in **JSON format**.
 
 - **Cart Restaurant Mismatch Prompt:** Notification asking user confirmation before switching restaurants:
   ![Cart Restaurant Lock](images_readme/signed/edit_cart.png)
+
+- **Recommended Restaurants Tab:** Logged-in users see a "Recommended" tab on the home page. Recommendations are fetched from the C++ engine based on the user's last order and display only restaurants they haven't ordered from yet:
   
 ---
 
@@ -238,7 +242,7 @@ All endpoints receive and return data in **JSON format**.
 - **Admin Dashboard Home:** Lists restaurants with edit/delete buttons and create options:
   ![Admin Dashboard Home](images_readme/admin/home_page.png)
 
-- **Restaurant Menu Page:Cart Restaurant Mismatch Promp** Displays the restaurant's menu — admins can add a new product to the menu or navigate to edit the restaurant's details directly from this page:
+- **Restaurant Menu Page** Displays the restaurant's menu — admins can add a new product to the menu or navigate to edit the restaurant's details directly from this page:
   ![Restaurant Menu Page Admin](images_readme/admin/restaurant_page.jpeg)
 
 - **Add New Restaurant:** Form to upload banner and set restaurant metadata:
