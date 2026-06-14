@@ -215,8 +215,6 @@ All endpoints receive and return data in **JSON format**.
 - **Shopping Cart Drawer:** Global cart displaying items and order total price:
   ![Shopping Cart Drawer](images_readme/signed/cart.png)
 
-- **Cart Restaurant Mismatch Prompt:** Notification asking user confirmation before switching restaurants:
-  ![Cart Restaurant Lock](images_readme/signed/edit_cart.png)
 
 - **User Profile Dropdown:** Access via top avatar showing details, location, phone, and options:
   ![User Profile Summary](images_readme/signed/user_details.png)
@@ -230,6 +228,9 @@ All endpoints receive and return data in **JSON format**.
 - **Order Receipt Details:** Specific order summary breakdown:
   ![Order Details Receipt](images_readme/signed/order_details.png)
 
+- **Cart Restaurant Mismatch Prompt:** Notification asking user confirmation before switching restaurants:
+  ![Cart Restaurant Lock](images_readme/signed/edit_cart.png)
+  
 ---
 
 ### 3. Restaurant Owner (Admin) Views
@@ -237,7 +238,7 @@ All endpoints receive and return data in **JSON format**.
 - **Admin Dashboard Home:** Lists restaurants with edit/delete buttons and create options:
   ![Admin Dashboard Home](images_readme/admin/home_page.png)
 
-- **Restaurant Menu Page:** Displays the restaurant's menu — admins can add a new product to the menu or navigate to edit the restaurant's details directly from this page:
+- **Restaurant Menu Page:Cart Restaurant Mismatch Promp** Displays the restaurant's menu — admins can add a new product to the menu or navigate to edit the restaurant's details directly from this page:
   ![Restaurant Menu Page Admin](images_readme/admin/restaurant_page.jpeg)
 
 - **Add New Restaurant:** Form to upload banner and set restaurant metadata:
