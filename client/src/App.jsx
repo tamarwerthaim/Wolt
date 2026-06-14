@@ -35,27 +35,28 @@ function App() {
 
   // Add item to cart
   const addToCart = (product, restaurantId, restaurantName) => {
+    const productId = product.productId || product.id || product._id;
+
+    // Single restaurant rule: check if adding from a different restaurant
+    if (cart.restaurantId && cart.restaurantId !== restaurantId) {
+      const confirmClear = window.confirm("You already have items from another restaurant in your cart. Would you like to clear the cart and start a new order from this restaurant?");
+      if (!confirmClear) return;
+
+      setCart({
+        restaurantId,
+        restaurantName,
+        items: [{
+          productId,
+          name: product.name,
+          price: Number(product.price),
+          image: product.image,
+          quantity: 1
+        }]
+      });
+      return;
+    }
+
     setCart(prevCart => {
-      const productId = product.productId || product.id || product._id;
-
-      // Single restaurant rule: check if adding from a different restaurant
-      if (prevCart.restaurantId && prevCart.restaurantId !== restaurantId) {
-        const confirmClear = window.confirm("You already have items from another restaurant in your cart. Would you like to clear the cart and start a new order from this restaurant?");
-        if (!confirmClear) return prevCart;
-
-        return {
-          restaurantId,
-          restaurantName,
-          items: [{
-            productId,
-            name: product.name,
-            price: Number(product.price),
-            image: product.image,
-            quantity: 1
-          }]
-        };
-      }
-
       const existingIndex = prevCart.items.findIndex(item => item.productId === productId);
       let newItems;
 
