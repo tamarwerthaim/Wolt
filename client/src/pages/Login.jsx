@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import woltLogo from '../assets/wolt_circle2.png';
 import foodImage from '../assets/food.png';
-import './LoginRegisterStyles.css';
+import './FormStyles.css';
 
 // שינוי 1: מקבלים את הפונקציה ב-Props בשורה הראשונה של הקומפוננטה
 const Login = ({ setCurrentUser, setIsCartOpen }) => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LoginRegisterStyles.css';
+import './FormStyles.css';
 
 const AddRestaurant = () => {
     const [name, setName] = useState('');

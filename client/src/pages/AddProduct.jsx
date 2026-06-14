@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import './LoginRegisterStyles.css'; // שימוש בעיצוב הקיים של טפסים לקבלת מראה אחיד
+import './FormStyles.css'; // שימוש בעיצוב הקיים של טפסים לקבלת מראה אחיד
 
 const AddProduct = () => {
     const { id: restaurantId } = useParams(); // מזהה המסעדה מה-URL

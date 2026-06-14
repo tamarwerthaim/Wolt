@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moneyImage from '../assets/money.png';
-import './LoginRegisterStyles.css';
+import './FormStyles.css';
 
 const OrderSuccess = () => {
     const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import woltLogo from '../assets/wolt_circle2.png';
-import './LoginRegisterStyles.css';
+import './FormStyles.css';
 
 const EditProfile = ({ currentUser, setCurrentUser }) => {
     const [displayName, setDisplayName] = useState('');
