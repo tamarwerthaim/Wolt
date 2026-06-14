@@ -1,9 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 // In-memory data store for volatile user records
 const users = [];
-// List of specific usernames authorized to have admin privileges
-const ALLOWED_ADMINS = ['admin', 'admin_moriya', 'admin_tamar', 'admin_roni'];
-
 // Insert a new user into the shared array
 export const saveUser = (userData) => {
     //check if the username already exist in the system
@@ -22,7 +19,7 @@ export const saveUser = (userData) => {
             lng: parseFloat(userData.lng)
         },
         profileImage: userData.profileImage,
-        isAdmin: ALLOWED_ADMINS.includes(userData.username.toLowerCase()),
+        isAdmin: !!userData.isAdmin,
         isSyncedWithCpp: false
     };
     users.push(newUser);

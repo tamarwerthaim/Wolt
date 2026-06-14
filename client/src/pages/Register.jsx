@@ -13,6 +13,7 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [profileImage, setProfileImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [error, setError] = useState('');
 
     // סטייט חדש לניהול מסך ההצלחה והטעינה המגניב
@@ -96,6 +97,7 @@ const Register = () => {
             formData.append('phone', phone);
             formData.append('password', password);
             formData.append('profileImage', profileImage);
+            formData.append('isAdmin', isAdmin);
 
             // connecting to server and sending the data
             const response = await fetch('http://localhost:3000/api/users', {
@@ -269,6 +271,20 @@ const Register = () => {
                                     </button>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Register as a Restaurant Owner */}
+                        <div className="auth-input-wrapper" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', marginTop: '15px', cursor: 'pointer', justifyContent: 'flex-start', direction: 'ltr' }}>
+                            <input
+                                type="checkbox"
+                                id="isAdmin"
+                                checked={isAdmin}
+                                onChange={(e) => setIsAdmin(e.target.checked)}
+                                style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary-btn-bg)', margin: 0 }}
+                            />
+                            <label htmlFor="isAdmin" style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-color)', cursor: 'pointer', userSelect: 'none', fontFamily: '"Nunito", sans-serif' }}>
+                                Register as a Restaurant Owner
+                            </label>
                         </div>
 
                         {error && <div className="auth-error-text">{error}</div>}
