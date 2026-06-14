@@ -5,15 +5,16 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
+/* Configure multer local storage destination directory for uploaded media files */
 const upload = multer({ dest: 'uploads/' });
 
-// Register a new user account (Sign-up)
+/* Public route to sign up and register a new user account with a profile image */
 router.post('/', upload.single('profileImage'), userController.registerUser);
 
-// Only authenticated users can fetch user profile details
+/* Fetch user profile details (requires authentication token verification) */
 router.get('/:id', authenticateToken, userController.getUserProfile);
 
-// Update user profile details
+/* Update existing user profile records and upload replacement avatar pictures */
 router.put('/:id', authenticateToken, upload.single('profileImage'), userController.updateUserProfile);
 
 export default router;

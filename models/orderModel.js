@@ -1,54 +1,49 @@
 import { v4 as uuidv4 } from 'uuid';
 
-//for storing orders in memory
+/* In-memory array store for keeping track of all orders */
 let orders = [];
 
 class OrderModel {
-    // pull all orders
+
+    /* Get the full list of all orders */
     static findAll() {
         return orders;
     }
 
-    // pull a specific order by its ID
+    /* Find a single order matching a specific ID */
     static findById(id) {
         return orders.find(o => o.id === id);
     }
 
-    // create a new order
+    /* Create and save a new order record with a unique UUID and an ISO timestamp */
     static create(orderData) {
-        // create a new order object with a unique id and the provided data
         const newOrder = {
             id: uuidv4(),
             userId: orderData.userId,
             restaurantId: orderData.restaurantId,
-            items: orderData.items, // array of { productId, quantity }
-            createdAt: new Date().toISOString() //timestamp of when the order was created
+            items: orderData.items, /* Expected schema array of { productId, quantity } */
+            createdAt: new Date().toISOString()
         };
-        // add the new order to the in-memory array
         orders.push(newOrder);
         return newOrder;
     }
 
-    // update an existing order
+    /* Update item rows for an existing order if it exists */
     static update(id, updatedData) {
-        // find the order by id
         const order = this.findById(id);
-        if (!order) return null; // if the order doesn't exist, return null
+        if (!order) return null;
 
-        // update the order's fields only if they are provided in the updatedData
         if (updatedData.items) order.items = updatedData.items;
 
         return order;
     }
 
-    // delete an order by id
+    /* Delete an order by removing it from our array store */
     static delete(id) {
-        // store the initial length of the orders array
         const initialLength = orders.length;
-        // filter out the order with the given id
         orders = orders.filter(o => o.id !== id);
-        
-        // return true if an order was deleted, otherwise return false
+
+        /* Returns true if the record was successfully found and deleted */
         return orders.length !== initialLength;
     }
 }

@@ -1,16 +1,16 @@
 import * as searchModel from '../models/searchModel.js';
 
-// Handle global search text requests
+/* Handle global search requests across restaurants and menu items */
 export const getSearchResults = (req, res) => {
     const { query } = req.params;
 
-    // Return bad request status if search token is empty
+    /* Return a 400 Bad Request if the search query is empty or just spaces */
     if (!query || query.trim() === '') {
         return res.status(400).json({ error: "Search query cannot be empty" });
     }
 
-    // Fetch filtered data sets from model layer
+    /* Fetch the matching results from the search model layer */
     const results = searchModel.searchRestaurantsAndProducts(query);
-    
+
     return res.status(200).json(results);
 };

@@ -1,14 +1,13 @@
 import { findUserByUsername } from './userModel.js';
 
-// Verify user credentials against the data store
+/* Check incoming login credentials and return the user profile if verified */
 export const verifyLogin = (username, password) => {
     const user = findUserByUsername(username);
 
-    // If user does not exist or password mismatch, return null
+    /* Return null if the account doesn't exist or password validation fails */
     if (!user || user.password !== password) {
         return null;
     }
 
-    // Return the matched user object
     return user;
 };

@@ -4,115 +4,104 @@ import * as userModel from '../models/userModel.js'
 import { sendToCpp } from '../socket.js';
 import { getIntId } from '../idMapper.js';
 
+/* Controller handling menu items operations and interactions reporting to the recommendation server */
 class ProductController {
-    //pull all products from a restaurant's menu
+
+    /* GET /api/restaurants/:id/products - Fetch the entire menu for a specific restaurant */
     static async getAllProducts(req, res) {
         try {
-            const { id } = req.params; // the id of the restaurant from the URL
-            // use the ProductModel to get the menu of the restaurant with the given id
+            const { id } = req.params;
             const menu = ProductModel.findAll(id);
-            
-            // if the restaurant is not found, the model will return null
+
             if (!menu) {
                 return res.status(404).json({ error: "Restaurant not found" });
             }
-            
-            res.status(200).json(menu);
+
+            return res.status(200).json(menu);
         } catch (error) {
-            // For any unexpected error, return a 500 Internal Server Error response
             return res.status(500).json({ error: "Internal server error" });
         }
     }
 
-    // pull a specific product + report to the recommendation server (cpp)
+    /* GET /api/restaurants/:id/products/:pld - Fetch a single product and log a view event with C++ */
     static async getProductById(req, res) {
-        // extract the restaurant id and product id from the request parameters
-        const { id, pld } = req.params; 
-        // use the ProductModel to find the specific product by restaurant id and product id
+        const { id, pld } = req.params;
         const product = ProductModel.findById(id, pld);
-        // if the product is not found, the model will return null
+
         if (!product) {
             return res.status(404).json({ error: "Product not found" });
         }
 
-        // Notify the C++ recommendation server about the product view
-        const userId = req.header('user-id'); 
-        //check if the userId header is provided
+        /* Check if a user-id is present in the request headers to track recommendations */
+        const userId = req.header('user-id');
         if (userId) {
-            // run the notification in the background asynchronously
+            /* Fire the socket notification to the C++ server asynchronously in the background */
             (async () => {
                 const user = userModel.findUserById(userId);
                 if (user) {
-                    // convert the string IDs to integers
                     const intUserId = getIntId(userId);
                     const intProductId = getIntId(pld);
-                    // if user is not exist make post else patch
+
+                    /* If the user hasn't been synced with C++ yet, send a POST, otherwise send a PATCH */
                     const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
                     const command = `${commandType} ${intUserId} ${intProductId}`;
-                    // send the command to the C++ server and wait for the response
+
                     const cppResponse = await sendToCpp(command);
-                    // if created
                     if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
-                        // update that created in Cpp
                         user.isSyncedWithCpp = true;
                     }
                 }
             })().catch(error => {
-                // C++ server error is non-critical, so we silence it
+                /* Silence recommendation sync background faults safely */
             });
         }
-        // return the product details as a JSON response with status 200 (OK)
-        res.status(200).json(product);
+
+        return res.status(200).json(product);
     }
 
-    // create a new product and add it to a restaurant's menu
+    /* POST /api/restaurants/:id/products - Create a new product and add it to the menu */
     static async createProduct(req, res) {
-        // extract the restaurant id from the request parameters and the product data from the request body
         const { id } = req.params;
         const name = req.body?.name;
         const price = req.body?.price;
         const description = req.body?.description;
+        /* Check if a file was uploaded, otherwise look for a fallback fallback image string */
         const image = req.file ? `/uploads/${req.file.filename}` : req.body?.image;
 
-        //if the name is not provided in the request body, return a 400 status with an error message
         if (!name || !price || !description || !image) {
             return res.status(400).json({ error: "All fields are required: name, price, description, and image must be provided." });
         }
-        // Price Logic Validation
+
         const numPrice = parseFloat(price);
         if (isNaN(numPrice) || numPrice <= 0) {
             return res.status(400).json({ error: "Product price must be a valid number greater than zero" });
         }
 
-        // Product Image Reference Validation
         if (typeof image !== 'string' || image.trim() === '') {
             return res.status(400).json({ error: "Product image must be a valid non-empty string path" });
         }
-        // find the restaurant to verify ownership
+
         const restaurant = RestaurantModel.findById(id);
         if (!restaurant) {
             return res.status(404).json({ error: "Restaurant not found" });
         }
+
+        /* Verify that the logged-in owner actually owns this restaurant */
         if (restaurant.ownerId !== req.user.id) {
             return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
         }
 
-        // use the ProductModel to create a new product and add it to the restaurant's menu
         const newProduct = ProductModel.create(id, { name, price: numPrice, description, image });
-        // if the restaurant is not found, the model will return null
         if (!newProduct) {
             return res.status(404).json({ error: "Restaurant not found" });
         }
 
-        // set the Location header to the URL of the newly created product
         res.location(`/api/restaurants/${id}/products/${newProduct.id}`);
-        // return a 201 status to indicate that the product was created successfully
-        res.status(201).send();
+        return res.status(201).send();
     }
 
-    // update an existing product
+    /* PATCH /api/restaurants/:id/products/:pld - Update fields of an existing product */
     static async updateProduct(req, res) {
-        // extract the restaurant id and product id from the request parameters, and the updated product data from the request body
         const { id, pld } = req.params;
         const name = req.body?.name;
         const price = req.body?.price;
@@ -120,7 +109,7 @@ class ProductController {
         const bodyImage = req.body?.image;
         const image = req.file ? `/uploads/${req.file.filename}` : bodyImage;
 
-        // If an update for price is requested, enforce it is a positive number greater than zero
+        /* Validate inputs only if they are being updated in the request body */
         let numPrice;
         if (price !== undefined) {
             numPrice = parseFloat(price);
@@ -128,38 +117,35 @@ class ProductController {
                 return res.status(400).json({ error: "Updated product price must be a valid number greater than zero" });
             }
         }
-        // If an update for image is requested, enforce it is a non-empty string reference path
         if (image !== undefined) {
             if (typeof image !== 'string' || image.trim() === '') {
                 return res.status(400).json({ error: "Updated product image must be a valid non-empty string path" });
             }
         }
-        // find the restaurant to verify ownership
+
         const restaurant = RestaurantModel.findById(id);
         if (!restaurant) {
             return res.status(404).json({ error: "Restaurant not found" });
         }
+
+        /* Verify ownership bounds before running the update hook */
         if (restaurant.ownerId !== req.user.id) {
             return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
         }
 
-        // use the ProductModel to update the product with the given restaurant id and product id
         const updatedProduct = ProductModel.update(id, pld, { name, price: numPrice, description, image });
-        
-        // if the product or restaurant is not found, the model will return null
+
         if (!updatedProduct) {
             return res.status(404).json({ error: "Product or Restaurant not found" });
         }
-        // if the update is successful, return a 204 status to indicate that the product was updated successfully
-        res.status(204).send();
+
+        return res.status(204).send();
     }
 
-    // delete a product from the menu
+    /* DELETE /api/restaurants/:id/products/:pld - Remove a product dish completely from the menu */
     static async deleteProduct(req, res) {
-        // extract the restaurant id and product id from the request parameters
         const { id, pld } = req.params;
-        
-        // find the restaurant to verify ownership
+
         const restaurant = RestaurantModel.findById(id);
         if (!restaurant) {
             return res.status(404).json({ error: "Restaurant not found" });
@@ -168,17 +154,14 @@ class ProductController {
             return res.status(403).json({ error: "Forbidden: You are not the owner of this restaurant" });
         }
 
-        // use the ProductModel to delete the product with the given restaurant id and product id, and store the result in isDeleted
         const isDeleted = ProductModel.delete(id, pld);
-        
-        // if the product or restaurant is not found, the model will return false
+
         if (!isDeleted) {
             return res.status(404).json({ error: "Product or Restaurant not found" });
         }
-        
-        // if the deletion is successful, return a 204 status to indicate that the product was deleted successfully
-        res.status(204).send();
+
+        return res.status(204).send();
     }
 }
-//export the ProductController class so it can be used in other parts of the application
+
 export default ProductController;

@@ -1,16 +1,16 @@
 import express from 'express';
-import orderController from '../controllers/orderController.js'; 
+import orderController from '../controllers/orderController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
-//create a new router instance
 const router = express.Router();
 
-// Apply authenticateToken middleware to satisfy acceptance criteria for sensitive endpoints
-// for addresses that end in '/orders':
+/* All order endpoints require a verified user token */
+
+/* Base routes mapping to /api/orders */
 router.get('/', authenticateToken, orderController.getAllOrders);
 router.post('/', authenticateToken, orderController.createOrder);
 
-// for addresses that end in '/orders/:id' - the :id is a placeholder for the order id
+/* Specific order resource routes mapping to /api/orders/:id */
 router.get('/:id', authenticateToken, orderController.getOrderById);
 router.patch('/:id', authenticateToken, orderController.updateOrder);
 router.delete('/:id', authenticateToken, orderController.deleteOrder);
