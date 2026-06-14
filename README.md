@@ -183,7 +183,7 @@ All endpoints receive and return data in **JSON format**.
   ![Home Page Upper](images_readme/general/home_page_upper.png)
 
 - **Home Page (Lower section):** Displays available restaurants grouped by promotions:
-  ![Home Page Lower](images_readme/general/home_page_downer.png)
+  ![Home Page Lower](images_readme/general/all_res_us.png)
 
 - **Register Screen:** Register screen featuring input fields, credentials validation, and profile image file upload:
   ![Register Screen](images_readme/general/register.png)
@@ -234,6 +234,7 @@ All endpoints receive and return data in **JSON format**.
   ![Cart Restaurant Lock](images_readme/signed/edit_cart.png)
 
 - **Recommended Restaurants Tab:** Logged-in users see a "Recommended" tab on the home page. Recommendations are fetched from the C++ engine based on the user's last order and display only restaurants they haven't ordered from yet:
+![Recommended Restaurants](images_readme/signed/reco_signed.png)
   
 ---
 
