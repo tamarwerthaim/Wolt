@@ -175,76 +175,75 @@ All endpoints receive and return data in **JSON format**.
 
 ## Execution Examples
 
-### Users & Authentication
+### 1. Guest (General User) Views
 
-**POST `/api/users`**: Registers a new user with signup details:
-   ![Register User](images_readme/users-POST.png)
+- **Home Page (Upper section):** Displays categories, search bar, and login/signup shortcuts:
+  ![Home Page Upper](images_readme/general/home page upper.png)
 
-**GET `/api/users/:id`**: Displays the profile details of a specific user:
-   ![Get User Profile](images_readme/users-ID-GET.png)
+- **Home Page (Lower section):** Displays available restaurants grouped by promotions:
+  ![Home Page Lower](images_readme/general/home page downer.png)
 
-**POST `/api/tokens`**: Authenticates credentials and returns a secure JWT token:
-   ![User Authentication Token](images_readme/tokens-POST.png)
+- **Login Screen:** Screen to authenticate existing users:
+  ![Login Screen](images_readme/general/login.png)
 
----
+- **Register Screen:** Register screen featuring input fields, credentials validation, and profile image file upload:
+  ![Register Screen](images_readme/general/register.png)
 
-### Restaurants & Menu
+- **Restaurant Menu Page:** Lists products of the selected restaurant:
+  ![Restaurant Menu Page](images_readme/general/restaurant page.png)
 
-**GET `/api/restaurants`**: Displays a comprehensive list of all active restaurants:
-   ![Get All Restaurants](images_readme/rastaurants-GET.png)
+- **Product Detail View:** Modal popup displaying item details:
+  ![Product Detail View](images_readme/general/product page.png)
 
-**POST `/api/restaurants`**: Creates and stores a new restaurant:
-   ![Create Restaurant](images_readme/restaurants-POST.png)
-
-**GET `/api/restaurants/:id`**: Retrieves detailed structural profile properties and metadata:
-   ![Get Restaurant Details](images_readme/restaurants-ID-GET.png)
-
-**PATCH `/api/restaurants/:id`**: Modifies or updates details of an existing restaurant record:
-   ![Update Restaurant](images_readme/restaurants-ID-PATCH.png)
-
-**DELETE `/api/restaurants/:id`**: Permanently deletes a specific restaurant entry:
-   ![Delete Restaurant](images_readme/restaurants-ID-DELETE1.png)
-   ![Delete Restaurant](images_readme/restaurants-ID-DELETE2.png)
-
-**GET `/api/restaurants/:id/products`**: Lists all food menu products associated with the restaurant:
-   ![Get Restaurant Menu Products](images_readme/products-GET.png)
-
-**POST `/api/restaurants/:id/products`**: Inserts a new menu product item:
-   ![Add Product to Menu](images_readme/products-POST.png)
-
-**GET `/api/restaurants/:id/products/:pId`**: Displays information for a single specific product:
-   ![Get Product Details](images_readme/products-ID-GET.png)
-
-**PATCH `/api/restaurants/:id/products/:pId`**: Updates fields of an existing menu item:
-   ![Update Product Details](images_readme/products-ID-PATCH.png)
-
-**DELETE `/api/restaurants/:id/products/:pId`**: Clears a specific product option from the menu:
-   ![Delete Product from Menu](images_readme/products-ID-DELETE1.png)
-   ![Delete Product from Menu](images_readme/products-ID-DELETE2.png)
+- **Global Search:** Dynamic filtering of matching restaurants and dishes:
+  ![Global Search](images_readme/general/search.png)
 
 ---
 
-### Orders
+### 2. Signed-In (Registered Customer) Views
 
-**POST `/api/orders`**: Dispatches a new customer transaction request:
-   ![Create New Order](images_readme/orders-POST.png)
+- **Signed-In Home Page:** Features personalized navigation bar, greetings, and user address:
+  ![Signed-In Home Page](images_readme/signed/home page.png)
 
-**GET `/api/orders`**: Pulls up the complete order history associated with the user session:
-   ![Get User Order History](images_readme/orders-GET.png)
+- **Dark Mode Home Page:** Active Dark Mode theme toggle:
+  ![Dark Mode Home Page](images_readme/signed/dark home page.png)
 
-**GET `/api/orders/:id`**: Resolves the exact checkout details and cost breakdown:
-   ![Get Order Receipt Details](images_readme/orders-ID-GET.png)
+- **Restaurant Page (Signed-In):** Interactive customer menu view with cart modifiers:
+  ![Restaurant Page Signed-In](images_readme/signed/restaurant page.png)
 
-**PATCH `/api/orders/:id`**: Alters current order milestones or changes delivery staging states:
-   ![Update Order Status](images_readme/orders-ID-PATCH.png)
+- **Shopping Cart Drawer:** Global cart displaying items and order total price:
+  ![Shopping Cart Drawer](images_readme/signed/cart.png)
 
-**DELETE `/api/orders/:id`**: Revokes and completely removes an existing client order record:
-   ![Delete Order Record](images_readme/orders-DELETE1.png)
-   ![Delete Order Record](images_readme/orders-DELETE2.png)
+- **Cart Restaurant Mismatch Prompt:** Notification asking user confirmation before switching restaurants:
+  ![Cart Restaurant Lock](images_readme/signed/edit cart.png)
+
+- **User Profile Dropdown:** Access via top avatar showing details, location, phone, and options:
+  ![User Profile Summary](images_readme/signed/user details.png)
+
+- **Edit Profile Screen:** Form to modify name, phone, address, and profile picture:
+  ![Edit Profile Screen](images_readme/signed/edit user.png)
+
+- **Order Placement History:** Lists user's past orders:
+  ![Order Placement History](images_readme/signed/order history.png)
+
+- **Order Receipt Details:** Specific order summary breakdown:
+  ![Order Details Receipt](images_readme/signed/order details.png)
 
 ---
 
-### Search
+### 3. Restaurant Owner (Admin) Views
 
-**GET `/api/search/:query`**: Queries database text to parse matches:
-   ![Search Query Results](images_readme/search-GET.png)
+- **Admin Dashboard Home:** Lists restaurants with edit/delete buttons and create options:
+  ![Admin Dashboard Home](images_readme/admin/home page.png)
+
+- **Add New Restaurant:** Form to upload banner and set restaurant metadata:
+  ![Add New Restaurant](images_readme/admin/add restaurant.png)
+
+- **Edit Restaurant Details:** Modify restaurant fields and update images:
+  ![Edit Restaurant Details](images_readme/admin/edit restaurant.png)
+
+- **Add Menu Product:** Admin form to append products to a restaurant's menu:
+  ![Add Menu Product](images_readme/admin/add product.png)
+
+- **Edit Menu Product:** Form to update product names, pricing, descriptions, and pictures:
+  ![Edit Menu Product](images_readme/admin/edit product.png)
