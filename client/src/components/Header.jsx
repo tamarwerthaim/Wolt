@@ -172,7 +172,7 @@ const Header = ({ darkMode, toggleTheme, currentUser, setCurrentUser, cart, setI
                     </div>
                   </div>
 
-                  /* Display phone number and geo-location details rows inside dropdown */
+                  {/* Display phone number and geo-location details rows inside dropdown */}
                   <div className="profile-dropdown-details">
                     <div className="profile-detail-item">
                       <span className="detail-icon">📞</span>
