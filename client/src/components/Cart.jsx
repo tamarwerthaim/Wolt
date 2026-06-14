@@ -160,7 +160,9 @@ const Cart = ({ cart, isOpen, onClose, addToCart, removeFromCart, clearCart }) =
           restaurantId: cart.restaurantId,
           items: cart.items.map(item => ({
             productId: item.productId,
-            quantity: item.quantity
+            quantity: item.quantity,
+            price: item.price, // Snapshot product price at checkout time to prevent future menu changes from altering order history
+            name: item.name     // Snapshot product name at checkout time to prevent future menu deletions from altering order history
           }))
         })
       });

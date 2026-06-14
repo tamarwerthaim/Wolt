@@ -149,7 +149,7 @@ const Register = () => {
                 {isSuccess ? (
                     /* Render welcome splash overlay layout on successful form registration */
                     <div>
-                        <h1 className="auth-heading wolt-brand-color">Welcome to Wolt Family!</h1>
+                        <h1 className="auth-heading wolt-brand-color">!Welcome to Wolt Family</h1>
                     </div>
                 ) : (
                     /* Render registration fields inputs text groups */
