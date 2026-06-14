@@ -15,7 +15,7 @@ const users = [
             lat: 32.0801,
             lng: 34.7805
         },
-        profileImage: 'default_avatar.png',
+        profileImage: 'wolt_circle2.png',
         isAdmin: true,
         isSyncedWithCpp: false
     }
