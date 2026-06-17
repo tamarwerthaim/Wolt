@@ -85,9 +85,9 @@ Once booted, the application is mapped to the following local addresses:
 - **Node.js REST API Server:** `http://localhost:3000`
 - **C++ Recommendation Engine:** Port `8080` (runs internally inside container context)
 
-> 💡 **Shared Uploads Volume:** The `uploads/` directory is bound as a shared Docker volume between the host and backend container. Image files uploaded during profile registration, restaurant creation, or product additions are immediately accessible by the React client.
+> **Shared Uploads Volume:** The `uploads/` directory is bound as a shared Docker volume between the host and backend container. Image files uploaded during profile registration, restaurant creation, or product additions are immediately accessible by the React client.
 
-### 🔑 Initial Restaurant Manager Credentials
+### Initial Restaurant Manager Credentials
 The initial set of restaurants and products in the application was pre-loaded and initialized by a default Restaurant Manager user. To modify, edit, or delete any of these initial restaurants or menu items, you must log in using this admin account:
 - **Username:** `admin`
 - **Password:** `Password123`
