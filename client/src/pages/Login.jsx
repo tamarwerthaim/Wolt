@@ -132,7 +132,7 @@ const Login = ({ setCurrentUser, setIsCartOpen }) => {
 
                     {/* Username text input field wrapper */}
                     <div className="auth-input-wrapper">
-                        <label htmlFor="username" className="auth-label">Enter your username:</label>
+                        <label htmlFor="username" className="auth-label">:Enter your username</label>
                         <input
                             type="text"
                             id="username"
@@ -145,7 +145,7 @@ const Login = ({ setCurrentUser, setIsCartOpen }) => {
 
                     {/* Password secret input field wrapper */}
                     <div className="auth-input-wrapper">
-                        <label htmlFor="password" className="auth-label">Enter your password:</label>
+                        <label htmlFor="password" className="auth-label">:Enter your password</label>
                         <input
                             type="password"
                             id="password"
