@@ -141,3 +141,30 @@ export async function updateUser(id, updateData) {
     obj.id = obj._id;
     return obj;
 }
+
+/* Database seeding logic to auto-create the default admin user on startup */
+export async function seedDefaultAdmin() {
+    try {
+        const adminExists = await User.findOne({ username: 'admin' });
+        if (!adminExists) {
+            const defaultAdmin = new User({
+                _id: DEFAULT_ADMIN_ID,
+                username: 'admin',
+                password: 'Password123',
+                name: 'Default Admin',
+                phone: '0501234567',
+                geolocation: {
+                    lat: 32.0801,
+                    lng: 34.7805
+                },
+                profileImage: 'wolt_circle2.png',
+                isAdmin: true,
+                isSyncedWithCpp: false,
+                cppId: 1
+            });
+            await defaultAdmin.save();
+        }
+    } catch (err) {
+        console.error('Failed to seed default admin:', err);
+    }
+}

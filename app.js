@@ -10,10 +10,12 @@ import productRoutes from './routes/productRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import mongoose from 'mongoose';
+import { seedDefaultAdmin } from './models/userModel.js';
 
 // MongoDB connection
 const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/wolt';
 mongoose.connect(mongoURI)
+  .then(() => seedDefaultAdmin())
   .catch((err) => console.error('Failed to connect to MongoDB:', err));
 
 const app = express();
