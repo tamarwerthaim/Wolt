@@ -1,39 +1,49 @@
-import RestaurantModel from './restaurantModel.js';
+import { Restaurant } from './restaurantModel.js';
+import { Product } from './productModel.js';
 
-/* Query memory arrays to find matching restaurants and specific dishes */
-export const searchRestaurantsAndProducts = (query) => {
-    const lowerQuery = query.toLowerCase();
-
-    /* Fetch all active restaurant entries from the memory store */
-    const allRestaurants = RestaurantModel.findAll();
-
-    /* Filter restaurants whose name matches the keyword */
-    const matchedRestaurants = allRestaurants.filter(restaurant =>
-        restaurant.name && restaurant.name.toLowerCase().includes(lowerQuery)
-    );
-
-    const matchedProducts = [];
-
-    /* Scan through all restaurant menus to find matching product names or descriptions */
-    allRestaurants.forEach(restaurant => {
-        if (restaurant.menu && Array.isArray(restaurant.menu)) {
-            restaurant.menu.forEach(product => {
-                if ((product.name && product.name.toLowerCase().includes(lowerQuery)) ||
-                    (product.description && product.description.toLowerCase().includes(lowerQuery))) {
-
-                    /* Inject parent restaurant metadata directly into the product object payload */
-                    matchedProducts.push({
-                        ...product,
-                        restaurantId: restaurant.id,
-                        restaurantName: restaurant.name
-                    });
-                }
-            });
-        }
+/* Query MongoDB to find matching restaurants and specific dishes using regex matches */
+export const searchRestaurantsAndProducts = async (query) => {
+    const matchedRestaurants = await Restaurant.find({
+        name: { $regex: query, $options: 'i' }
     });
 
+    const formattedRestaurants = matchedRestaurants.map(r => {
+        const obj = r.toObject();
+        obj.id = obj._id;
+        return obj;
+    });
+
+    const matchedProducts = await Product.find({
+        $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } }
+        ]
+    });
+
+    const formattedProducts = [];
+    const restaurantCache = new Map();
+
+    for (const p of matchedProducts) {
+        const obj = p.toObject();
+        obj.id = obj._id;
+
+        let restaurantName = '';
+        if (restaurantCache.has(obj.restaurantId)) {
+            restaurantName = restaurantCache.get(obj.restaurantId);
+        } else {
+            const r = await Restaurant.findById(obj.restaurantId);
+            if (r) {
+                restaurantName = r.name;
+                restaurantCache.set(obj.restaurantId, r.name);
+            }
+        }
+
+        obj.restaurantName = restaurantName;
+        formattedProducts.push(obj);
+    }
+
     return {
-        restaurants: matchedRestaurants,
-        products: matchedProducts
+        restaurants: formattedRestaurants,
+        products: formattedProducts
     };
 };
