@@ -1,31 +1,36 @@
 import { v4 as uuidv4 } from 'uuid';
-import RestaurantModel from './restaurantModel.js';
+import { Restaurant } from './restaurantModel.js';
 
 class ProductModel {
 
     /* Get the entire menu array for a specific restaurant */
-    static findAll(restaurantId) {
-        const restaurant = RestaurantModel.findById(restaurantId);
+    static async findAll(restaurantId) {
+        const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) return null;
 
-        return restaurant.menu;
+        const obj = restaurant.toObject();
+        if (obj.menu) {
+            return obj.menu.map(p => ({ ...p, id: p._id }));
+        }
+        return [];
     }
 
     /* Find a single dish by its ID within a restaurant's menu */
-    static findById(restaurantId, productId) {
-        const menu = this.findAll(restaurantId);
+    static async findById(restaurantId, productId) {
+        const menu = await this.findAll(restaurantId);
         if (!menu) return null;
 
         return menu.find(p => p.id === productId);
     }
 
     /* Create a new dish item and append it directly to the restaurant's menu array */
-    static create(restaurantId, productData) {
-        const restaurant = RestaurantModel.findById(restaurantId);
+    static async create(restaurantId, productData) {
+        const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) return null;
 
+        const newProductId = uuidv4();
         const newProduct = {
-            id: uuidv4(),
+            _id: newProductId,
             name: productData.name,
             price: productData.price,
             description: productData.description,
@@ -33,12 +38,23 @@ class ProductModel {
         };
 
         restaurant.menu.push(newProduct);
-        return newProduct;
+        await restaurant.save();
+
+        return {
+            id: newProductId,
+            name: productData.name,
+            price: productData.price,
+            description: productData.description,
+            image: productData.image
+        };
     }
 
     /* Update specific dish fields only if they are passed in the update payload */
-    static update(restaurantId, productId, updatedData) {
-        const product = this.findById(restaurantId, productId);
+    static async update(restaurantId, productId, updatedData) {
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) return null;
+
+        const product = restaurant.menu.id(productId);
         if (!product) return null;
 
         if (updatedData.name) product.name = updatedData.name;
@@ -46,16 +62,19 @@ class ProductModel {
         if (updatedData.description) product.description = updatedData.description;
         if (updatedData.image) product.image = updatedData.image;
 
-        return product;
+        await restaurant.save();
+        const obj = product.toObject();
+        return { ...obj, id: obj._id };
     }
 
     /* Delete a dish from the menu list array */
-    static delete(restaurantId, productId) {
-        const restaurant = RestaurantModel.findById(restaurantId);
+    static async delete(restaurantId, productId) {
+        const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) return false;
 
         const initialLength = restaurant.menu.length;
-        restaurant.menu = restaurant.menu.filter(p => p.id !== productId);
+        restaurant.menu.pull(productId);
+        await restaurant.save();
 
         /* Returns true if an item was successfully removed */
         return restaurant.menu.length !== initialLength;
