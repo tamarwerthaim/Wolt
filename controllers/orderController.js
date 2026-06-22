@@ -13,7 +13,7 @@ class OrderController {
             const userId = req.user.id;
 
             /* Pull all orders and filter them down to this specific user */
-            const allOrders = orderModel.findAll();
+            const allOrders = await orderModel.findAll();
             const userOrders = allOrders.filter(order => order.userId === userId);
 
             return res.status(200).json(userOrders);
@@ -27,7 +27,7 @@ class OrderController {
     static async getOrderById(req, res) {
         try {
             const { id } = req.params;
-            const order = orderModel.findById(id);
+            const order = await orderModel.findById(id);
 
             if (!order) {
                 return res.status(404).json({ error: 'Order not found' });
@@ -87,7 +87,7 @@ class OrderController {
             });
 
             /* Save the new order data to our model store */
-            const newOrder = orderModel.create({ userId, restaurantId, items });
+            const newOrder = await orderModel.create({ userId, restaurantId, items });
 
             return res.status(201).json(newOrder);
 
@@ -100,7 +100,7 @@ class OrderController {
     static async updateOrder(req, res) {
         try {
             const { id } = req.params;
-            const updatedOrder = orderModel.update(id, req.body);
+            const updatedOrder = await orderModel.update(id, req.body);
 
             if (!updatedOrder) {
                 return res.status(404).json({ error: 'Order not found' });
@@ -151,7 +151,7 @@ class OrderController {
     static async deleteOrder(req, res) {
         try {
             const { id } = req.params;
-            const wasDeleted = orderModel.delete(id);
+            const wasDeleted = await orderModel.delete(id);
 
             if (!wasDeleted) {
                 return res.status(404).json({ error: 'Order not found' });

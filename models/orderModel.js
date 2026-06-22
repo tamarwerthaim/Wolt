@@ -45,28 +45,33 @@ const OrderSchema = new mongoose.Schema({
 
 export const Order = mongoose.model('Order', OrderSchema);
 
-/* Temporary in-memory array store to keep application functioning before Task 2.4.2 */
-let orders = [];
-
 class OrderModel {
 
     /* Get the full list of all orders */
-    static findAll() {
-        return orders;
+    static async findAll() {
+        const list = await Order.find();
+        return list.map(o => {
+            const obj = o.toObject();
+            obj.id = obj._id;
+            return obj;
+        });
     }
 
     /* Find a single order matching a specific ID */
-    static findById(id) {
-        return orders.find(o => o.id === id);
+    static async findById(id) {
+        const o = await Order.findById(id);
+        if (!o) return null;
+        const obj = o.toObject();
+        obj.id = obj._id;
+        return obj;
     }
 
-    /* Create and save a new order record in memory */
-    static create(orderData) {
+    /* Create and save a new order record into MongoDB */
+    static async create(orderData) {
         const items = orderData.items || [];
         const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-        const newOrder = {
-            id: uuidv4(),
+        const newOrder = new Order({
             userId: orderData.userId,
             restaurantId: orderData.restaurantId,
             items: items.map(item => ({
@@ -76,16 +81,18 @@ class OrderModel {
                 name: item.name
             })),
             total: total,
-            status: 'pending',
-            createdAt: new Date().toISOString()
-        };
-        orders.push(newOrder);
-        return newOrder;
+            status: 'pending'
+        });
+
+        await newOrder.save();
+        const obj = newOrder.toObject();
+        obj.id = obj._id;
+        return obj;
     }
 
     /* Update item rows for an existing order if it exists */
-    static update(id, updatedData) {
-        const order = this.findById(id);
+    static async update(id, updatedData) {
+        const order = await Order.findById(id);
         if (!order) return null;
 
         if (updatedData.items) {
@@ -102,14 +109,16 @@ class OrderModel {
             order.status = updatedData.status;
         }
 
-        return order;
+        await order.save();
+        const obj = order.toObject();
+        obj.id = obj._id;
+        return obj;
     }
 
-    /* Delete an order from memory */
-    static delete(id) {
-        const initialLength = orders.length;
-        orders = orders.filter(o => o.id !== id);
-        return orders.length !== initialLength;
+    /* Delete an order from MongoDB */
+    static async delete(id) {
+        const res = await Order.deleteOne({ _id: id });
+        return res.deletedCount > 0;
     }
 }
 

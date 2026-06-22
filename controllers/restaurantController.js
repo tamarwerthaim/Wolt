@@ -11,7 +11,7 @@ class RestaurantController {
             const userId = req.user.id;
 
             // Fetch user's orders and find the last ordered product
-            const allOrders = orderModel.findAll();
+            const allOrders = await orderModel.findAll();
             const userOrders = allOrders
                 .filter(order => order.userId === userId)
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
