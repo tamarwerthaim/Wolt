@@ -5,7 +5,7 @@ import * as tokenModel from '../models/tokenModel.js';
 const JWT_SECRET = 'tamar_roni_moriya';
 
 /* Authenticate the user and return a signed token if credentials are valid */
-export const loginUser = (req, res) => {
+export const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
     /* Make sure both username and password are provided in the request */
@@ -14,7 +14,7 @@ export const loginUser = (req, res) => {
     }
 
     /* Verify credentials against the stored user data in the model layer */
-    const matchedUser = tokenModel.verifyLogin(username, password);
+    const matchedUser = await tokenModel.verifyLogin(username, password);
 
     if (!matchedUser) {
         return res.status(401).json({ error: "Unauthorized: Invalid username or password" });

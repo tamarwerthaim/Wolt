@@ -50,7 +50,7 @@ export const registerUser = async (req, res) => {
 
     try {
         /* Save the new user record in the model database store */
-        const newUser = userModel.saveUser({
+        const newUser = await userModel.saveUser({
             username,
             password,
             name: displayName,
@@ -73,10 +73,10 @@ export const registerUser = async (req, res) => {
 };
 
 /* Handle fetching public profile information by account ID */
-export const getUserProfile = (req, res) => {
+export const getUserProfile = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = userModel.findUserById(id);
+        const user = await userModel.findUserById(id);
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
@@ -146,7 +146,7 @@ export const updateUserProfile = async (req, res) => {
     }
 
     try {
-        const updatedUser = userModel.updateUser(id, {
+        const updatedUser = await userModel.updateUser(id, {
             name: displayName,
             phone,
             lat,
