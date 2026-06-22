@@ -37,7 +37,7 @@ class ProductController {
         if (userId) {
             /* Fire the socket notification to the C++ server asynchronously in the background */
             (async () => {
-                const user = userModel.findUserById(userId);
+                const user = await userModel.findUserById(userId);
                 if (user) {
                     const intUserId = getIntId(userId);
                     const intProductId = getIntId(pld);

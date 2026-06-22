@@ -51,7 +51,7 @@ class OrderController {
                 return res.status(400).json({ error: 'Restaurant ID and a non-empty items array are required' });
             }
 
-            const user = userModel.findUserById(userId);
+            const user = await userModel.findUserById(userId);
             /* If the user is missing from memory (e.g. server restarted), ask them to log in again */
             if (!user) {
                 return res.status(401).json({ error: "Session expired. Please log in again." });
@@ -107,7 +107,7 @@ class OrderController {
             }
 
             const userId = updatedOrder.userId;
-            const user = userModel.findUserById(userId);
+            const user = await userModel.findUserById(userId);
 
             /* If the update request contains items, sync the new data with the C++ server */
             if (req.body.items && Array.isArray(req.body.items) && req.body.items.length > 0) {
