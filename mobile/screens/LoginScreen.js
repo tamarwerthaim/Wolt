@@ -24,11 +24,47 @@ export default function LoginScreen({ navigation }) {
   const [usernameFocused, setUsernameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
+  // States to manage validation errors (Task 3.1.3)
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  // Client-side validation logic
+  const validateInputs = () => {
+    let isValid = true;
+
+    // Validate Username
+    if (!username.trim()) {
+      setUsernameError('Username is required');
+      isValid = false;
+    } else {
+      setUsernameError('');
+    }
+
+    // Validate Password
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+
+    if (!password) {
+      setPasswordError('Password is required');
+      isValid = false;
+    } else if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters long');
+      isValid = false;
+    } else if (!hasLetter || !hasNumber) {
+      setPasswordError('Password must contain both letters and numbers');
+      isValid = false;
+    } else {
+      setPasswordError('');
+    }
+
+    return isValid;
+  };
+
   const handleSubmit = async () => {
     setError('');
 
-    if (!username || !password) {
-      setError('You must fill in all fields to connect');
+    // Perform client-side validations
+    if (!validateInputs()) {
       return;
     }
 
@@ -97,31 +133,45 @@ export default function LoginScreen({ navigation }) {
           />
         </View>
 
-        <Text style={styles.heading}>Log in to Wolt</Text>
-
         <View style={styles.form}>
+          <Text style={styles.heading}>Log in to Wolt</Text>
           {/* Username Input Field */}
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Enter your username</Text>
             <TextInput
-              style={[styles.input, usernameFocused && styles.inputActive]}
+              style={[
+                styles.input,
+                usernameFocused && styles.inputActive,
+                usernameError ? styles.inputError : null
+              ]}
               value={username}
-              onChangeText={setUsername}
+              onChangeText={(text) => {
+                setUsername(text);
+                if (usernameError) setUsernameError('');
+              }}
               placeholder="Username"
               placeholderTextColor="#9ca3af"
               autoCapitalize="none"
               onFocus={() => setUsernameFocused(true)}
               onBlur={() => setUsernameFocused(false)}
             />
+            {usernameError ? <Text style={styles.errorTextInline}>{usernameError}</Text> : null}
           </View>
 
           {/* Password Input Field */}
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Enter your password</Text>
             <TextInput
-              style={[styles.input, passwordFocused && styles.inputActive]}
+              style={[
+                styles.input,
+                passwordFocused && styles.inputActive,
+                passwordError ? styles.inputError : null
+              ]}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (passwordError) setPasswordError('');
+              }}
               placeholder="Password"
               placeholderTextColor="#9ca3af"
               secureTextEntry={true}
@@ -129,10 +179,11 @@ export default function LoginScreen({ navigation }) {
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
             />
+            {passwordError ? <Text style={styles.errorTextInline}>{passwordError}</Text> : null}
           </View>
 
-          {/* Error Message */}
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {/* General API Error Message */}
+          {error ? <Text style={styles.errorTextGeneral}>{error}</Text> : null}
 
           {/* Submit Button */}
           <TouchableOpacity
@@ -165,12 +216,12 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f3f4f6', // Light background to contrast with the card
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 80,
+    paddingHorizontal: 20,
+    paddingTop: 0,
     paddingBottom: 40,
     alignItems: 'center',
     justifyContent: 'center',
@@ -180,20 +231,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 125,
+    height: 125,
     borderRadius: 50,
   },
   heading: {
-    fontSize: 26,
-    fontWeight: '800',
+    fontSize: 28,
+    fontWeight: '900',
     color: '#1f2937',
-    marginBottom: 36,
+    marginBottom: 24,
     textAlign: 'center',
+    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-condensed',
   },
   form: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 340,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
   },
   inputWrapper: {
     marginBottom: 20,
@@ -201,9 +264,16 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#4b5563',
     marginBottom: 8,
+    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+  },
+  helperText: {
+    fontSize: 11,
+    color: '#6b7280',
+    marginBottom: 8,
+    fontWeight: '500',
   },
   input: {
     width: '100%',
@@ -215,16 +285,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1f2937',
     backgroundColor: '#f9fafb',
+    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif',
   },
   inputActive: {
     borderColor: '#009DE0',
     backgroundColor: '#fff',
   },
-  errorText: {
+  inputError: {
+    borderColor: '#ef4444',
+    backgroundColor: '#fff',
+  },
+  errorTextInline: {
+    color: '#ef4444',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 6,
+    paddingLeft: 4,
+  },
+  errorTextGeneral: {
     color: '#ef4444',
     fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontWeight: '700',
+    marginVertical: 12,
     textAlign: 'center',
   },
   submitButton: {
@@ -245,6 +327,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
   },
   skipButton: {
     marginTop: 20,
@@ -255,6 +338,7 @@ const styles = StyleSheet.create({
     color: '#009DE0',
     fontSize: 14,
     fontWeight: '700',
+    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
   },
   splashContainer: {
     flex: 1,
@@ -273,5 +357,6 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#009DE0',
     textAlign: 'center',
+    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-condensed',
   },
 });
