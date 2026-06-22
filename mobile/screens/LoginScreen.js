@@ -244,6 +244,15 @@ export default function LoginScreen({ navigation }) {
           >
             <Text style={styles.skipButtonText}>Skip to Home</Text>
           </TouchableOpacity>
+
+          {/* Registration Link */}
+          <TouchableOpacity
+            style={styles.registerLink}
+            onPress={() => navigation.navigate('Register')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.registerLinkText}>New to Wolt? <Text style={styles.registerLinkHighlight}>Sign Up</Text></Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -376,6 +385,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+  },
+  registerLink: {
+    marginTop: 10,
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  registerLinkText: {
+    color: '#4b5563',
+    fontSize: 14,
+    fontWeight: '500',
+    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif',
+  },
+  registerLinkHighlight: {
+    color: '#009DE0',
+    fontWeight: '700',
   },
   splashContainer: {
     flex: 1,
