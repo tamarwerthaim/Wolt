@@ -1,81 +1,191 @@
 import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
 import { DEFAULT_ADMIN_ID } from './userModel.js';
 
-/* In-memory array store for keeping track of all restaurant profiles */
-let restaurants = [
-    {
-        id: uuidv4(),
-        name: 'BBB',
-        ratings: {},
-        image: '/uploads/bbb_burger.png',
-        geolocation: { lat: 32.0853, lng: 34.7818 },
-        prepTime: 15,
-        menu: [],
-        ownerId: DEFAULT_ADMIN_ID
+// Definition of ProductSubSchema to represent menu items temporarily nested inside Restaurant
+const ProductSubSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        default: () => uuidv4()
     },
-    {
-        id: uuidv4(),
-        name: 'Golda',
-        ratings: {},
-        image: '/uploads/golda_gelato.png',
-        geolocation: { lat: 32.0715, lng: 34.7785 },
-        prepTime: 10,
-        menu: [],
-        ownerId: DEFAULT_ADMIN_ID
+    name: {
+        type: String,
+        required: true
     },
-    {
-        id: uuidv4(),
-        name: 'Pizza Hut',
-        ratings: {},
-        image: '/uploads/pizzahut_pizza.png',
-        geolocation: { lat: 32.0801, lng: 34.7805 },
-        prepTime: 20,
-        menu: [],
-        ownerId: DEFAULT_ADMIN_ID
+    price: {
+        type: Number,
+        required: true
     },
-    {
-        id: uuidv4(),
-        name: 'Japan Japan',
-        ratings: {},
-        image: '/uploads/japanjapan_sushi.png',
-        geolocation: { lat: 32.0844, lng: 34.7901 },
-        prepTime: 25,
-        menu: [],
-        ownerId: DEFAULT_ADMIN_ID
+    description: {
+        type: String,
+        required: true
     },
-    {
-        id: uuidv4(),
-        name: 'Greg Cafe',
-        ratings: {},
-        image: '/uploads/greg_breakfast.png',
-        geolocation: { lat: 32.0912, lng: 34.7761 },
-        prepTime: 15,
-        menu: [],
-        ownerId: DEFAULT_ADMIN_ID
-    },
-    {
-        id: uuidv4(),
-        name: 'Rebar',
-        ratings: {},
-        image: '/uploads/rebar_smoothie.png',
-        geolocation: { lat: 32.0699, lng: 34.7722 },
-        prepTime: 10,
-        menu: [],
-        ownerId: DEFAULT_ADMIN_ID
-    },
-    {
-        id: uuidv4(),
-        name: 'Falafel Gabay',
-        ratings: {},
-        image: '/uploads/falafel_gabay.png',
-        geolocation: { lat: 32.0625, lng: 34.7701 },
-        prepTime: 12,
-        menu: [],
-        ownerId: DEFAULT_ADMIN_ID
+    image: {
+        type: String,
+        required: true
     }
-];
+});
 
-/* Mock dictionary containing initial sample dishes for default restaurants */
+// Definition of the Restaurant Schema for MongoDB
+const RestaurantSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        default: () => uuidv4()
+    },
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
+    ratings: {
+        type: Map,
+        of: Number,
+        default: () => new Map()
+    },
+    image: {
+        type: String,
+        required: true
+    },
+    geolocation: {
+        lat: {
+            type: Number,
+            required: true
+        },
+        lng: {
+            type: Number,
+            required: true
+        }
+    },
+    prepTime: {
+        type: Number,
+        default: 15
+    },
+    ownerId: {
+        type: String,
+        required: true
+    },
+    menu: {
+        type: [ProductSubSchema],
+        default: []
+    }
+});
+
+export const Restaurant = mongoose.model('Restaurant', RestaurantSchema);
+
+class RestaurantModel {
+    /* Get the full list of all restaurants */
+    static async findAll() {
+        const list = await Restaurant.find();
+        return list.map(r => {
+            const obj = r.toObject();
+            obj.id = obj._id;
+            if (obj.menu) {
+                obj.menu = obj.menu.map(p => ({ ...p, id: p._id }));
+            }
+            return obj;
+        });
+    }
+
+    /* Find a single restaurant by its unique ID string */
+    static async findById(id) {
+        const r = await Restaurant.findById(id);
+        if (!r) return null;
+        const obj = r.toObject();
+        obj.id = obj._id;
+        if (obj.menu) {
+            obj.menu = obj.menu.map(p => ({ ...p, id: p._id }));
+        }
+        return obj;
+    }
+
+    /* Perform a case-insensitive search to find a restaurant by its exact name */
+    static async findByName(name) {
+        const r = await Restaurant.findOne({ name: { $regex: new RegExp("^" + name + "$", "i") } });
+        if (!r) return null;
+        const obj = r.toObject();
+        obj.id = obj._id;
+        if (obj.menu) {
+            obj.menu = obj.menu.map(p => ({ ...p, id: p._id }));
+        }
+        return obj;
+    }
+
+    /* Create and save a new restaurant profile into the database */
+    static async create(restaurantData) {
+        const newRestaurant = new Restaurant({
+            name: restaurantData.name,
+            ratings: new Map(),
+            image: restaurantData.image,
+            geolocation: {
+                lat: parseFloat(restaurantData.lat),
+                lng: parseFloat(restaurantData.lng)
+            },
+            prepTime: parseInt(restaurantData.prepTime) || 15,
+            menu: [],
+            ownerId: restaurantData.ownerId
+        });
+        await newRestaurant.save();
+        const obj = newRestaurant.toObject();
+        obj.id = obj._id;
+        return obj;
+    }
+
+    /* Log or update a user rating and return a rounded average score */
+    static async addRating(restaurantId, userId, newScore) {
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) return null;
+
+        if (!restaurant.ratings) {
+            restaurant.ratings = new Map();
+        }
+
+        restaurant.ratings.set(userId, parseFloat(newScore));
+        await restaurant.save();
+
+        const scores = Array.from(restaurant.ratings.values());
+        if (scores.length === 0) return 0;
+        const sum = scores.reduce((total, score) => total + score, 0);
+        const average = sum / scores.length;
+
+        return Math.round(average);
+    }
+
+    /* Update dynamic metadata attributes selectively on an existing profile */
+    static async update(id, updatedData) {
+        const restaurant = await Restaurant.findById(id);
+        if (!restaurant) return null;
+
+        if (updatedData.name) {
+            restaurant.name = updatedData.name;
+        }
+        if (updatedData.image) {
+            restaurant.image = updatedData.image;
+        }
+        if (updatedData.lat && updatedData.lng) {
+            restaurant.geolocation = {
+                lat: parseFloat(updatedData.lat),
+                lng: parseFloat(updatedData.lng)
+            };
+        }
+        if (updatedData.prepTime !== undefined) {
+            restaurant.prepTime = parseInt(updatedData.prepTime) || 15;
+        }
+
+        await restaurant.save();
+        const obj = restaurant.toObject();
+        obj.id = obj._id;
+        return obj;
+    }
+
+    /* Delete a restaurant profile from the database */
+    static async delete(id) {
+        const res = await Restaurant.deleteOne({ _id: id });
+        return res.deletedCount > 0;
+    }
+}
+
+/* Dynamic initial menus from the original memory setup */
 const initialMenus = {
     'BBB': [
         { name: 'Classic Burger', price: 55, description: '100% kosher beef patty, lettuce, tomato, pickles, red onion, BBB sauce.', image: '/uploads/classic_burger.jpg' },
@@ -128,106 +238,99 @@ const initialMenus = {
     ]
 };
 
-/* Populate menus dynamically on startup to assign unique UUIDs to items */
-restaurants.forEach(restaurant => {
-    const items = initialMenus[restaurant.name];
-    if (items) {
-        restaurant.menu = items.map(item => ({
-            id: uuidv4(),
-            ...item
-        }));
-    }
-});
+/* Database seeding logic for initial restaurants */
+export async function seedDefaultRestaurants() {
+    try {
+        const count = await Restaurant.countDocuments();
+        if (count === 0) {
+            const initialRestaurants = [
+                {
+                    _id: 'bbb-restaurant-uuid-static',
+                    name: 'BBB',
+                    ratings: new Map(),
+                    image: '/uploads/bbb_burger.png',
+                    geolocation: { lat: 32.0853, lng: 34.7818 },
+                    prepTime: 15,
+                    ownerId: DEFAULT_ADMIN_ID,
+                    menu: []
+                },
+                {
+                    _id: 'golda-gelato-uuid-static',
+                    name: 'Golda',
+                    ratings: new Map(),
+                    image: '/uploads/golda_gelato.png',
+                    geolocation: { lat: 32.0715, lng: 34.7785 },
+                    prepTime: 10,
+                    ownerId: DEFAULT_ADMIN_ID,
+                    menu: []
+                },
+                {
+                    _id: 'pizzahut-pizza-uuid-static',
+                    name: 'Pizza Hut',
+                    ratings: new Map(),
+                    image: '/uploads/pizzahut_pizza.png',
+                    geolocation: { lat: 32.0801, lng: 34.7805 },
+                    prepTime: 20,
+                    ownerId: DEFAULT_ADMIN_ID,
+                    menu: []
+                },
+                {
+                    _id: 'japanjapan-sushi-uuid-static',
+                    name: 'Japan Japan',
+                    ratings: new Map(),
+                    image: '/uploads/japanjapan_sushi.png',
+                    geolocation: { lat: 32.0844, lng: 34.7901 },
+                    prepTime: 25,
+                    ownerId: DEFAULT_ADMIN_ID,
+                    menu: []
+                },
+                {
+                    _id: 'greg-breakfast-uuid-static',
+                    name: 'Greg Cafe',
+                    ratings: new Map(),
+                    image: '/uploads/greg_breakfast.png',
+                    geolocation: { lat: 32.0912, lng: 34.7761 },
+                    prepTime: 15,
+                    ownerId: DEFAULT_ADMIN_ID,
+                    menu: []
+                },
+                {
+                    _id: 'rebar-smoothie-uuid-static',
+                    name: 'Rebar',
+                    ratings: new Map(),
+                    image: '/uploads/rebar_smoothie.png',
+                    geolocation: { lat: 32.0699, lng: 34.7722 },
+                    prepTime: 10,
+                    ownerId: DEFAULT_ADMIN_ID,
+                    menu: []
+                },
+                {
+                    _id: 'falafel-gabay-uuid-static',
+                    name: 'Falafel Gabay',
+                    ratings: new Map(),
+                    image: '/uploads/falafel_gabay.png',
+                    geolocation: { lat: 32.0625, lng: 34.7701 },
+                    prepTime: 12,
+                    ownerId: DEFAULT_ADMIN_ID,
+                    menu: []
+                }
+            ];
 
-class RestaurantModel {
+            // Assign initial dynamic menus to seeded restaurants
+            initialRestaurants.forEach(restaurant => {
+                const items = initialMenus[restaurant.name];
+                if (items) {
+                    restaurant.menu = items.map(item => ({
+                        _id: uuidv4(),
+                        ...item
+                    }));
+                }
+            });
 
-    /* Get the full list of all restaurants */
-    static findAll() {
-        return restaurants;
-    }
-
-    /* Find a single restaurant by its unique ID string */
-    static findById(id) {
-        return restaurants.find(r => r.id === id);
-    }
-
-    /* Perform a case-insensitive search to find a restaurant by its exact name */
-    static findByName(name) {
-        return restaurants.find(restaurant => restaurant.name.toLowerCase() === name.toLowerCase());
-    }
-
-    /* Create and save a new restaurant profile into the array store */
-    static create(restaurantData) {
-        const newRestaurant = {
-            id: uuidv4(),
-            name: restaurantData.name,
-            /* Changed to an object store to ensure each user gets exactly one vote (key: userId, value: score) */
-            ratings: {},
-            image: restaurantData.image,
-            geolocation: {
-                lat: parseFloat(restaurantData.lat),
-                lng: parseFloat(restaurantData.lng)
-            },
-            prepTime: parseInt(restaurantData.prepTime) || 15,
-            menu: [],
-            ownerId: restaurantData.ownerId
-        };
-        restaurants.push(newRestaurant);
-        return newRestaurant;
-    }
-
-    /* Log or update a user rating and return a rounded average score */
-    static addRating(restaurantId, userId, newScore) {
-        const restaurant = this.findById(restaurantId);
-        if (!restaurant) return null;
-
-        /* Fallback check to ensure ratings data maps correctly as a keyed object */
-        if (!restaurant.ratings || Array.isArray(restaurant.ratings)) {
-            restaurant.ratings = {};
+            await Restaurant.insertMany(initialRestaurants);
         }
-
-        /* Save or overwrite the score for this specific user ID */
-        restaurant.ratings[userId] = parseFloat(newScore);
-
-        const scores = Object.values(restaurant.ratings);
-        const sum = scores.reduce((total, score) => total + score, 0);
-        const average = sum / scores.length;
-
-        /* Return the new running average score rounded to the nearest whole integer */
-        return Math.round(average);
-    }
-
-    /* Update dynamic metadata attributes selectively on an existing profile */
-    static update(id, updatedData) {
-        const restaurant = this.findById(id);
-        if (!restaurant) return null;
-
-        if (updatedData.name) {
-            restaurant.name = updatedData.name;
-        }
-        if (updatedData.image) {
-            restaurant.image = updatedData.image;
-        }
-        if (updatedData.lat && updatedData.lng) {
-            restaurant.geolocation = {
-                lat: parseFloat(updatedData.lat),
-                lng: parseFloat(updatedData.lng)
-            };
-        }
-        if (updatedData.prepTime !== undefined) {
-            restaurant.prepTime = parseInt(updatedData.prepTime) || 15;
-        }
-
-        return restaurant;
-    }
-
-    /* Delete a restaurant profile from the memory store array */
-    static delete(id) {
-        const initialLength = restaurants.length;
-        restaurants = restaurants.filter(r => r.id !== id);
-
-        /* Returns true if a record was successfully matching and pulled */
-        return restaurants.length !== initialLength;
+    } catch (err) {
+        console.error('Failed to seed default restaurants:', err);
     }
 }
 
