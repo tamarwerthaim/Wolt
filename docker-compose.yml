@@ -38,8 +38,11 @@ services:
       - CPP_SERVER_HOST=${SERVER_IP:-server}
     # The port of the C++ server
       - CPP_SERVER_PORT=${PORT:-8080}
+    # MongoDB connection URI
+      - MONGODB_URI=mongodb://db:27017/wolt
     depends_on:
       - server
+      - db
 
   # React Frontend Client Service (New Sub-task implementation)
   frontend:
@@ -55,4 +58,15 @@ services:
       - /app/node_modules
     depends_on:
       - web
+
+  # MongoDB Service
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
   

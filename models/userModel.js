@@ -1,4 +1,55 @@
 import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
+
+// Definition of the User Schema for MongoDB
+const UserSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    geolocation: {
+        lat: {
+            type: Number,
+            required: true
+        },
+        lng: {
+            type: Number,
+            required: true
+        }
+    },
+    profileImage: {
+        type: String,
+        required: true
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
+    isSyncedWithCpp: {
+        type: Boolean,
+        default: false
+    },
+    cppId: {
+        type: Number
+    }
+});
+
+// Compile and export the User model
+export const User = mongoose.model('User', UserSchema);
 
 /* Hardcoded ID for the default system admin and restaurant owner */
 export const DEFAULT_ADMIN_ID = 'default-admin-owner-id';
