@@ -124,16 +124,16 @@ export default function LoginScreen({ navigation }) {
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Wolt Logo Container */}
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('../assets/wolt_circle2.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
-
         <View style={styles.form}>
+          {/* Wolt Logo Container */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../assets/wolt_circle2.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+
           <Text style={styles.heading}>Log in to Wolt</Text>
           {/* Username Input Field */}
           <View style={styles.inputWrapper}>
@@ -221,13 +221,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: 0,
+    paddingTop: 75,
     paddingBottom: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoContainer: {
-    marginBottom: 20,
+    marginBottom: 12,
     alignItems: 'center',
   },
   logo: {
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#4b5563',
     marginBottom: 8,
