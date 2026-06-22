@@ -9,11 +9,37 @@ import {
   Image
 } from 'react-native';
 import { API_BASE_URL } from '../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen({ navigation }) {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (e) {
+      console.error('Error logging out:', e);
+    }
+  };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={handleLogout}
+          style={{ marginRight: 10 }}
+        >
+          <Text style={styles.logoutButtonText}>Log Out</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   // Fetch all restaurants from the database on mount
   useEffect(() => {
@@ -190,5 +216,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#9ca3af',
     marginTop: 40,
+  },
+  logoutButtonText: {
+    color: '#ef4444',
+    fontWeight: '700',
+    fontSize: 15,
   },
 });
