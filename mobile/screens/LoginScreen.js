@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { API_BASE_URL } from '../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -19,6 +20,7 @@ export default function LoginScreen({ navigation }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
+  const [checkingToken, setCheckingToken] = useState(true);
 
   // States to manage input focus visual feedback
   const [usernameFocused, setUsernameFocused] = useState(false);
@@ -27,6 +29,26 @@ export default function LoginScreen({ navigation }) {
   // States to manage validation errors (Task 3.1.3)
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  // Check for stored token on mount (auto-login check)
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('userToken');
+        if (storedToken) {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          });
+        }
+      } catch (err) {
+        console.error('Error reading token from AsyncStorage:', err);
+      } finally {
+        setCheckingToken(false);
+      }
+    };
+    checkToken();
+  }, [navigation]);
 
   // Client-side validation logic
   const validateInputs = () => {
@@ -88,6 +110,9 @@ export default function LoginScreen({ navigation }) {
         throw new Error(data.error || 'Login failed. Invalid username or password.');
       }
 
+      // Save token in AsyncStorage (Task 3.1.4)
+      await AsyncStorage.setItem('userToken', data.token);
+
       // Login success: Show the "Getting hungry?" splash screen
       setShowSplash(true);
       setLoading(false);
@@ -95,7 +120,10 @@ export default function LoginScreen({ navigation }) {
       // Simulate a 3-second splash transition before navigating to the main app dashboard
       setTimeout(() => {
         setShowSplash(false);
-        navigation.navigate('Home');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
       }, 3000);
 
     } catch (err) {
@@ -103,6 +131,15 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   };
+
+  // Render loading state while verifying token
+  if (checkingToken) {
+    return (
+      <View style={styles.splashContainer}>
+        <ActivityIndicator size="large" color="#009DE0" />
+      </View>
+    );
+  }
 
   // Render Splash Screen if logged in successfully
   if (showSplash) {
