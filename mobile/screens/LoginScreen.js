@@ -11,7 +11,7 @@ import {
   Platform,
   ActivityIndicator
 } from 'react-native';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     color: '#1f2937',
     marginBottom: 24,
     textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-condensed',
+    fontFamily: ROUNDED_FONT,
   },
   form: {
     width: '100%',
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
   skipButton: {
     marginTop: 20,
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     color: '#009DE0',
     fontSize: 14,
     fontWeight: '700',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
   registerLink: {
     marginTop: 10,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     color: '#4b5563',
     fontSize: 14,
     fontWeight: '500',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif',
+    fontFamily: ROUNDED_FONT,
   },
   registerLinkHighlight: {
     color: '#009DE0',
@@ -418,6 +418,6 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#009DE0',
     textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-condensed',
+    fontFamily: ROUNDED_FONT,
   },
 });

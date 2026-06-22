@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { API_BASE_URL, ROUNDED_FONT } from '../config';
 
 export default function RegisterScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -580,7 +581,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#6b7280',
     fontWeight: '700',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
   inputWrapper: {
     marginBottom: 16,
@@ -595,7 +596,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#4b5563',
     marginBottom: 6,
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
   input: {
     width: '100%',
@@ -676,7 +677,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#4b5563',
     flex: 1,
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
   submitButton: {
     width: '100%',
@@ -696,7 +697,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
   backButton: {
     marginTop: 20,
@@ -707,6 +708,6 @@ const styles = StyleSheet.create({
     color: '#009DE0',
     fontSize: 14,
     fontWeight: '700',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
 });
