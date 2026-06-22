@@ -27,12 +27,137 @@ export default function RegisterScreen({ navigation }) {
 
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState('');
+  const [touchedFields, setTouchedFields] = useState({});
 
   const [showEditOverlay, setShowEditOverlay] = useState(false);
 
   const handleFocus = (field) => {
     setFocusedField(field);
     setShowEditOverlay(false);
+  };
+
+  const markAsTouched = (field) => {
+    setTouchedFields(prev => ({ ...prev, [field]: true }));
+  };
+
+  const handleBlur = (field) => {
+    setFocusedField('');
+    markAsTouched(field);
+  };
+
+  // Validation functions
+  const validateUsername = (val) => val.trim().length > 0;
+  const validateName = (val) => val.trim().length > 0;
+  
+  const validatePhone = (val) => {
+    return /^05\d{8}$/.test(val);
+  };
+
+  const validateLat = (val) => {
+    if (!val || isNaN(val)) return false;
+    const num = parseFloat(val);
+    return num >= -90 && num <= 90;
+  };
+
+  const validateLng = (val) => {
+    if (!val || isNaN(val)) return false;
+    const num = parseFloat(val);
+    return num >= -180 && num <= 180;
+  };
+
+  const validatePassword = (val) => {
+    const hasLetter = /[a-zA-Z]/.test(val);
+    const hasNumber = /[0-9]/.test(val);
+    return val.length >= 8 && hasLetter && hasNumber;
+  };
+
+  const validateConfirmPassword = (val) => {
+    return val === password && val.length > 0;
+  };
+
+  const validateField = (field, val) => {
+    switch (field) {
+      case 'username': return validateUsername(val);
+      case 'name': return validateName(val);
+      case 'phone': return validatePhone(val);
+      case 'lat': return validateLat(val);
+      case 'lng': return validateLng(val);
+      case 'password': return validatePassword(val);
+      case 'confirmPassword': return validateConfirmPassword(val);
+      default: return true;
+    }
+  };
+
+  const getFieldError = (field) => {
+    switch (field) {
+      case 'username': return 'Username is required';
+      case 'name': return 'Display name is required';
+      case 'phone': return 'Must be a valid Israeli phone number (e.g. 05XXXXXXXX)';
+      case 'lat': return 'Latitude must be between -90 and 90';
+      case 'lng': return 'Longitude must be between -180 and 180';
+      case 'password': return 'Must be at least 8 characters with letters & numbers';
+      case 'confirmPassword': return 'Passwords do not match';
+      default: return '';
+    }
+  };
+
+  const isFormValid = () => {
+    return (
+      validateUsername(username) &&
+      validateName(name) &&
+      validatePhone(phone) &&
+      validateLat(lat) &&
+      validateLng(lng) &&
+      validatePassword(password) &&
+      validateConfirmPassword(confirmPassword)
+    );
+  };
+
+  const getInputStyle = (field, value) => {
+    const isValid = validateField(field, value);
+    const isTouched = touchedFields[field];
+    
+    if (focusedField === field) {
+      return [styles.input, styles.inputActive];
+    }
+    if (isTouched && !isValid) {
+      return [styles.input, styles.inputError];
+    }
+    if (value && isValid) {
+      return [styles.input, styles.inputSuccess];
+    }
+    return styles.input;
+  };
+
+  const renderStatusIndicator = (field, value) => {
+    const isValid = validateField(field, value);
+    const isTouched = touchedFields[field];
+    
+    if (value && isValid) {
+      return (
+        <View style={styles.statusIndicator}>
+          <Text style={styles.successIcon}>✓</Text>
+        </View>
+      );
+    }
+    if (isTouched && !isValid) {
+      return (
+        <View style={styles.statusIndicator}>
+          <Text style={styles.errorIcon}>✗</Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
+  const renderErrorMessage = (field, value) => {
+    const isValid = validateField(field, value);
+    const isTouched = touchedFields[field];
+    
+    if (isTouched && !isValid) {
+      return <Text style={styles.errorTextInline}>{getFieldError(field)}</Text>;
+    }
+    return null;
   };
 
   // Handle image picking
@@ -69,7 +194,18 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const handleRegisterSubmit = () => {
-    // Basic UI feedback for submit action (Task 3.2.2 will implement backend connection)
+    if (!isFormValid()) {
+      setTouchedFields({
+        username: true,
+        name: true,
+        phone: true,
+        lat: true,
+        lng: true,
+        password: true,
+        confirmPassword: true,
+      });
+      return;
+    }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -101,129 +237,158 @@ export default function RegisterScreen({ navigation }) {
                 {/* Username Input Field */}
                 <View style={styles.inputWrapper}>
                   <Text style={styles.label}>Username</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      focusedField === 'username' && styles.inputActive
-                    ]}
-                    value={username}
-                    onChangeText={setUsername}
-                    placeholder="Enter your username"
-                    placeholderTextColor="#9ca3af"
-                    autoCapitalize="none"
-                    onFocus={() => handleFocus('username')}
-                    onBlur={() => setFocusedField('')}
-                  />
+                  <View style={{ position: 'relative', width: '100%' }}>
+                    <TextInput
+                      style={getInputStyle('username', username)}
+                      value={username}
+                      onChangeText={(text) => {
+                        setUsername(text);
+                        if (touchedFields.username) markAsTouched('username');
+                      }}
+                      placeholder="Enter your username"
+                      placeholderTextColor="#9ca3af"
+                      autoCapitalize="none"
+                      onFocus={() => handleFocus('username')}
+                      onBlur={() => handleBlur('username')}
+                    />
+                    {renderStatusIndicator('username', username)}
+                  </View>
+                  {renderErrorMessage('username', username)}
                 </View>
 
                 {/* Display Name Input Field */}
                 <View style={styles.inputWrapper}>
                   <Text style={styles.label}>Display Name</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      focusedField === 'name' && styles.inputActive
-                    ]}
-                    value={name}
-                    onChangeText={setName}
-                    placeholder="Enter your full name"
-                    placeholderTextColor="#9ca3af"
-                    onFocus={() => handleFocus('name')}
-                    onBlur={() => setFocusedField('')}
-                  />
+                  <View style={{ position: 'relative', width: '100%' }}>
+                    <TextInput
+                      style={getInputStyle('name', name)}
+                      value={name}
+                      onChangeText={(text) => {
+                        setName(text);
+                        if (touchedFields.name) markAsTouched('name');
+                      }}
+                      placeholder="Enter your full name"
+                      placeholderTextColor="#9ca3af"
+                      onFocus={() => handleFocus('name')}
+                      onBlur={() => handleBlur('name')}
+                    />
+                    {renderStatusIndicator('name', name)}
+                  </View>
+                  {renderErrorMessage('name', name)}
                 </View>
 
                 {/* Phone Input Field */}
                 <View style={styles.inputWrapper}>
                   <Text style={styles.label}>Phone Number</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      focusedField === 'phone' && styles.inputActive
-                    ]}
-                    value={phone}
-                    onChangeText={setPhone}
-                    placeholder="Enter your phone number"
-                    placeholderTextColor="#9ca3af"
-                    keyboardType="phone-pad"
-                    onFocus={() => handleFocus('phone')}
-                    onBlur={() => setFocusedField('')}
-                  />
+                  <View style={{ position: 'relative', width: '100%' }}>
+                    <TextInput
+                      style={getInputStyle('phone', phone)}
+                      value={phone}
+                      onChangeText={(text) => {
+                        setPhone(text);
+                        if (touchedFields.phone) markAsTouched('phone');
+                      }}
+                      placeholder="Enter your phone number"
+                      placeholderTextColor="#9ca3af"
+                      keyboardType="phone-pad"
+                      onFocus={() => handleFocus('phone')}
+                      onBlur={() => handleBlur('phone')}
+                    />
+                    {renderStatusIndicator('phone', phone)}
+                  </View>
+                  {renderErrorMessage('phone', phone)}
                 </View>
 
                 {/* Geolocation Row (Latitude & Longitude) */}
                 <View style={styles.row}>
                   <View style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}>
                     <Text style={styles.label}>Latitude</Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        focusedField === 'lat' && styles.inputActive
-                      ]}
-                      value={lat}
-                      onChangeText={setLat}
-                      placeholder="e.g. 32.0801"
-                      placeholderTextColor="#9ca3af"
-                      keyboardType="numeric"
-                      onFocus={() => handleFocus('lat')}
-                      onBlur={() => setFocusedField('')}
-                    />
+                    <View style={{ position: 'relative', width: '100%' }}>
+                      <TextInput
+                        style={getInputStyle('lat', lat)}
+                        value={lat}
+                        onChangeText={(text) => {
+                          setLat(text);
+                          if (touchedFields.lat) markAsTouched('lat');
+                        }}
+                        placeholder="e.g. 32.0801"
+                        placeholderTextColor="#9ca3af"
+                        keyboardType="numeric"
+                        onFocus={() => handleFocus('lat')}
+                        onBlur={() => handleBlur('lat')}
+                      />
+                      {renderStatusIndicator('lat', lat)}
+                    </View>
+                    {renderErrorMessage('lat', lat)}
                   </View>
 
                   <View style={[styles.inputWrapper, { flex: 1 }]}>
                     <Text style={styles.label}>Longitude</Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        focusedField === 'lng' && styles.inputActive
-                      ]}
-                      value={lng}
-                      onChangeText={setLng}
-                      placeholder="e.g. 34.7805"
-                      placeholderTextColor="#9ca3af"
-                      keyboardType="numeric"
-                      onFocus={() => handleFocus('lng')}
-                      onBlur={() => setFocusedField('')}
-                    />
+                    <View style={{ position: 'relative', width: '100%' }}>
+                      <TextInput
+                        style={getInputStyle('lng', lng)}
+                        value={lng}
+                        onChangeText={(text) => {
+                          setLng(text);
+                          if (touchedFields.lng) markAsTouched('lng');
+                        }}
+                        placeholder="e.g. 34.7805"
+                        placeholderTextColor="#9ca3af"
+                        keyboardType="numeric"
+                        onFocus={() => handleFocus('lng')}
+                        onBlur={() => handleBlur('lng')}
+                      />
+                      {renderStatusIndicator('lng', lng)}
+                    </View>
+                    {renderErrorMessage('lng', lng)}
                   </View>
                 </View>
 
                 {/* Password Input Field */}
                 <View style={styles.inputWrapper}>
                   <Text style={styles.label}>Password</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      focusedField === 'password' && styles.inputActive
-                    ]}
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholder="Create a password"
-                    placeholderTextColor="#9ca3af"
-                    secureTextEntry={true}
-                    autoCapitalize="none"
-                    onFocus={() => handleFocus('password')}
-                    onBlur={() => setFocusedField('')}
-                  />
+                  <View style={{ position: 'relative', width: '100%' }}>
+                    <TextInput
+                      style={getInputStyle('password', password)}
+                      value={password}
+                      onChangeText={(text) => {
+                        setPassword(text);
+                        if (touchedFields.password) markAsTouched('password');
+                        if (touchedFields.confirmPassword) markAsTouched('confirmPassword');
+                      }}
+                      placeholder="Create a password"
+                      placeholderTextColor="#9ca3af"
+                      secureTextEntry={true}
+                      autoCapitalize="none"
+                      onFocus={() => handleFocus('password')}
+                      onBlur={() => handleBlur('password')}
+                    />
+                    {renderStatusIndicator('password', password)}
+                  </View>
+                  {renderErrorMessage('password', password)}
                 </View>
 
                 {/* Confirm Password Input Field */}
                 <View style={styles.inputWrapper}>
                   <Text style={styles.label}>Confirm Password</Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      focusedField === 'confirmPassword' && styles.inputActive
-                    ]}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    placeholder="Confirm your password"
-                    placeholderTextColor="#9ca3af"
-                    secureTextEntry={true}
-                    autoCapitalize="none"
-                    onFocus={() => handleFocus('confirmPassword')}
-                    onBlur={() => setFocusedField('')}
-                  />
+                  <View style={{ position: 'relative', width: '100%' }}>
+                    <TextInput
+                      style={getInputStyle('confirmPassword', confirmPassword)}
+                      value={confirmPassword}
+                      onChangeText={(text) => {
+                        setConfirmPassword(text);
+                        if (touchedFields.confirmPassword) markAsTouched('confirmPassword');
+                      }}
+                      placeholder="Confirm your password"
+                      placeholderTextColor="#9ca3af"
+                      secureTextEntry={true}
+                      autoCapitalize="none"
+                      onFocus={() => handleFocus('confirmPassword')}
+                      onBlur={() => handleBlur('confirmPassword')}
+                    />
+                    {renderStatusIndicator('confirmPassword', confirmPassword)}
+                  </View>
+                  {renderErrorMessage('confirmPassword', confirmPassword)}
                 </View>
 
                 {/* Profile Image Picker */}
@@ -438,7 +603,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#e5e7eb',
     borderRadius: 12,
-    paddingHorizontal: 14,
+    paddingLeft: 14,
+    paddingRight: 40,
     fontSize: 15,
     color: '#1f2937',
     backgroundColor: '#f9fafb',
@@ -447,6 +613,36 @@ const styles = StyleSheet.create({
   inputActive: {
     borderColor: '#009DE0',
     backgroundColor: '#fff',
+  },
+  inputSuccess: {
+    borderColor: '#22c55e',
+    backgroundColor: '#fff',
+  },
+  inputError: {
+    borderColor: '#ef4444',
+    backgroundColor: '#fff',
+  },
+  successIcon: {
+    color: '#22c55e',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  errorIcon: {
+    color: '#ef4444',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  statusIndicator: {
+    position: 'absolute',
+    right: 14,
+    top: 13,
+  },
+  errorTextInline: {
+    color: '#ef4444',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 6,
+    paddingLeft: 4,
   },
   checkboxContainer: {
     flexDirection: 'row',
