@@ -6,7 +6,11 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import RestaurantDetailsScreen from './screens/RestaurantDetailsScreen';
 import AddRestaurantScreen from './screens/AddRestaurantScreen';
+import AddProductScreen from './screens/AddProductScreen';
+import EditRestaurantScreen from './screens/EditRestaurantScreen';
+import EditProductScreen from './screens/EditProductScreen';
 import SearchScreen from './screens/SearchScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
 import { CartProvider } from './context/CartContext';
 
 const Stack = createNativeStackNavigator();
@@ -48,9 +52,29 @@ export default function App() {
           options={{ title: 'Add Restaurant' }} 
         />
         <Stack.Screen 
+          name="AddProduct" 
+          component={AddProductScreen} 
+          options={{ title: 'Add Product' }} 
+        />
+        <Stack.Screen 
+          name="EditRestaurant" 
+          component={EditRestaurantScreen} 
+          options={{ title: 'Edit Restaurant' }} 
+        />
+        <Stack.Screen 
+          name="EditProduct" 
+          component={EditProductScreen} 
+          options={{ title: 'Edit Product' }} 
+        />
+        <Stack.Screen 
           name="Search" 
           component={SearchScreen} 
           options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="EditProfile" 
+          component={EditProfileScreen} 
+          options={{ title: 'Edit Profile' }} 
         />
       </Stack.Navigator>
     </NavigationContainer>

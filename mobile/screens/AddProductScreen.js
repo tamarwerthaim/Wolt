@@ -17,12 +17,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import { formStyle } from '../styles/formStyle';
 
-export default function AddRestaurantScreen({ navigation }) {
+export default function AddProductScreen({ route, navigation }) {
+  const { restaurantId } = route.params || {};
+
   const [name, setName] = useState('');
-  const [prepTime, setPrepTime] = useState('15');
-  const [lat, setLat] = useState('');
-  const [lng, setLng] = useState('');
+  const [price, setPrice] = useState('');
+  const [description, setDescription] = useState('');
   const [imageUri, setImageUri] = useState(null);
+  
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState('');
   const [error, setError] = useState('');
@@ -31,7 +33,7 @@ export default function AddRestaurantScreen({ navigation }) {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload restaurant images.');
+        Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload product images.');
         return;
       }
 
@@ -51,17 +53,15 @@ export default function AddRestaurantScreen({ navigation }) {
   };
 
   const validate = () => {
-    if (!name.trim()) return 'Restaurant name is required.';
-    if (!imageUri) return 'Please select an image for the restaurant.';
+    if (!name.trim()) return 'Product name is required.';
     
-    const prep = parseInt(prepTime);
-    if (isNaN(prep) || prep <= 0) return 'Prep time must be a positive number.';
+    const numPrice = parseFloat(price);
+    if (!price || isNaN(numPrice) || numPrice <= 0) {
+      return 'Price must be a valid positive number greater than 0.';
+    }
 
-    const latNum = parseFloat(lat);
-    if (isNaN(latNum) || latNum < -90 || latNum > 90) return 'Latitude must be between -90 and 90.';
-
-    const lngNum = parseFloat(lng);
-    if (isNaN(lngNum) || lngNum < -180 || lngNum > 180) return 'Longitude must be between -180 and 180.';
+    if (!description.trim()) return 'Product description is required.';
+    if (!imageUri) return 'Please select an image for the product.';
 
     return null;
   };
@@ -78,26 +78,26 @@ export default function AddRestaurantScreen({ navigation }) {
       setLoading(true);
       const token = await AsyncStorage.getItem('userToken');
       if (!token) {
-        throw new Error('You must be logged in as an administrator.');
+        throw new Error('You must be logged in as an administrator to add products.');
       }
 
+      const numPrice = parseFloat(price);
       const formData = new FormData();
       formData.append('name', name.trim());
-      formData.append('prepTime', prepTime.trim());
-      formData.append('lat', lat.trim());
-      formData.append('lng', lng.trim());
+      formData.append('price', numPrice.toString());
+      formData.append('description', description.trim());
 
       const filename = imageUri.split('/').pop();
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : `image/jpeg`;
       
-      formData.append('restaurantImage', {
+      formData.append('productImage', {
         uri: imageUri,
         name: filename,
         type,
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/restaurants`, {
+      const response = await fetch(`${API_BASE_URL}/api/restaurants/${restaurantId}/products`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -112,10 +112,10 @@ export default function AddRestaurantScreen({ navigation }) {
       }
 
       if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to create restaurant.');
+        throw new Error(responseData.error || 'Failed to add product.');
       }
 
-      Alert.alert('Success', 'Restaurant added successfully!', [
+      Alert.alert('Success', 'Product added successfully to menu!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
     } catch (e) {
@@ -139,7 +139,7 @@ export default function AddRestaurantScreen({ navigation }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.form}>
-          <Text style={styles.heading}>Add New Restaurant</Text>
+          <Text style={styles.heading}>Add New Product</Text>
 
           {error ? <Text style={styles.errorTextGeneral}>⚠️ {error}</Text> : null}
 
@@ -159,68 +159,54 @@ export default function AddRestaurantScreen({ navigation }) {
             ) : (
               <View style={styles.placeholderContainer}>
                 <Text style={styles.placeholderPlus}>+</Text>
-                <Text style={styles.placeholderText}>Choose Restaurant Photo</Text>
+                <Text style={styles.placeholderText}>Choose Product Photo</Text>
               </View>
             )}
           </TouchableOpacity>
 
           {/* Name Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Restaurant Name</Text>
+            <Text style={styles.label}>Product Name</Text>
             <TextInput
               style={getInputStyle('name')}
               value={name}
               onChangeText={setName}
-              placeholder="e.g. McDonald's"
+              placeholder="e.g. Double Beef Burger"
               placeholderTextColor="#9ca3af"
               onFocus={() => setFocusedField('name')}
               onBlur={() => setFocusedField('')}
             />
           </View>
 
-          {/* Prep Time Input */}
+          {/* Price Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Preparation Time (minutes)</Text>
+            <Text style={styles.label}>Price (₪)</Text>
             <TextInput
-              style={getInputStyle('prepTime')}
-              value={prepTime}
-              onChangeText={setPrepTime}
-              placeholder="e.g. 15"
+              style={getInputStyle('price')}
+              value={price}
+              onChangeText={setPrice}
+              placeholder="e.g. 45"
               placeholderTextColor="#9ca3af"
               keyboardType="numeric"
-              onFocus={() => setFocusedField('prepTime')}
+              onFocus={() => setFocusedField('price')}
               onBlur={() => setFocusedField('')}
             />
           </View>
 
-          {/* Geolocation Fields */}
-          <View style={styles.row}>
-            <View style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}>
-              <Text style={styles.label}>Latitude</Text>
-              <TextInput
-                style={getInputStyle('lat')}
-                value={lat}
-                onChangeText={setLat}
-                placeholder="e.g. 32.08"
-                placeholderTextColor="#9ca3af"
-                keyboardType="numeric"
-                onFocus={() => setFocusedField('lat')}
-                onBlur={() => setFocusedField('')}
-              />
-            </View>
-            <View style={[styles.inputWrapper, { flex: 1 }]}>
-              <Text style={styles.label}>Longitude</Text>
-              <TextInput
-                style={getInputStyle('lng')}
-                value={lng}
-                onChangeText={setLng}
-                placeholder="e.g. 34.78"
-                placeholderTextColor="#9ca3af"
-                keyboardType="numeric"
-                onFocus={() => setFocusedField('lng')}
-                onBlur={() => setFocusedField('')}
-              />
-            </View>
+          {/* Description Input */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.label}>Description</Text>
+            <TextInput
+              style={[getInputStyle('description'), styles.textArea]}
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Describe the ingredients, size, and details of the dish..."
+              placeholderTextColor="#9ca3af"
+              multiline={true}
+              numberOfLines={4}
+              onFocus={() => setFocusedField('description')}
+              onBlur={() => setFocusedField('')}
+            />
           </View>
 
           {/* Submit Button */}
@@ -233,7 +219,7 @@ export default function AddRestaurantScreen({ navigation }) {
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.submitButtonText}>Add Restaurant</Text>
+              <Text style={styles.submitButtonText}>Add Product</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -244,6 +230,7 @@ export default function AddRestaurantScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   ...formStyle,
+
   imagePicker: {
     height: 150,
     borderWidth: 2,
@@ -255,7 +242,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    width: '100%',
   },
   imageContainer: {
     width: '100%',
@@ -302,5 +288,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#6b7280',
     fontFamily: ROUNDED_FONT,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+    paddingTop: 12,
+    paddingBottom: 12,
   },
 });
