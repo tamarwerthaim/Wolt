@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
+import { formStyle } from '../styles/formStyle';
 
 export default function RegisterScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -51,7 +52,7 @@ export default function RegisterScreen({ navigation }) {
   // Validation functions
   const validateUsername = (val) => val.trim().length > 0;
   const validateName = (val) => val.trim().length > 0;
-  
+
   const validatePhone = (val) => {
     return /^05\d{8}$/.test(val);
   };
@@ -119,7 +120,7 @@ export default function RegisterScreen({ navigation }) {
   const getInputStyle = (field, value) => {
     const isValid = validateField(field, value);
     const isTouched = touchedFields[field];
-    
+
     if (focusedField === field) {
       return [styles.input, styles.inputActive];
     }
@@ -135,7 +136,7 @@ export default function RegisterScreen({ navigation }) {
   const renderStatusIndicator = (field, value) => {
     const isValid = validateField(field, value);
     const isTouched = touchedFields[field];
-    
+
     if (value && isValid) {
       return (
         <View style={styles.statusIndicator}>
@@ -156,7 +157,7 @@ export default function RegisterScreen({ navigation }) {
   const renderErrorMessage = (field, value) => {
     const isValid = validateField(field, value);
     const isTouched = touchedFields[field];
-    
+
     if (isTouched && !isValid) {
       return <Text style={styles.errorTextInline}>{getFieldError(field)}</Text>;
     }
@@ -278,7 +279,7 @@ export default function RegisterScreen({ navigation }) {
           style={styles.splashImage}
           resizeMode="contain"
         />
-        <Text style={styles.splashText}>Welcome to Wolt Family!</Text>
+        <Text style={styles.splashText}>{"Welcome to\nWolt Family!"}</Text>
       </View>
     );
   }
@@ -541,273 +542,7 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f3f4f6',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoContainer: {
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  logo: {
-    width: 125,
-    height: 125,
-    borderRadius: 50,
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#1f2937',
-    marginBottom: 20,
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-condensed',
-  },
-  form: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  imagePickerWrapper: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  imagePickerCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    borderWidth: 2,
-    borderColor: '#d1d5db',
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f9fafb',
-    overflow: 'hidden',
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  imageContainer: {
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.22)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pencilBadge: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  editOverlayIcon: {
-    fontSize: 24,
-    color: '#000',
-  },
-  imagePickerPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  imagePickerPlus: {
-    fontSize: 24,
-    color: '#9ca3af',
-    fontWeight: '700',
-    lineHeight: 26,
-  },
-  imagePickerText: {
-    fontSize: 11,
-    color: '#6b7280',
-    fontWeight: '700',
-    fontFamily: ROUNDED_FONT,
-  },
-  inputWrapper: {
-    marginBottom: 16,
-    width: '100%',
-  },
-  row: {
-    flexDirection: 'row',
-    width: '100%',
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#4b5563',
-    marginBottom: 6,
-    fontFamily: ROUNDED_FONT,
-  },
-  input: {
-    width: '100%',
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    paddingLeft: 14,
-    paddingRight: 40,
-    fontSize: 15,
-    color: '#1f2937',
-    backgroundColor: '#f9fafb',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif',
-  },
-  inputActive: {
-    borderColor: '#009DE0',
-    backgroundColor: '#fff',
-  },
-  inputSuccess: {
-    borderColor: '#22c55e',
-    backgroundColor: '#fff',
-  },
-  inputError: {
-    borderColor: '#ef4444',
-    backgroundColor: '#fff',
-  },
-  successIcon: {
-    color: '#22c55e',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  errorIcon: {
-    color: '#ef4444',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  statusIndicator: {
-    position: 'absolute',
-    right: 14,
-    top: 13,
-  },
-  errorTextInline: {
-    color: '#ef4444',
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 6,
-    paddingLeft: 4,
-  },
-  errorTextGeneral: {
-    color: '#ef4444',
-    fontSize: 13,
-    fontWeight: '700',
-    marginVertical: 12,
-    textAlign: 'center',
-    fontFamily: ROUNDED_FONT,
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-    marginTop: 8,
-    width: '100%',
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderWidth: 2,
-    borderColor: '#d1d5db',
-    borderRadius: 6,
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  checkboxChecked: {
-    borderColor: '#009DE0',
-    backgroundColor: '#009DE0',
-  },
-  checkboxCheckmark: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  checkboxLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#4b5563',
-    flex: 1,
-    fontFamily: ROUNDED_FONT,
-  },
-  submitButton: {
-    width: '100%',
-    height: 52,
-    backgroundColor: '#009DE0',
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: ROUNDED_FONT,
-  },
-  backButton: {
-    marginTop: 20,
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  backButtonText: {
-    color: '#009DE0',
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: ROUNDED_FONT,
-  },
-  splashContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  splashImage: {
-    width: 200,
-    height: 200,
-    marginBottom: 28,
-    borderRadius: 100,
-  },
-  splashText: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#009DE0',
-    textAlign: 'center',
-    fontFamily: ROUNDED_FONT,
-  },
+  ...formStyle,
+  splashImage: formStyle.registerSplashImage,
+  splashText: formStyle.registerSplashText,
 });
