@@ -29,8 +29,10 @@ export default function RegisterScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState('');
   const [touchedFields, setTouchedFields] = useState({});
+  const [error, setError] = useState('');
 
   const [showEditOverlay, setShowEditOverlay] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleFocus = (field) => {
     setFocusedField(field);
@@ -194,7 +196,9 @@ export default function RegisterScreen({ navigation }) {
     }
   };
 
-  const handleRegisterSubmit = () => {
+  const handleRegisterSubmit = async () => {
+    setError('');
+
     if (!isFormValid()) {
       setTouchedFields({
         username: true,
@@ -207,12 +211,77 @@ export default function RegisterScreen({ navigation }) {
       });
       return;
     }
-    setLoading(true);
-    setTimeout(() => {
+
+    if (!imageUri) {
+      setError('Profile image is required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('password', password);
+      formData.append('displayName', name);
+      formData.append('phone', phone);
+      formData.append('lat', lat);
+      formData.append('lng', lng);
+      formData.append('isAdmin', isAdmin ? 'true' : 'false');
+
+      const filename = imageUri.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+      formData.append('profileImage', {
+        uri: imageUri,
+        name: filename,
+        type: type,
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/users`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: formData,
+      });
+
+      let data = {};
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed. Please try again.');
+      }
+
       setLoading(false);
-      alert(`Registration Form Submitted!\nUsername: ${username}\nAdmin: ${isAdmin ? 'Yes' : 'No'}\nImage Chosen: ${imageUri ? 'Yes' : 'No'}`);
-    }, 1500);
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+        navigation.navigate('Login');
+      }, 3000);
+
+    } catch (err) {
+      setError(err.message || 'Server connection error. Please try again.');
+      setLoading(false);
+    }
   };
+
+  if (isSuccess) {
+    return (
+      <View style={styles.splashContainer}>
+        <Image
+          source={require('../assets/wolt_circle2.png')}
+          style={styles.splashImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.splashText}>Welcome to Wolt Family!</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -437,6 +506,9 @@ export default function RegisterScreen({ navigation }) {
                   <Text style={styles.checkboxLabel}>I am a restaurant owner (Register as Admin)</Text>
                 </TouchableOpacity>
 
+                {/* General API Error Message */}
+                {error ? <Text style={styles.errorTextGeneral}>{error}</Text> : null}
+
                 {/* Register Button */}
                 <TouchableOpacity
                   style={styles.submitButton}
@@ -645,6 +717,14 @@ const styles = StyleSheet.create({
     marginTop: 6,
     paddingLeft: 4,
   },
+  errorTextGeneral: {
+    color: '#ef4444',
+    fontSize: 13,
+    fontWeight: '700',
+    marginVertical: 12,
+    textAlign: 'center',
+    fontFamily: ROUNDED_FONT,
+  },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -708,6 +788,26 @@ const styles = StyleSheet.create({
     color: '#009DE0',
     fontSize: 14,
     fontWeight: '700',
+    fontFamily: ROUNDED_FONT,
+  },
+  splashContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  splashImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 28,
+    borderRadius: 100,
+  },
+  splashText: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#009DE0',
+    textAlign: 'center',
     fontFamily: ROUNDED_FONT,
   },
 });
