@@ -18,6 +18,9 @@ import { useCart } from '../context/CartContext';
 
 const { height } = Dimensions.get('window');
 
+const cartPng = require('../assets/cart.png');
+const bikePng = require('../assets/Bike.png');
+
 export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
   const {
     cartItems,
@@ -173,7 +176,11 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
           {cartItems.length === 0 ? (
             /* Empty State */
             <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyIcon, { color: emptyIconColor }]}>🛍️</Text>
+              <Image
+                source={cartPng}
+                style={styles.emptyImage}
+                resizeMode="contain"
+              />
               <Text style={[styles.emptyTitle, { color: textColor }]}>Your cart is empty...</Text>
               <Text style={[styles.emptySubtitle, { color: subTextColor }]}>
                 Add delicious dishes from the menu to start an order!
@@ -183,7 +190,7 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
                 activeOpacity={0.8}
                 onPress={onClose}
               >
-                <Text style={styles.backToMenuText}>Back to Menu 🍔</Text>
+                <Text style={styles.backToMenuText}>Back to Menu</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -238,7 +245,14 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
                 </View>
                 <View style={[styles.summaryRow, { marginBottom: 0 }]}>
                   <Text style={[styles.summaryLabel, { color: textColor }]}>Delivery & Service</Text>
-                  <Text style={styles.deliveryFree}>Free 🛵</Text>
+                  <View style={styles.deliveryContainer}>
+                    <Text style={styles.deliveryFree}>Free </Text>
+                    <Image
+                      source={bikePng}
+                      style={styles.bikeImage}
+                      resizeMode="contain"
+                    />
+                  </View>
                 </View>
                 <View style={[styles.divider, { backgroundColor: borderCol }]} />
                 <View style={styles.totalRow}>
@@ -493,25 +507,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
-    paddingBottom: 60,
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 140,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+  emptyImage: {
+    width: 390,
+    height: 390,
+    marginBottom: -40,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '800',
     fontFamily: ROUNDED_FONT,
     marginBottom: 8,
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 24,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   backToMenuBtn: {
     backgroundColor: '#009DE0',
@@ -531,5 +547,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     fontFamily: ROUNDED_FONT,
+  },
+  deliveryContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bikeImage: {
+    width: 32,
+    height: 20,
+    marginLeft: 4,
   }
 });
