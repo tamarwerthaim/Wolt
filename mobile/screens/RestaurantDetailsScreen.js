@@ -14,6 +14,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config';
 import { useCart } from '../context/CartContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const customAtob = (input = '') => {
@@ -55,6 +56,7 @@ const { width } = Dimensions.get('window');
 
 export default function RestaurantDetailsScreen({ route, navigation }) {
   const { id } = route.params || {};
+  const { addToCart, clearCart, restaurantName: cartRestaurantName } = useCart();
   const { cartItems, addToCart, removeFromCart } = useCart();
 
   // State hooks for managing API server data
@@ -563,6 +565,56 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                 </View>
 
                 <TouchableOpacity
+                  style={styles.addToCartBtn}
+                  onPress={async () => {
+                    const token = await AsyncStorage.getItem('userToken');
+                    if (!token) {
+                      setIsModalOpen(false);
+                      Alert.alert(
+                        'Login Required',
+                        'Please log in to add items to your cart.',
+                        [
+                          {
+                            text: 'Cancel',
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'Log In',
+                            onPress: () => navigation.navigate('Login'),
+                          },
+                        ]
+                      );
+                      return;
+                    }
+                    setIsModalOpen(false);
+                    const currentRestaurantName = restaurant?.name || 'Restaurant';
+                    const added = addToCart(selectedProduct, id, currentRestaurantName, tempQuantity);
+                    if (added) {
+                      Alert.alert(
+                        'Cart Updated',
+                        `${tempQuantity}x ${selectedProduct?.name} added to cart!`
+                      );
+                    } else {
+                      Alert.alert(
+                        'Create a new cart?',
+                        `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
+                        [
+                          {
+                            text: 'Cancel',
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'Create New Cart',
+                            onPress: () => {
+                              addToCart(selectedProduct, id, currentRestaurantName, tempQuantity, true);
+                              Alert.alert(
+                                'Cart Updated',
+                                `${tempQuantity}x ${selectedProduct?.name} added to cart!`
+                              );
+                            },
+                          },
+                        ]
+                      );
                   style={tempQuantity === 0 ? styles.removeFromCartBtn : styles.addToCartBtn}
                   onPress={() => {
                     const prodId = selectedProduct?.id || selectedProduct?._id;

@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCart } from '../context/CartContext';
+import CartModal from '../components/CartModal';
 
 // Base64 decoder helper for JWT tokens
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -111,6 +113,8 @@ const getDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 export default function HomeScreen({ navigation }) {
+  const { cartCount } = useCart();
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -724,8 +728,16 @@ export default function HomeScreen({ navigation }) {
         <TouchableOpacity
           style={[styles.floatingCartBtn, { backgroundColor: '#009DE0' }]}
           activeOpacity={0.85}
+          onPress={() => setIsCartOpen(true)}
         >
-          <ShoppingBagIcon isDarkMode={true} />
+          <View style={{ position: 'relative' }}>
+            <ShoppingBagIcon isDarkMode={isDarkMode} />
+            {cartCount > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{cartCount}</Text>
+              </View>
+            )}
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.floatingSearchBtn, { backgroundColor: '#009DE0' }]}
@@ -743,6 +755,13 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.splashTextLine2}>DUDA?</Text>
         </Animated.View>
       )}
+
+      <CartModal
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        isDarkMode={isDarkMode}
+        navigation={navigation}
+      />
     </View>
   );
 }
@@ -1340,5 +1359,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: -2,
     transform: [{ scaleX: -1 }],
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#ef4444',
+    borderWidth: 1.5,
+    borderColor: '#ffffff',
+    borderRadius: 9,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBadgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '900',
+    fontFamily: ROUNDED_FONT,
+    lineHeight: 12,
   },
 });

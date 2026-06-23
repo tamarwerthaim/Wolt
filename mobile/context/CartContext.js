@@ -43,29 +43,43 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const addToCart = (product, restId, restName, quantity = 1) => {
-    // Single-restaurant restriction (to be fully integrated with popup warning in Task 5.1.2)
-    if (restaurantId && restaurantId !== restId) {
+  const addToCart = (product, restId, restName, quantity = 1, force = false) => {
+    // Single-restaurant restriction
+    if (!force && restaurantId && restaurantId !== restId) {
       return false;
     }
 
     let updatedItems;
-    const existingIndex = cartItems.findIndex(item => item.productId === (product.id || product._id));
+    const targetId = product.id || product._id || product.productId;
 
-    if (existingIndex > -1) {
-      updatedItems = [...cartItems];
-      updatedItems[existingIndex].quantity += quantity;
-    } else {
+    if (force) {
       updatedItems = [
-        ...cartItems,
         {
-          productId: product.id || product._id,
+          productId: targetId,
           name: product.name,
           price: Number(product.price),
           image: product.image,
           quantity: quantity
         }
       ];
+    } else {
+      const existingIndex = cartItems.findIndex(item => item.productId === targetId);
+
+      if (existingIndex > -1) {
+        updatedItems = [...cartItems];
+        updatedItems[existingIndex].quantity += quantity;
+      } else {
+        updatedItems = [
+          ...cartItems,
+          {
+            productId: targetId,
+            name: product.name,
+            price: Number(product.price),
+            image: product.image,
+            quantity: quantity
+          }
+        ];
+      }
     }
 
     setCartItems(updatedItems);
