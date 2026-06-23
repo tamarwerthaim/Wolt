@@ -26,6 +26,7 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
     cartItems,
     restaurantId,
     restaurantName,
+    editingOrderId,
     addToCart,
     removeFromCart,
     clearCart,
@@ -69,8 +70,13 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/orders`, {
-        method: 'POST',
+      const url = editingOrderId
+        ? `${API_BASE_URL}/api/orders/${editingOrderId}`
+        : `${API_BASE_URL}/api/orders`;
+      const method = editingOrderId ? 'PATCH' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -127,19 +133,109 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
     }
   };
 
+  const handleRemoveFromCart = (productId, itemQty) => {
+    const isLastItem = cartItems.length === 1 && itemQty === 1;
+
+    if (editingOrderId && isLastItem) {
+      Alert.alert(
+        'Empty Order',
+        'You have removed all items from this order. Would you like to delete/cancel the order entirely?',
+        [
+          {
+            text: 'Keep Empty Cart',
+            style: 'cancel',
+            onPress: () => {
+              removeFromCart(productId);
+            }
+          },
+          {
+            text: 'Yes, Delete Order',
+            style: 'destructive',
+            onPress: async () => {
+              const token = await AsyncStorage.getItem('userToken');
+              if (token) {
+                try {
+                  setIsSubmitting(true);
+                  const res = await fetch(`${API_BASE_URL}/api/orders/${editingOrderId}`, {
+                    method: 'DELETE',
+                    headers: {
+                      'Authorization': `Bearer ${token}`
+                    }
+                  });
+                  if (res.ok) {
+                    Alert.alert('Success', 'Order deleted successfully.');
+                  } else {
+                    Alert.alert('Error', 'Failed to delete the order.');
+                  }
+                } catch (err) {
+                  console.error('Error deleting order:', err);
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }
+              clearCart();
+              onClose();
+            }
+          }
+        ]
+      );
+    } else {
+      removeFromCart(productId);
+    }
+  };
+
   const handleClearCartClick = () => {
-    Alert.alert(
-      'Clear Cart',
-      'Are you sure you want to remove all items from your cart?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear Cart',
-          style: 'destructive',
-          onPress: () => clearCart()
-        }
-      ]
-    );
+    if (editingOrderId) {
+      Alert.alert(
+        'Delete Order',
+        'You are editing an order. Clearing the cart will delete/cancel this order entirely. Proceed?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Yes, Delete Order',
+            style: 'destructive',
+            onPress: async () => {
+              const token = await AsyncStorage.getItem('userToken');
+              if (token) {
+                try {
+                  setIsSubmitting(true);
+                  const res = await fetch(`${API_BASE_URL}/api/orders/${editingOrderId}`, {
+                    method: 'DELETE',
+                    headers: {
+                      'Authorization': `Bearer ${token}`
+                    }
+                  });
+                  if (res.ok) {
+                    Alert.alert('Success', 'Order deleted successfully.');
+                  } else {
+                    Alert.alert('Error', 'Failed to delete the order.');
+                  }
+                } catch (err) {
+                  console.error('Error deleting order:', err);
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }
+              clearCart();
+              onClose();
+            }
+          }
+        ]
+      );
+    } else {
+      Alert.alert(
+        'Clear Cart',
+        'Are you sure you want to remove all items from your cart?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Clear Cart',
+            style: 'destructive',
+            onPress: () => clearCart()
+          }
+        ]
+      );
+    }
   };
 
   // Determine colors based on Theme mode
@@ -217,7 +313,7 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
                       <View style={[styles.qtyControls, { backgroundColor: infoCardBg }]}>
                         <TouchableOpacity
                           style={styles.qtyBtn}
-                          onPress={() => removeFromCart(item.productId)}
+                          onPress={() => handleRemoveFromCart(item.productId, item.quantity)}
                         >
                           <Text style={[styles.qtyBtnText, { color: textColor }]}>-</Text>
                         </TouchableOpacity>
@@ -281,7 +377,9 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
                   {isSubmitting ? (
                     <ActivityIndicator color="#ffffff" size="small" />
                   ) : (
-                    <Text style={styles.checkoutBtnText}>Proceed to Checkout</Text>
+                    <Text style={styles.checkoutBtnText}>
+                      {editingOrderId ? 'Edit Order' : 'Proceed to Checkout'}
+                    </Text>
                   )}
                 </TouchableOpacity>
               </View>

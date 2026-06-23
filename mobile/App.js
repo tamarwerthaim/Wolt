@@ -11,6 +11,7 @@ import EditRestaurantScreen from './screens/EditRestaurantScreen';
 import EditProductScreen from './screens/EditProductScreen';
 import SearchScreen from './screens/SearchScreen';
 import OrderSuccessScreen from './screens/OrderSuccessScreen';
+import OrderHistoryScreen from './screens/OrderHistoryScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 import { CartProvider } from './context/CartContext';
 
@@ -75,6 +76,11 @@ export default function App() {
         <Stack.Screen 
           name="OrderSuccess" 
           component={OrderSuccessScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="OrderHistory" 
+          component={OrderHistoryScreen} 
           options={{ headerShown: false }} 
         />
         <Stack.Screen 

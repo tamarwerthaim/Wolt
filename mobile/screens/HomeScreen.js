@@ -12,7 +12,8 @@ import {
   Animated,
   Dimensions,
   ScrollView,
-  Easing
+  Easing,
+  Alert
 } from 'react-native';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -523,6 +524,17 @@ export default function HomeScreen({ navigation }) {
                 </View>
 
                 <TouchableOpacity
+                  style={styles.orderHistoryBtn}
+                  onPress={() => {
+                    setShowProfileMenu(false);
+                    navigation.navigate('OrderHistory');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.orderHistoryBtnText}>Order History</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
                   style={styles.logoutBtn}
                   onPress={() => {
                     handleLogout();
@@ -552,6 +564,25 @@ export default function HomeScreen({ navigation }) {
             ) : (
               <View style={styles.dropdownSection}>
                 <Text style={[styles.guestText, { color: subTextColor }]}>Hello, Guest! Log in to place orders.</Text>
+
+                <TouchableOpacity
+                  style={styles.orderHistoryBtn}
+                  onPress={() => {
+                    setShowProfileMenu(false);
+                    Alert.alert(
+                      'Login Required',
+                      'Please log in to view your order history.',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Log In', onPress: () => navigation.navigate('Login') }
+                      ]
+                    );
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.orderHistoryBtnText}>Order History</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity
                   style={styles.loginBtn}
                   onPress={() => {
@@ -925,6 +956,21 @@ const styles = StyleSheet.create({
   },
   loginBtnText: {
     color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: ROUNDED_FONT,
+  },
+  orderHistoryBtn: {
+    borderWidth: 1.5,
+    borderColor: '#009DE0',
+    borderRadius: 20,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  orderHistoryBtnText: {
+    color: '#009DE0',
     fontSize: 13,
     fontWeight: '700',
     fontFamily: ROUNDED_FONT,
