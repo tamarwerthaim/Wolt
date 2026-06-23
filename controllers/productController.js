@@ -44,6 +44,9 @@ class ProductController {
                         const intUserId = getIntId(userId);
                         const intProductId = getIntId(pld);
 
+                        // Store the last viewed product ID in the database for restaurant recommendation fallback
+                        await userModel.updateLastViewedProduct(userId, pld);
+
                         /* If the user hasn't been synced with C++ yet, send a POST, otherwise send a PATCH */
                         let commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
                         let command = `${commandType} ${intUserId} ${intProductId}`;
