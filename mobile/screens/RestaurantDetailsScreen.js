@@ -11,20 +11,61 @@ import {
   Alert,
   Dimensions
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config';
 import { useCart } from '../context/CartContext';
+
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+const customAtob = (input = '') => {
+  let str = input.replace(/=+$/, '');
+  let output = '';
+  if (str.length % 4 === 1) {
+    throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
+  }
+  for (
+    let bc = 0, bs = 0, buffer, idx = 0;
+    (buffer = str.charAt(idx++));
+    ~buffer && ((bs = bc % 4 ? bs * 64 + buffer : buffer), bc++ % 4)
+      ? (output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6))))
+      : 0
+  ) {
+    buffer = chars.indexOf(buffer);
+  }
+  return output;
+};
+
+const decodeJwt = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      customAtob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error decoding token:', e);
+    return null;
+  }
+};
 
 const { width } = Dimensions.get('window');
 
 export default function RestaurantDetailsScreen({ route, navigation }) {
   const { id } = route.params || {};
-  const { addToCart } = useCart();
+  const { cartItems, addToCart, removeFromCart } = useCart();
 
   // State hooks for managing API server data
   const [restaurant, setRestaurant] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Current user authentication state
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
 
   // States for managing rating interactions
   const [userRating, setUserRating] = useState(0);
@@ -36,6 +77,8 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempQuantity, setTempQuantity] = useState(1);
 
+
+
   // Mock currentUser location for guest flow to calculate delivery times
   // In the future, this will be retrieved from the authentication state
   const mockUser = {
@@ -44,43 +87,83 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   };
 
   // Fetch restaurant details and products from the server
+  const fetchRestaurantAndProducts = async (showLoadingSpinner = true) => {
+    try {
+      if (showLoadingSpinner) setLoading(true);
+      setError('');
+
+      // 1. Fetch general restaurant details
+      const resResponse = await fetch(`${API_BASE_URL}/api/restaurants/${id}`);
+      if (!resResponse.ok) {
+        throw new Error('Failed to fetch restaurant details.');
+      }
+      const resData = await resResponse.json();
+      setRestaurant(resData);
+
+      // Sync rating if user has previously rated
+      if (resData.ratings && resData.ratings[mockUser.id]) {
+        setUserRating(resData.ratings[mockUser.id]);
+      }
+
+      // 2. Fetch all products (menu) for this restaurant
+      const prodResponse = await fetch(`${API_BASE_URL}/api/restaurants/${id}/products`);
+      if (!prodResponse.ok) {
+        throw new Error('Failed to fetch menu products.');
+      }
+      const prodData = await prodResponse.json();
+      setProducts(prodData);
+    } catch (err) {
+      setError(err.message || 'Something went wrong.');
+    } finally {
+      if (showLoadingSpinner) setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchRestaurantAndProducts = async () => {
+    if (id) {
+      fetchRestaurantAndProducts(true);
+    }
+  }, [id]);
+
+  // Refresh data and load auth status on screen focus
+  useEffect(() => {
+    const checkLoginStatus = async () => {
       try {
-        setLoading(true);
-        setError('');
-
-        // 1. Fetch general restaurant details
-        const resResponse = await fetch(`${API_BASE_URL}/api/restaurants/${id}`);
-        if (!resResponse.ok) {
-          throw new Error('Failed to fetch restaurant details.');
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          const payload = decodeJwt(token);
+          setCurrentUser(payload);
+          
+          const profileRes = await fetch(`${API_BASE_URL}/api/users/${payload.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (profileRes.ok) {
+            const data = await profileRes.json();
+            setUserDetails(data);
+          } else {
+            setUserDetails(null);
+          }
+        } else {
+          setCurrentUser(null);
+          setUserDetails(null);
         }
-        const resData = await resResponse.json();
-        setRestaurant(resData);
-
-        // Sync rating if user has previously rated
-        if (resData.ratings && resData.ratings[mockUser.id]) {
-          setUserRating(resData.ratings[mockUser.id]);
-        }
-
-        // 2. Fetch all products (menu) for this restaurant
-        const prodResponse = await fetch(`${API_BASE_URL}/api/restaurants/${id}/products`);
-        if (!prodResponse.ok) {
-          throw new Error('Failed to fetch menu products.');
-        }
-        const prodData = await prodResponse.json();
-        setProducts(prodData);
-      } catch (err) {
-        setError(err.message || 'Something went wrong.');
-      } finally {
-        setLoading(false);
+      } catch (e) {
+        console.error('Error checking login status:', e);
       }
     };
 
-    if (id) {
-      fetchRestaurantAndProducts();
-    }
-  }, [id]);
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkLoginStatus();
+      if (id) {
+        fetchRestaurantAndProducts(false); // silently refresh menu on focus
+      }
+    });
+
+    checkLoginStatus();
+    return unsubscribe;
+  }, [navigation, id]);
 
   // Calculate average rating score from the ratings dictionary
   const getAverageRating = () => {
@@ -106,12 +189,12 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   const handleRate = async (score) => {
     try {
       setRatingStatus('Submitting rating...');
-      
+
       const response = await fetch(`${API_BASE_URL}/api/restaurants/${id}/rate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer guest-simulated-token` 
+          'Authorization': `Bearer guest-simulated-token`
         },
         body: JSON.stringify({ score })
       });
@@ -149,9 +232,11 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   };
 
   // Open product details modal and send product view-track signal to backend (Task 4.2.3)
-  const handleProductPress = async (product) => {
+    const prodId = product.id || product._id;
+    const cartItem = cartItems.find(item => item.productId === prodId);
+    const currentQty = cartItem ? cartItem.quantity : 0;
     setSelectedProduct(product);
-    setTempQuantity(1);
+    setTempQuantity(currentQty > 0 ? currentQty : 1);
     setIsModalOpen(true);
 
     // Call view-tracking API endpoint: GET /api/restaurants/:id/products/:productId
@@ -189,9 +274,12 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
 
   let deliveryStr = 'Delivery 30-40 min';
   if (restaurant?.geolocation) {
+    const userLat = userDetails?.geolocation?.lat !== undefined ? userDetails.geolocation.lat : mockUser.geolocation.lat;
+    const userLng = userDetails?.geolocation?.lng !== undefined ? userDetails.geolocation.lng : mockUser.geolocation.lng;
+    
     const distance = getDistance(
-      mockUser.geolocation.lat,
-      mockUser.geolocation.lng,
+      userLat,
+      userLng,
       restaurant.geolocation.lat,
       restaurant.geolocation.lng
     );
@@ -226,7 +314,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>❌ Error: {error}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.retryButton}
           onPress={() => navigation.goBack()}
         >
@@ -243,7 +331,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       {/* Floating Back Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
         activeOpacity={0.8}
@@ -264,8 +352,19 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
 
         {/* Info Header Card */}
         <View style={styles.infoCard}>
-          <Text style={styles.restaurantName}>{restaurant?.name || 'Restaurant'}</Text>
-          
+          <View style={styles.restaurantHeaderRow}>
+            <Text style={styles.restaurantName}>{restaurant?.name || 'Restaurant'}</Text>
+            {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
+              <TouchableOpacity
+                style={styles.editRestaurantBtn}
+                onPress={() => navigation.navigate('EditRestaurant', { restaurantId: id })}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.editRestaurantBtnText}>✎</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
           <Text style={styles.restaurantLocation}>
             {restaurant?.geolocation
               ? `Coordinates: (${restaurant.geolocation.lat.toFixed(4)}, ${restaurant.geolocation.lng.toFixed(4)})`
@@ -285,7 +384,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
           {/* Ratings Component Card */}
           <View style={styles.ratingsCard}>
             <Text style={styles.ratingsCardTitle}>Rating & Reviews</Text>
-            
+
             <View style={styles.ratingStatsRow}>
               <Text style={styles.averageRatingText}>{getAverageRating()}</Text>
               <View style={styles.ratingsCountContainer}>
@@ -322,7 +421,18 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
 
           {/* Menu Products Section (Task 4.2.2) */}
           <View style={styles.menuContainer}>
-            <Text style={styles.menuSectionTitle}>The Entire Menu</Text>
+            <View style={styles.menuHeaderRow}>
+              <Text style={styles.menuSectionTitle}>The Entire Menu</Text>
+              {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
+                <TouchableOpacity
+                  style={styles.addProductBtn}
+                  onPress={() => navigation.navigate('AddProduct', { restaurantId: id })}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.addProductBtnText}>+</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             {products.length === 0 ? (
               <Text style={styles.emptyMenuText}>No items available on the menu yet.</Text>
@@ -336,7 +446,21 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                 >
                   {/* Left Side: Product Text Information */}
                   <View style={styles.productTextWrapper}>
-                    <Text style={styles.productNameText}>{product.name}</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <Text style={styles.productNameText}>{product.name}</Text>
+                      {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
+                        <TouchableOpacity
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            navigation.navigate('EditProduct', { restaurantId: id, productId: product.id || product._id });
+                          }}
+                          style={styles.editProductBadge}
+                          activeOpacity={0.7}
+                        >
+                          <Text style={styles.editProductBadgeText}>✎</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
                     <Text style={styles.productDescText} numberOfLines={2}>
                       {product.description || 'No description available for this delicious dish.'}
                     </Text>
@@ -349,10 +473,32 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                       source={{ uri: getFullImageUrl(product.image) }}
                       style={styles.productCardImage}
                     />
+                    {(() => {
+                      const itemInCart = cartItems.find(item => item.productId === (product.id || product._id));
+                      return itemInCart && itemInCart.quantity > 0 ? (
+                        <View style={styles.imageQuantityBadge}>
+                          <Text style={styles.imageQuantityBadgeText}>{itemInCart.quantity}</Text>
+                        </View>
+                      ) : null;
+                    })()}
                     <TouchableOpacity
                       style={styles.quickAddButton}
                       activeOpacity={0.8}
-                      onPress={() => handleProductPress(product)}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        const added = addToCart(product, id, restaurant?.name || 'Restaurant', 1);
+                        if (added) {
+                          Alert.alert(
+                            'Cart Updated',
+                            `1x ${product.name} added to cart!`
+                          );
+                        } else {
+                          Alert.alert(
+                            'Cart Mismatch',
+                            'You can only add items from one restaurant at a time. Clear your cart first.'
+                          );
+                        }
+                      }}
                     >
                       <Text style={styles.quickAddButtonText}>+</Text>
                     </TouchableOpacity>
@@ -403,7 +549,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                 <View style={styles.qtySelector}>
                   <TouchableOpacity
                     style={styles.qtyBtn}
-                    onPress={() => setTempQuantity(q => Math.max(1, q - 1))}
+                    onPress={() => setTempQuantity(q => Math.max(0, q - 1))}
                   >
                     <Text style={styles.qtyBtnText}>-</Text>
                   </TouchableOpacity>
@@ -417,25 +563,47 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                 </View>
 
                 <TouchableOpacity
-                  style={styles.addToCartBtn}
+                  style={tempQuantity === 0 ? styles.removeFromCartBtn : styles.addToCartBtn}
                   onPress={() => {
-                    setIsModalOpen(false);
-                    const added = addToCart(selectedProduct, id, restaurant?.name || 'Restaurant', tempQuantity);
-                    if (added) {
-                      Alert.alert(
-                        'Cart Updated',
-                        `${tempQuantity}x ${selectedProduct?.name} added to cart!`
-                      );
+                    const prodId = selectedProduct?.id || selectedProduct?._id;
+                    const cartItem = cartItems.find(item => item.productId === prodId);
+                    const currentQty = cartItem ? cartItem.quantity : 0;
+
+                    if (tempQuantity === 0) {
+                      for (let i = 0; i < currentQty; i++) {
+                        removeFromCart(prodId);
+                      }
+                      setIsModalOpen(false);
+                      Alert.alert('Item Removed', `${selectedProduct?.name} removed from order!`);
                     } else {
-                      Alert.alert(
-                        'Cart Mismatch',
-                        'You can only add items from one restaurant at a time. Clear your cart first.'
-                      );
+                      const diff = tempQuantity - currentQty;
+                      if (diff > 0) {
+                        const added = addToCart(selectedProduct, id, restaurant?.name || 'Restaurant', diff);
+                        if (added) {
+                          setIsModalOpen(false);
+                          Alert.alert('Cart Updated', `${tempQuantity}x ${selectedProduct?.name} added to cart!`);
+                        } else {
+                          Alert.alert(
+                            'Cart Mismatch',
+                            'You can only add items from one restaurant at a time. Clear your cart first.'
+                          );
+                        }
+                      } else if (diff < 0) {
+                        for (let i = 0; i < Math.abs(diff); i++) {
+                          removeFromCart(prodId);
+                        }
+                        setIsModalOpen(false);
+                        Alert.alert('Cart Updated', `${tempQuantity}x ${selectedProduct?.name} added to cart!`);
+                      } else {
+                        setIsModalOpen(false);
+                      }
                     }
                   }}
                 >
                   <Text style={styles.addToCartBtnText}>
-                    Add to order • ₪{(selectedProduct?.price * tempQuantity).toFixed(2)}
+                    {tempQuantity === 0 
+                      ? 'Remove from order' 
+                      : `Add to order • ₪${(selectedProduct?.price * tempQuantity).toFixed(2)}`}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -534,11 +702,38 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
+  restaurantHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+    width: '100%',
+  },
   restaurantName: {
     fontSize: 28,
     fontWeight: '800',
     color: '#1f2937',
-    marginBottom: 6,
+    flex: 1,
+    marginRight: 10,
+  },
+  editRestaurantBtn: {
+    backgroundColor: '#009DE0',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  editRestaurantBtnText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+    marginTop: -2,
   },
   restaurantLocation: {
     fontSize: 14,
@@ -645,11 +840,36 @@ const styles = StyleSheet.create({
     borderTopColor: '#f3f4f6',
     paddingTop: 24,
   },
+  menuHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   menuSectionTitle: {
     fontSize: 20,
     fontWeight: '800',
     color: '#1f2937',
-    marginBottom: 20,
+    marginBottom: 0,
+  },
+  addProductBtn: {
+    backgroundColor: '#009DE0',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  addProductBtnText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: -2,
   },
   emptyMenuText: {
     fontSize: 14,
@@ -680,7 +900,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#1f2937',
-    marginBottom: 4,
+    flex: 1,
+  },
+  editProductBadge: {
+    backgroundColor: '#009DE0',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  editProductBadgeText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   productDescText: {
     fontSize: 13,
@@ -833,5 +1067,37 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 15,
     fontWeight: '700',
+  },
+  removeFromCartBtn: {
+    flex: 1,
+    backgroundColor: '#ef4444',
+    borderRadius: 24,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageQuantityBadge: {
+    position: 'absolute',
+    top: -6,
+    left: -6,
+    backgroundColor: '#009DE0',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 3,
+    zIndex: 2,
+  },
+  imageQuantityBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '800',
   },
 });

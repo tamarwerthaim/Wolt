@@ -6,6 +6,9 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import RestaurantDetailsScreen from './screens/RestaurantDetailsScreen';
 import AddRestaurantScreen from './screens/AddRestaurantScreen';
+import AddProductScreen from './screens/AddProductScreen';
+import EditRestaurantScreen from './screens/EditRestaurantScreen';
+import EditProductScreen from './screens/EditProductScreen';
 import SearchScreen from './screens/SearchScreen';
 import { CartProvider } from './context/CartContext';
 
@@ -46,6 +49,21 @@ export default function App() {
           name="AddRestaurant" 
           component={AddRestaurantScreen} 
           options={{ title: 'Add Restaurant' }} 
+        />
+        <Stack.Screen 
+          name="AddProduct" 
+          component={AddProductScreen} 
+          options={{ title: 'Add Product' }} 
+        />
+        <Stack.Screen 
+          name="EditRestaurant" 
+          component={EditRestaurantScreen} 
+          options={{ title: 'Edit Restaurant' }} 
+        />
+        <Stack.Screen 
+          name="EditProduct" 
+          component={EditProductScreen} 
+          options={{ title: 'Edit Product' }} 
         />
         <Stack.Screen 
           name="Search" 

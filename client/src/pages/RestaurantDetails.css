@@ -241,22 +241,27 @@ body.dark-mode .details-star-inactive {
 
 /* Button style for owners to edit their restaurant details */
 .edit-restaurant-btn {
-    background: none;
-    border: 1px solid var(--wolt-cyan);
-    color: var(--wolt-cyan);
-    font-size: 14px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    width: 36px;
+    height: 36px;
+    background-color: var(--wolt-cyan);
+    border: none;
+    border-radius: 50%;
+    color: #ffffff;
     display: inline-flex;
+    justify-content: center;
     align-items: center;
-    gap: 6px;
-    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
 }
 
 .edit-restaurant-btn:hover {
-    background-color: var(--wolt-cyan);
-    color: var(--wolt-white);
-    transform: scale(1.05);
+    transform: scale(1.08);
+    background-color: #00a085;
+    color: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.edit-restaurant-btn:active {
+    transform: scale(0.95);
 }
