@@ -14,7 +14,6 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config';
 import { useCart } from '../context/CartContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const customAtob = (input = '') => {
@@ -56,8 +55,7 @@ const { width } = Dimensions.get('window');
 
 export default function RestaurantDetailsScreen({ route, navigation }) {
   const { id } = route.params || {};
-  const { addToCart, clearCart, restaurantName: cartRestaurantName } = useCart();
-  const { cartItems, addToCart, removeFromCart } = useCart();
+  const { cartItems, addToCart, removeFromCart, clearCart, restaurantName: cartRestaurantName } = useCart();
 
   // State hooks for managing API server data
   const [restaurant, setRestaurant] = useState(null);
@@ -234,6 +232,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   };
 
   // Open product details modal and send product view-track signal to backend (Task 4.2.3)
+  const handleProductPress = async (product) => {
     const prodId = product.id || product._id;
     const cartItem = cartItems.find(item => item.productId === prodId);
     const currentQty = cartItem ? cartItem.quantity : 0;
@@ -488,7 +487,8 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                       activeOpacity={0.8}
                       onPress={(e) => {
                         e.stopPropagation();
-                        const added = addToCart(product, id, restaurant?.name || 'Restaurant', 1);
+                        const currentRestaurantName = restaurant?.name || 'Restaurant';
+                        const added = addToCart(product, id, currentRestaurantName, 1);
                         if (added) {
                           Alert.alert(
                             'Cart Updated',
@@ -496,8 +496,24 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                           );
                         } else {
                           Alert.alert(
-                            'Cart Mismatch',
-                            'You can only add items from one restaurant at a time. Clear your cart first.'
+                            'Create a new cart?',
+                            `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
+                            [
+                              {
+                                text: 'Cancel',
+                                style: 'cancel',
+                              },
+                              {
+                                text: 'Create New Cart',
+                                onPress: () => {
+                                  addToCart(product, id, currentRestaurantName, 1, true);
+                                  Alert.alert(
+                                    'Cart Updated',
+                                    `1x ${product.name} added to cart!`
+                                  );
+                                },
+                              },
+                            ]
                           );
                         }
                       }}
@@ -565,7 +581,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                 </View>
 
                 <TouchableOpacity
-                  style={styles.addToCartBtn}
+                  style={tempQuantity === 0 ? styles.removeFromCartBtn : styles.addToCartBtn}
                   onPress={async () => {
                     const token = await AsyncStorage.getItem('userToken');
                     if (!token) {
@@ -586,40 +602,11 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                       );
                       return;
                     }
-                    setIsModalOpen(false);
-                    const currentRestaurantName = restaurant?.name || 'Restaurant';
-                    const added = addToCart(selectedProduct, id, currentRestaurantName, tempQuantity);
-                    if (added) {
-                      Alert.alert(
-                        'Cart Updated',
-                        `${tempQuantity}x ${selectedProduct?.name} added to cart!`
-                      );
-                    } else {
-                      Alert.alert(
-                        'Create a new cart?',
-                        `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
-                        [
-                          {
-                            text: 'Cancel',
-                            style: 'cancel',
-                          },
-                          {
-                            text: 'Create New Cart',
-                            onPress: () => {
-                              addToCart(selectedProduct, id, currentRestaurantName, tempQuantity, true);
-                              Alert.alert(
-                                'Cart Updated',
-                                `${tempQuantity}x ${selectedProduct?.name} added to cart!`
-                              );
-                            },
-                          },
-                        ]
-                      );
-                  style={tempQuantity === 0 ? styles.removeFromCartBtn : styles.addToCartBtn}
-                  onPress={() => {
+
                     const prodId = selectedProduct?.id || selectedProduct?._id;
                     const cartItem = cartItems.find(item => item.productId === prodId);
                     const currentQty = cartItem ? cartItem.quantity : 0;
+                    const currentRestaurantName = restaurant?.name || 'Restaurant';
 
                     if (tempQuantity === 0) {
                       for (let i = 0; i < currentQty; i++) {
@@ -630,14 +617,31 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                     } else {
                       const diff = tempQuantity - currentQty;
                       if (diff > 0) {
-                        const added = addToCart(selectedProduct, id, restaurant?.name || 'Restaurant', diff);
+                        const added = addToCart(selectedProduct, id, currentRestaurantName, diff);
                         if (added) {
                           setIsModalOpen(false);
                           Alert.alert('Cart Updated', `${tempQuantity}x ${selectedProduct?.name} added to cart!`);
                         } else {
                           Alert.alert(
-                            'Cart Mismatch',
-                            'You can only add items from one restaurant at a time. Clear your cart first.'
+                            'Create a new cart?',
+                            `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
+                            [
+                              {
+                                text: 'Cancel',
+                                style: 'cancel',
+                              },
+                              {
+                                text: 'Create New Cart',
+                                onPress: () => {
+                                  addToCart(selectedProduct, id, currentRestaurantName, diff, true);
+                                  setIsModalOpen(false);
+                                  Alert.alert(
+                                    'Cart Updated',
+                                    `${tempQuantity}x ${selectedProduct?.name} added to cart!`
+                                  );
+                                },
+                              },
+                            ]
                           );
                         }
                       } else if (diff < 0) {
