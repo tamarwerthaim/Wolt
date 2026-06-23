@@ -485,6 +485,7 @@ const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 13,
     fontWeight: '600',
+    fontFamily: ROUNDED_FONT,
   },
   controlsWrapper: {
     flexDirection: 'row',
@@ -507,6 +508,7 @@ const styles = StyleSheet.create({
   qtyBtnText: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: ROUNDED_FONT,
   },
   qtyVal: {
     fontSize: 14,
@@ -514,12 +516,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     minWidth: 20,
     textAlign: 'center',
+    fontFamily: ROUNDED_FONT,
   },
   itemTotal: {
     fontSize: 15,
     fontWeight: '700',
     minWidth: 60,
     textAlign: 'right',
+    fontFamily: ROUNDED_FONT,
   },
   summaryBox: {
     borderRadius: 14,
@@ -540,11 +544,13 @@ const styles = StyleSheet.create({
   summaryVal: {
     fontSize: 14,
     fontWeight: '700',
+    fontFamily: ROUNDED_FONT,
   },
   deliveryFree: {
     color: '#009DE0',
     fontWeight: '700',
     fontSize: 14.5,
+    fontFamily: ROUNDED_FONT,
   },
   divider: {
     height: 1,
@@ -563,6 +569,7 @@ const styles = StyleSheet.create({
   totalVal: {
     fontSize: 18,
     fontWeight: '900',
+    fontFamily: ROUNDED_FONT,
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -626,6 +633,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 22,
+    fontFamily: ROUNDED_FONT,
   },
   backToMenuBtn: {
     backgroundColor: '#009DE0',

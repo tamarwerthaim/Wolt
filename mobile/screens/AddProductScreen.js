@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -28,6 +28,23 @@ export default function AddProductScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState('');
   const [error, setError] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const loadDarkMode = async () => {
+      try {
+        const value = await AsyncStorage.getItem('darkModeEnabled');
+        if (value !== null) {
+          setIsDarkMode(value === 'true');
+        }
+      } catch (e) {
+        console.error('Error loading dark mode:', e);
+      }
+    };
+    loadDarkMode();
+    const unsubscribe = navigation.addListener('focus', loadDarkMode);
+    return unsubscribe;
+  }, [navigation]);
 
   const pickImage = async () => {
     try {
@@ -128,24 +145,28 @@ export default function AddProductScreen({ route, navigation }) {
   const getInputStyle = (field) => {
     return [
       styles.input,
-      focusedField === field && styles.inputActive
+      isDarkMode && { backgroundColor: '#2d2d2d', color: '#ffffff', borderColor: '#2d2d2d' },
+      focusedField === field && [
+        styles.inputActive,
+        isDarkMode && { backgroundColor: '#1e1e1e', borderColor: '#009DE0' }
+      ]
     ];
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, isDarkMode && { backgroundColor: '#121212' }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.form}>
-          <Text style={styles.heading}>Add New Product</Text>
+        <View style={[styles.form, isDarkMode && { backgroundColor: '#1e1e1e', borderColor: '#2d2d2d' }]}>
+          <Text style={[styles.heading, isDarkMode && { color: '#ffffff' }]}>Add New Product</Text>
 
           {error ? <Text style={styles.errorTextGeneral}>⚠️ {error}</Text> : null}
 
           {/* Image Picker */}
           <TouchableOpacity
-            style={styles.imagePicker}
+            style={[styles.imagePicker, isDarkMode && { backgroundColor: '#2d2d2d', borderColor: '#4b5563' }]}
             onPress={pickImage}
             activeOpacity={0.8}
           >
@@ -158,21 +179,21 @@ export default function AddProductScreen({ route, navigation }) {
               </View>
             ) : (
               <View style={styles.placeholderContainer}>
-                <Text style={styles.placeholderPlus}>+</Text>
-                <Text style={styles.placeholderText}>Choose Product Photo</Text>
+                <Text style={[styles.placeholderPlus, isDarkMode && { color: '#888888' }]}>+</Text>
+                <Text style={[styles.placeholderText, isDarkMode && { color: '#d1d5db' }]}>Choose Product Photo</Text>
               </View>
             )}
           </TouchableOpacity>
 
           {/* Name Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Product Name</Text>
+            <Text style={[styles.label, isDarkMode && { color: '#ffffff' }]}>Product Name</Text>
             <TextInput
               style={getInputStyle('name')}
               value={name}
               onChangeText={setName}
               placeholder="e.g. Double Beef Burger"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#888888' : '#9ca3af'}
               onFocus={() => setFocusedField('name')}
               onBlur={() => setFocusedField('')}
             />
@@ -180,13 +201,13 @@ export default function AddProductScreen({ route, navigation }) {
 
           {/* Price Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Price (₪)</Text>
+            <Text style={[styles.label, isDarkMode && { color: '#ffffff' }]}>Price (₪)</Text>
             <TextInput
               style={getInputStyle('price')}
               value={price}
               onChangeText={setPrice}
               placeholder="e.g. 45"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#888888' : '#9ca3af'}
               keyboardType="numeric"
               onFocus={() => setFocusedField('price')}
               onBlur={() => setFocusedField('')}
@@ -195,13 +216,13 @@ export default function AddProductScreen({ route, navigation }) {
 
           {/* Description Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Description</Text>
+            <Text style={[styles.label, isDarkMode && { color: '#ffffff' }]}>Description</Text>
             <TextInput
-              style={[getInputStyle('description'), styles.textArea]}
+              style={[getInputStyle('description'), styles.textArea, isDarkMode && { textAlignVertical: 'top' }]}
               value={description}
               onChangeText={setDescription}
               placeholder="Describe the ingredients, size, and details of the dish..."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#888888' : '#9ca3af'}
               multiline={true}
               numberOfLines={4}
               onFocus={() => setFocusedField('description')}

@@ -9,11 +9,13 @@ import {
   ActivityIndicator,
   Modal,
   Alert,
-  Dimensions
+  Dimensions,
+  StatusBar
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import { useCart } from '../context/CartContext';
+import CartModal from '../components/CartModal';
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const customAtob = (input = '') => {
@@ -55,7 +57,16 @@ const { width } = Dimensions.get('window');
 
 export default function RestaurantDetailsScreen({ route, navigation }) {
   const { id } = route.params || {};
-  const { cartItems, addToCart, removeFromCart, clearCart, restaurantName: cartRestaurantName } = useCart();
+  const {
+    cartItems,
+    addToCart,
+    removeFromCart,
+    clearCart,
+    restaurantName: cartRestaurantName,
+    restaurantId,
+    cartCount,
+    cartTotal
+  } = useCart();
 
   // State hooks for managing API server data
   const [restaurant, setRestaurant] = useState(null);
@@ -76,6 +87,10 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempQuantity, setTempQuantity] = useState(1);
+
+  // States for managing Cart Modal and Theme
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
 
 
@@ -133,7 +148,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         if (token) {
           const payload = decodeJwt(token);
           setCurrentUser(payload);
-          
+
           const profileRes = await fetch(`${API_BASE_URL}/api/users/${payload.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -154,14 +169,27 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
       }
     };
 
+    const loadDarkMode = async () => {
+      try {
+        const value = await AsyncStorage.getItem('darkModeEnabled');
+        if (value !== null) {
+          setIsDarkMode(value === 'true');
+        }
+      } catch (e) {
+        console.error('Error loading dark mode:', e);
+      }
+    };
+
     const unsubscribe = navigation.addListener('focus', () => {
       checkLoginStatus();
+      loadDarkMode();
       if (id) {
         fetchRestaurantAndProducts(false); // silently refresh menu on focus
       }
     });
 
     checkLoginStatus();
+    loadDarkMode();
     return unsubscribe;
   }, [navigation, id]);
 
@@ -277,7 +305,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   if (restaurant?.geolocation) {
     const userLat = userDetails?.geolocation?.lat !== undefined ? userDetails.geolocation.lat : mockUser.geolocation.lat;
     const userLng = userDetails?.geolocation?.lng !== undefined ? userDetails.geolocation.lng : mockUser.geolocation.lng;
-    
+
     const distance = getDistance(
       userLat,
       userLng,
@@ -329,8 +357,19 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
     ? `${API_BASE_URL}${restaurant.image}`
     : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
 
+  const showCartBar = cartCount > 0;
+
+  const themeScreenBg = isDarkMode ? '#121212' : '#f3f4f6';
+  const themeCardBg = isDarkMode ? '#1e1e1e' : '#ffffff';
+  const themeTextColor = isDarkMode ? '#ffffff' : '#1f2937';
+  const themeSubTextColor = isDarkMode ? '#9ca3af' : '#6b7280';
+  const themeBorderColor = isDarkMode ? '#2d2d2d' : '#f3f4f6';
+  const themeRatingsCardBg = isDarkMode ? '#242424' : '#f9fafb';
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: themeScreenBg }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={isDarkMode ? '#121212' : '#f3f4f6'} />
+
       {/* Floating Back Button */}
       <TouchableOpacity
         style={styles.backButton}
@@ -340,7 +379,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, showCartBar && { paddingBottom: 110 }]}>
         {/* Banner Section */}
         <View style={styles.bannerContainer}>
           <Image
@@ -352,9 +391,9 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         </View>
 
         {/* Info Header Card */}
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: themeCardBg }]}>
           <View style={styles.restaurantHeaderRow}>
-            <Text style={styles.restaurantName}>{restaurant?.name || 'Restaurant'}</Text>
+            <Text style={[styles.restaurantName, { color: themeTextColor }]}>{restaurant?.name || 'Restaurant'}</Text>
             {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
               <TouchableOpacity
                 style={styles.editRestaurantBtn}
@@ -366,7 +405,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
             )}
           </View>
 
-          <Text style={styles.restaurantLocation}>
+          <Text style={[styles.restaurantLocation, { color: themeSubTextColor }]}>
             {restaurant?.geolocation
               ? `Coordinates: (${restaurant.geolocation.lat.toFixed(4)}, ${restaurant.geolocation.lng.toFixed(4)})`
               : 'Location unavailable'}
@@ -374,31 +413,31 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
 
           {/* Pickup and Delivery Tags */}
           <View style={styles.tagsRow}>
-            <View style={styles.tag}>
+            <View style={[styles.tag, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
               <Image source={require('../assets/Bike.png')} style={styles.tagImage} resizeMode="contain" />
-              <Text style={styles.tagText}>{deliveryStr}</Text>
+              <Text style={[styles.tagText, { color: themeSubTextColor }]}>{deliveryStr}</Text>
             </View>
-            <View style={styles.tag}>
+            <View style={[styles.tag, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
               <Image source={require('../assets/bag.png')} style={styles.tagImage} resizeMode="contain" />
-              <Text style={styles.tagText}>{pickupStr}</Text>
+              <Text style={[styles.tagText, { color: themeSubTextColor }]}>{pickupStr}</Text>
             </View>
           </View>
 
           {/* Ratings Component Card */}
-          <View style={styles.ratingsCard}>
-            <Text style={styles.ratingsCardTitle}>Rating & Reviews</Text>
+          <View style={[styles.ratingsCard, { backgroundColor: themeRatingsCardBg, borderColor: themeBorderColor }]}>
+            <Text style={[styles.ratingsCardTitle, { color: themeTextColor }]}>Rating</Text>
 
             <View style={styles.ratingStatsRow}>
               <Text style={styles.averageRatingText}>{getAverageRating()}</Text>
               <View style={styles.ratingsCountContainer}>
                 <Text style={styles.starIconLarge}>★</Text>
-                <Text style={styles.ratingsCountText}>({getRatingsCount()} ratings)</Text>
+                <Text style={[styles.ratingsCountText, { color: themeSubTextColor }]}>({getRatingsCount()} ratings)</Text>
               </View>
             </View>
 
             {/* Star Picker Row */}
             <View style={styles.starRatingRow}>
-              <Text style={styles.rateUsLabel}>Tap to rate:</Text>
+              <Text style={[styles.rateUsLabel, { color: themeSubTextColor }]}>Tap to rate:</Text>
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity
                   key={star}
@@ -423,9 +462,9 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
           </View>
 
           {/* Menu Products Section (Task 4.2.2) */}
-          <View style={styles.menuContainer}>
+          <View style={[styles.menuContainer, { borderTopColor: themeBorderColor }]}>
             <View style={styles.menuHeaderRow}>
-              <Text style={styles.menuSectionTitle}>The Entire Menu</Text>
+              <Text style={[styles.menuSectionTitle, { color: themeTextColor }]}>The Entire Menu</Text>
               {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
                 <TouchableOpacity
                   style={styles.addProductBtn}
@@ -438,19 +477,19 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
             </View>
 
             {products.length === 0 ? (
-              <Text style={styles.emptyMenuText}>No items available on the menu yet.</Text>
+              <Text style={[styles.emptyMenuText, { color: themeSubTextColor }]}>No items available on the menu yet.</Text>
             ) : (
               products.map((product) => (
                 <TouchableOpacity
                   key={product.id || product._id}
-                  style={styles.productCard}
+                  style={[styles.productCard, { backgroundColor: themeCardBg, borderColor: themeBorderColor }]}
                   activeOpacity={0.8}
                   onPress={() => handleProductPress(product)}
                 >
                   {/* Left Side: Product Text Information */}
                   <View style={styles.productTextWrapper}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <Text style={styles.productNameText}>{product.name}</Text>
+                      <Text style={[styles.productNameText, { color: themeTextColor }]}>{product.name}</Text>
                       {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
                         <TouchableOpacity
                           onPress={(e) => {
@@ -464,10 +503,10 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                         </TouchableOpacity>
                       )}
                     </View>
-                    <Text style={styles.productDescText} numberOfLines={2}>
+                    <Text style={[styles.productDescText, { color: themeSubTextColor }]} numberOfLines={2}>
                       {product.description || 'No description available for this delicious dish.'}
                     </Text>
-                    <Text style={styles.productPriceText}>₪{Number(product.price).toFixed(2)}</Text>
+                    <Text style={[styles.productPriceText, { color: themeTextColor }]}>₪{Number(product.price).toFixed(2)}</Text>
                   </View>
 
                   {/* Right Side: Product Image & Quick Add Button */}
@@ -492,10 +531,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                         const currentRestaurantName = restaurant?.name || 'Restaurant';
                         const added = addToCart(product, id, currentRestaurantName, 1);
                         if (added) {
-                          Alert.alert(
-                            'Cart Updated',
-                            `1x ${product.name} added to cart!`
-                          );
+                          // No alert
                         } else {
                           Alert.alert(
                             'Create a new cart?',
@@ -509,10 +545,6 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                                 text: 'Create New Cart',
                                 onPress: () => {
                                   addToCart(product, id, currentRestaurantName, 1, true);
-                                  Alert.alert(
-                                    'Cart Updated',
-                                    `1x ${product.name} added to cart!`
-                                  );
                                 },
                               },
                             ]
@@ -530,6 +562,31 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         </View>
       </ScrollView>
 
+      {/* Sticky Bottom Cart Bar */}
+      {showCartBar && (
+        <TouchableOpacity
+          style={styles.stickyCartBar}
+          activeOpacity={0.9}
+          onPress={() => setIsCartOpen(true)}
+        >
+          <View style={styles.stickyCartLeftGroup}>
+            <View style={styles.stickyCartBadge}>
+              <Text style={styles.stickyCartBadgeText}>{cartCount}</Text>
+            </View>
+            <Text style={styles.stickyCartText}>Show Cart</Text>
+          </View>
+          <Text style={styles.stickyCartPrice}>₪{cartTotal.toFixed(2)}</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Cart Drawer Modal */}
+      <CartModal
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        isDarkMode={isDarkMode}
+        navigation={navigation}
+      />
+
       {/* Product Detail Modal Popup overlay (Task 4.2.3) */}
       <Modal
         visible={isModalOpen}
@@ -538,7 +595,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         onRequestClose={() => setIsModalOpen(false)}
       >
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: themeCardBg }]}>
             {/* Close Button */}
             <TouchableOpacity
               style={styles.modalCloseButton}
@@ -555,30 +612,30 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
             />
 
             <View style={styles.modalBody}>
-              <Text style={styles.modalTitle}>{selectedProduct?.name}</Text>
+              <Text style={[styles.modalTitle, { color: themeTextColor }]}>{selectedProduct?.name}</Text>
               <Text style={styles.modalPriceText}>₪{Number(selectedProduct?.price).toFixed(2)}</Text>
 
               {selectedProduct?.description ? (
-                <Text style={styles.modalDescription}>{selectedProduct?.description}</Text>
+                <Text style={[styles.modalDescription, { color: themeSubTextColor }]}>{selectedProduct?.description}</Text>
               ) : (
-                <Text style={styles.modalDescription}>No description available for this delicious dish.</Text>
+                <Text style={[styles.modalDescription, { color: themeSubTextColor }]}>No description available for this delicious dish.</Text>
               )}
 
               {/* Quantity Selector & Checkout Action Footer */}
-              <View style={styles.modalFooter}>
-                <View style={styles.qtySelector}>
+              <View style={[styles.modalFooter, { borderTopColor: themeBorderColor }]}>
+                <View style={[styles.qtySelector, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
                   <TouchableOpacity
-                    style={styles.qtyBtn}
+                    style={[styles.qtyBtn, { backgroundColor: isDarkMode ? '#333' : '#fff' }]}
                     onPress={() => setTempQuantity(q => Math.max(0, q - 1))}
                   >
-                    <Text style={styles.qtyBtnText}>-</Text>
+                    <Text style={[styles.qtyBtnText, { color: themeTextColor }]}>-</Text>
                   </TouchableOpacity>
-                  <Text style={styles.qtyVal}>{tempQuantity}</Text>
+                  <Text style={[styles.qtyVal, { color: themeTextColor }]}>{tempQuantity}</Text>
                   <TouchableOpacity
-                    style={styles.qtyBtn}
+                    style={[styles.qtyBtn, { backgroundColor: isDarkMode ? '#333' : '#fff' }]}
                     onPress={() => setTempQuantity(q => q + 1)}
                   >
-                    <Text style={styles.qtyBtnText}>+</Text>
+                    <Text style={[styles.qtyBtnText, { color: themeTextColor }]}>+</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -615,14 +672,14 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                         removeFromCart(prodId);
                       }
                       setIsModalOpen(false);
-                      Alert.alert('Item Removed', `${selectedProduct?.name} removed from order!`);
+                      // No alert
                     } else {
                       const diff = tempQuantity - currentQty;
                       if (diff > 0) {
                         const added = addToCart(selectedProduct, id, currentRestaurantName, diff);
                         if (added) {
                           setIsModalOpen(false);
-                          Alert.alert('Cart Updated', `${tempQuantity}x ${selectedProduct?.name} added to cart!`);
+                          // No alert
                         } else {
                           Alert.alert(
                             'Create a new cart?',
@@ -637,10 +694,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                                 onPress: () => {
                                   addToCart(selectedProduct, id, currentRestaurantName, diff, true);
                                   setIsModalOpen(false);
-                                  Alert.alert(
-                                    'Cart Updated',
-                                    `${tempQuantity}x ${selectedProduct?.name} added to cart!`
-                                  );
+                                  // No alert
                                 },
                               },
                             ]
@@ -651,7 +705,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                           removeFromCart(prodId);
                         }
                         setIsModalOpen(false);
-                        Alert.alert('Cart Updated', `${tempQuantity}x ${selectedProduct?.name} added to cart!`);
+                        // No alert
                       } else {
                         setIsModalOpen(false);
                       }
@@ -659,8 +713,8 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                   }}
                 >
                   <Text style={styles.addToCartBtnText}>
-                    {tempQuantity === 0 
-                      ? 'Remove from order' 
+                    {tempQuantity === 0
+                      ? 'Remove from order'
                       : `Add to order • ₪${(selectedProduct?.price * tempQuantity).toFixed(2)}`}
                   </Text>
                 </TouchableOpacity>
@@ -686,11 +740,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   loadingText: {
+    fontFamily: ROUNDED_FONT,
     marginTop: 12,
     fontSize: 16,
     color: '#4b5563',
   },
   errorText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 16,
     color: '#ef4444',
     textAlign: 'center',
@@ -703,6 +759,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
+    fontFamily: ROUNDED_FONT,
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
@@ -725,6 +782,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   backButtonText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 22,
     fontWeight: 'bold',
     color: '#1f2937',
@@ -768,6 +826,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   restaurantName: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 28,
     fontWeight: '800',
     color: '#1f2937',
@@ -788,12 +847,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   editRestaurantBtnText: {
+    fontFamily: ROUNDED_FONT,
     color: '#fff',
     fontSize: 20,
     fontWeight: '700',
     marginTop: -2,
   },
   restaurantLocation: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 14,
     color: '#6b7280',
     marginBottom: 16,
@@ -819,6 +880,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   tagText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 13,
     fontWeight: '600',
     color: '#4b5563',
@@ -837,6 +899,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   ratingsCardTitle: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 16,
     fontWeight: '700',
     color: '#374151',
@@ -848,6 +911,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   averageRatingText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 48,
     fontWeight: '800',
     color: '#009DE0',
@@ -864,6 +928,7 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
   ratingsCountText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 14,
     fontWeight: '600',
     color: '#6b7280',
@@ -876,6 +941,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   rateUsLabel: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 14,
     fontWeight: '600',
     color: '#4b5563',
@@ -885,6 +951,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   starText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 28,
   },
   starActive: {
@@ -894,6 +961,7 @@ const styles = StyleSheet.create({
     color: '#d1d5db',
   },
   ratingStatusText: {
+    fontFamily: ROUNDED_FONT,
     marginTop: 12,
     fontSize: 13,
     fontWeight: '600',
@@ -912,6 +980,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   menuSectionTitle: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 20,
     fontWeight: '800',
     color: '#1f2937',
@@ -931,12 +1000,14 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   addProductBtnText: {
+    fontFamily: ROUNDED_FONT,
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: -2,
   },
   emptyMenuText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 14,
     color: '#9ca3af',
     textAlign: 'center',
@@ -962,6 +1033,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   productNameText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 16,
     fontWeight: '700',
     color: '#1f2937',
@@ -977,17 +1049,20 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   editProductBadgeText: {
+    fontFamily: ROUNDED_FONT,
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
   },
   productDescText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 13,
     color: '#6b7280',
     lineHeight: 18,
     marginBottom: 8,
   },
   productPriceText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 15,
     fontWeight: '700',
     color: '#1f2937',
@@ -1021,6 +1096,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   quickAddButtonText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#009DE0',
@@ -1051,6 +1127,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   modalCloseButtonText: {
+    fontFamily: ROUNDED_FONT,
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
@@ -1063,18 +1140,21 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalTitle: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 24,
     fontWeight: '800',
     color: '#1f2937',
     marginBottom: 6,
   },
   modalPriceText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 18,
     fontWeight: '700',
     color: '#009DE0',
     marginBottom: 16,
   },
   modalDescription: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 14,
     color: '#4b5563',
     lineHeight: 20,
@@ -1109,12 +1189,14 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   qtyBtnText: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#4b5563',
     marginTop: -2,
   },
   qtyVal: {
+    fontFamily: ROUNDED_FONT,
     fontSize: 16,
     fontWeight: '700',
     color: '#1f2937',
@@ -1129,6 +1211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addToCartBtnText: {
+    fontFamily: ROUNDED_FONT,
     color: '#fff',
     fontSize: 15,
     fontWeight: '700',
@@ -1161,8 +1244,59 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   imageQuantityBadgeText: {
+    fontFamily: ROUNDED_FONT,
     color: '#fff',
     fontSize: 11,
     fontWeight: '800',
+  },
+  stickyCartBar: {
+    position: 'absolute',
+    bottom: 24,
+    left: 16,
+    right: 16,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#009DE0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
+    zIndex: 900,
+  },
+  stickyCartLeftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stickyCartPrice: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '800',
+    fontFamily: ROUNDED_FONT,
+  },
+  stickyCartText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '800',
+    marginLeft: 12,
+    fontFamily: ROUNDED_FONT,
+  },
+  stickyCartBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#092233',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stickyCartBadgeText: {
+    color: '#009DE0',
+    fontSize: 13,
+    fontWeight: '800',
+    fontFamily: ROUNDED_FONT,
   },
 });
