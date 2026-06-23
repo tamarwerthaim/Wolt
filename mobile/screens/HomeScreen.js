@@ -114,7 +114,7 @@ const getDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 export default function HomeScreen({ navigation }) {
-  const { cartCount } = useCart();
+  const { cartCount, clearCart } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -271,6 +271,7 @@ export default function HomeScreen({ navigation }) {
       setUserDetails(null);
       setRecommendedRestaurants([]); // Clear recommendations on logout
       setActiveTab('all'); // Reset tab view to all restaurants
+      clearCart(); // Clear the cart when user logs out
     } catch (e) {
       console.error('Error logging out:', e);
     }
@@ -450,12 +451,18 @@ export default function HomeScreen({ navigation }) {
                     <Text style={[styles.carouselCardName, { color: textColor }]} numberOfLines={1}>
                       {restaurant.name}
                     </Text>
-                    <View style={styles.carouselCardDistRow}>
-                      <BlueScooterIcon />
+                    {!isLoggedIn ? (
                       <Text style={styles.carouselCardDist} numberOfLines={1}>
-                        {getDeliveryTimeStr(restaurant)}
+                        📍 {restaurant.geolocation ? `${restaurant.geolocation.lat.toFixed(4)}, ${restaurant.geolocation.lng.toFixed(4)}` : 'No location'}
                       </Text>
-                    </View>
+                    ) : (
+                      <View style={styles.carouselCardDistRow}>
+                        <BlueScooterIcon />
+                        <Text style={styles.carouselCardDist} numberOfLines={1}>
+                          {getDeliveryTimeStr(restaurant)}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 </TouchableOpacity>
               );
@@ -626,7 +633,7 @@ export default function HomeScreen({ navigation }) {
             styles.tabButtonText,
             activeTab === 'all' ? styles.activeTabButtonText : styles.inactiveTabButtonText
           ]}>
-            All Restaurants
+            All
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -638,7 +645,7 @@ export default function HomeScreen({ navigation }) {
             styles.tabButtonText,
             activeTab === 'recommended' ? styles.activeTabButtonText : styles.inactiveTabButtonText
           ]}>
-            Especially for You
+            For You
           </Text>
         </TouchableOpacity>
         {isLoggedIn && userDetails?.isAdmin && (
@@ -651,7 +658,7 @@ export default function HomeScreen({ navigation }) {
               styles.tabButtonText,
               activeTab === 'mine' ? styles.activeTabButtonText : styles.inactiveTabButtonText
             ]}>
-              My Restaurants
+              My
             </Text>
           </TouchableOpacity>
         )}
@@ -680,10 +687,16 @@ export default function HomeScreen({ navigation }) {
                   <Image source={{ uri: imageUrl }} style={styles.cardImage} />
                   <View style={styles.cardInfo}>
                     <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    <View style={styles.cardPrepRow}>
-                      <BlueScooterIcon />
-                      <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
-                    </View>
+                    {!isLoggedIn ? (
+                      <Text style={[styles.cardPrep, { color: subTextColor }]}>
+                        📍 {item.geolocation ? `Location: ${item.geolocation.lat.toFixed(4)}, ${item.geolocation.lng.toFixed(4)}` : 'No location'}
+                      </Text>
+                    ) : (
+                      <View style={styles.cardPrepRow}>
+                        <BlueScooterIcon />
+                        <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
+                      </View>
+                    )}
                   </View>
                 </TouchableOpacity>
               );
@@ -691,8 +704,32 @@ export default function HomeScreen({ navigation }) {
           />
         )
       ) : activeTab === 'recommended' ? (
-        recommendedRestaurants.length === 0 ? (
-          <Text style={[styles.emptyText, { color: subTextColor }]}>No recommendations found.</Text>
+        !isLoggedIn ? (
+          <View style={styles.guestContainer}>
+            <Text style={[styles.guestTitle, { color: textColor }]}>🔒 Log in to get personalized recommendations</Text>
+            <Text style={[styles.guestSubtitle, { color: subTextColor }]}>
+              We recommend restaurants based on your order history. Log in or sign up to see your recommendations!
+            </Text>
+            <TouchableOpacity
+              style={styles.guestLoginBtn}
+              onPress={() => navigation.navigate('Login')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.guestLoginBtnText}>Log In</Text>
+            </TouchableOpacity>
+          </View>
+        ) : loadingRecommendations ? (
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color="#009DE0" />
+            <Text style={[styles.infoText, { color: subTextColor }]}>Searching for recommendations...</Text>
+          </View>
+        ) : recommendedRestaurants.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyTitle, { color: textColor }]}>Your recommendations list is empty</Text>
+            <Text style={[styles.emptySubtitle, { color: subTextColor }]}>
+              Place your first order to get personalized restaurant recommendations based on what you love!
+            </Text>
+          </View>
         ) : (
           <FlatList
             data={recommendedRestaurants}
@@ -712,10 +749,16 @@ export default function HomeScreen({ navigation }) {
                   <Image source={{ uri: imageUrl }} style={styles.cardImage} />
                   <View style={styles.cardInfo}>
                     <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    <View style={styles.cardPrepRow}>
-                      <BlueScooterIcon />
-                      <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
-                    </View>
+                    {!isLoggedIn ? (
+                      <Text style={[styles.cardPrep, { color: subTextColor }]}>
+                        📍 {item.geolocation ? `Location: ${item.geolocation.lat.toFixed(4)}, ${item.geolocation.lng.toFixed(4)}` : 'No location'}
+                      </Text>
+                    ) : (
+                      <View style={styles.cardPrepRow}>
+                        <BlueScooterIcon />
+                        <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
+                      </View>
+                    )}
                   </View>
                 </TouchableOpacity>
               );
@@ -744,10 +787,16 @@ export default function HomeScreen({ navigation }) {
                   <Image source={{ uri: imageUrl }} style={styles.cardImage} />
                   <View style={styles.cardInfo}>
                     <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    <View style={styles.cardPrepRow}>
-                      <BlueScooterIcon />
-                      <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
-                    </View>
+                    {!isLoggedIn ? (
+                      <Text style={[styles.cardPrep, { color: subTextColor }]}>
+                        📍 {item.geolocation ? `Location: ${item.geolocation.lat.toFixed(4)}, ${item.geolocation.lng.toFixed(4)}` : 'No location'}
+                      </Text>
+                    ) : (
+                      <View style={styles.cardPrepRow}>
+                        <BlueScooterIcon />
+                        <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
+                      </View>
+                    )}
                   </View>
                 </TouchableOpacity>
               );

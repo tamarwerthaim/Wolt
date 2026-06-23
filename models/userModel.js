@@ -49,6 +49,9 @@ const UserSchema = new mongoose.Schema({
     },
     cppId: {
         type: Number
+    },
+    lastViewedProductId: {
+        type: String
     }
 });
 
@@ -166,5 +169,14 @@ export async function seedDefaultAdmin() {
         }
     } catch (err) {
         console.error('Failed to seed default admin:', err);
+    }
+}
+
+/* Update the user's last viewed product ID in the database */
+export async function updateLastViewedProduct(id, productId) {
+    const user = await User.findById(id);
+    if (user) {
+        user.lastViewedProductId = productId;
+        await user.save();
     }
 }

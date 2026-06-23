@@ -1,5 +1,6 @@
 import RestaurantModel from '../models/restaurantModel.js';
 import orderModel from '../models/orderModel.js';
+import * as userModel from '../models/userModel.js';
 import { sendToCpp } from '../socket.js';
 import { getIntId, getUuid } from '../idMapper.js';
 
@@ -16,14 +17,24 @@ class RestaurantController {
                 .filter(order => order.userId === userId)
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-            // If the user has no orders, return an empty array (no base product to recommend on)
-            if (userOrders.length === 0 || !userOrders[0].items || userOrders[0].items.length === 0) {
-                return res.status(200).json([]);
+            let lastProductId = null;
+
+            if (userOrders.length > 0 && userOrders[0].items && userOrders[0].items.length > 0) {
+                const lastOrder = userOrders[0];
+                const lastProduct = lastOrder.items[0]; // Get the first product of the last order
+                lastProductId = lastProduct.productId;
+            } else {
+                // Fallback: Check if the user has a last viewed product
+                const user = await userModel.findUserById(userId);
+                if (user && user.lastViewedProductId) {
+                    lastProductId = user.lastViewedProductId;
+                }
             }
 
-            const lastOrder = userOrders[0];
-            const lastProduct = lastOrder.items[0]; // Get the first product of the last order
-            const lastProductId = lastProduct.productId;
+            // If we have neither orders nor product views, return an empty array (no base product to recommend on)
+            if (!lastProductId) {
+                return res.status(200).json([]);
+            }
 
             // Map string UUIDs to C++ compatible integer IDs
             const intUserId = getIntId(userId);

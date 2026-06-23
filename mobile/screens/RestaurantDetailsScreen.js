@@ -439,22 +439,24 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
           </View>
 
           <Text style={[styles.restaurantLocation, { color: themeSubTextColor }]}>
-            {restaurant?.geolocation
-              ? `Coordinates: (${restaurant.geolocation.lat.toFixed(4)}, ${restaurant.geolocation.lng.toFixed(4)})`
+            📍 {restaurant?.geolocation
+              ? `Location: (${restaurant.geolocation.lat.toFixed(4)}, ${restaurant.geolocation.lng.toFixed(4)})`
               : 'Location unavailable'}
           </Text>
 
           {/* Pickup and Delivery Tags */}
-          <View style={styles.tagsRow}>
-            <View style={[styles.tag, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
-              <Image source={require('../assets/Bike.png')} style={styles.tagImage} resizeMode="contain" />
-              <Text style={[styles.tagText, { color: themeSubTextColor }]}>{deliveryStr}</Text>
+          {currentUser && (
+            <View style={styles.tagsRow}>
+              <View style={[styles.tag, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
+                <Image source={require('../assets/Bike.png')} style={styles.tagImage} resizeMode="contain" />
+                <Text style={[styles.tagText, { color: themeSubTextColor }]}>{deliveryStr}</Text>
+              </View>
+              <View style={[styles.tag, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
+                <Image source={require('../assets/bag.png')} style={styles.tagImage} resizeMode="contain" />
+                <Text style={[styles.tagText, { color: themeSubTextColor }]}>{pickupStr}</Text>
+              </View>
             </View>
-            <View style={[styles.tag, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
-              <Image source={require('../assets/bag.png')} style={styles.tagImage} resizeMode="contain" />
-              <Text style={[styles.tagText, { color: themeSubTextColor }]}>{pickupStr}</Text>
-            </View>
-          </View>
+          )}
 
           {/* Ratings Component Card */}
           <View style={[styles.ratingsCard, { backgroundColor: themeRatingsCardBg, borderColor: themeBorderColor }]}>
