@@ -260,7 +260,7 @@ export default function OrderHistoryScreen({ navigation }) {
           onPress={() => navigation.goBack()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backButtonText}>◀</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: textColor }]}>My Orders</Text>
         <View style={{ width: 40 }} />
@@ -532,7 +532,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButtonText: {
-    fontSize: 18,
+    fontSize: 26,
+    fontWeight: 'bold',
     color: '#009DE0',
   },
   headerTitle: {
