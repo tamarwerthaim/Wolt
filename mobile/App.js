@@ -5,13 +5,26 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import RestaurantDetailsScreen from './screens/RestaurantDetailsScreen';
+import AddRestaurantScreen from './screens/AddRestaurantScreen';
+import SearchScreen from './screens/SearchScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator 
+        initialRouteName="Home"
+        screenOptions={{
+          headerBackTitleVisible: false,
+          headerTintColor: '#009DE0',
+        }}
+      >
+        <Stack.Screen 
+          name="Home" 
+          component={HomeScreen} 
+          options={{ headerShown: false }} 
+        />
         <Stack.Screen 
           name="Login" 
           component={LoginScreen} 
@@ -23,14 +36,19 @@ export default function App() {
           options={{ headerShown: false }} 
         />
         <Stack.Screen 
-          name="Home" 
-          component={HomeScreen} 
-          options={{ title: 'Wolt', headerLeft: () => null }} 
-        />
-        <Stack.Screen 
           name="RestaurantDetails" 
           component={RestaurantDetailsScreen} 
           options={{ title: 'Restaurant Details' }} 
+        />
+        <Stack.Screen 
+          name="AddRestaurant" 
+          component={AddRestaurantScreen} 
+          options={{ title: 'Add Restaurant' }} 
+        />
+        <Stack.Screen 
+          name="Search" 
+          component={SearchScreen} 
+          options={{ headerShown: false }} 
         />
       </Stack.Navigator>
     </NavigationContainer>
