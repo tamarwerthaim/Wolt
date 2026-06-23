@@ -416,6 +416,15 @@ export default function EditRestaurantScreen({ route, navigation }) {
           >
             <Text style={styles.deleteBtnText}>Delete Restaurant</Text>
           </TouchableOpacity>
+
+          {/* Back Button */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.backButtonText}>← Go Back</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

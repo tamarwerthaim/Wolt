@@ -375,10 +375,12 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
           {/* Pickup and Delivery Tags */}
           <View style={styles.tagsRow}>
             <View style={styles.tag}>
-              <Text style={styles.tagText}>🚴‍♂️ {deliveryStr}</Text>
+              <Image source={require('../assets/Bike.png')} style={styles.tagImage} resizeMode="contain" />
+              <Text style={styles.tagText}>{deliveryStr}</Text>
             </View>
             <View style={styles.tag}>
-              <Text style={styles.tagText}>🛍️ {pickupStr}</Text>
+              <Image source={require('../assets/bag.png')} style={styles.tagImage} resizeMode="contain" />
+              <Text style={styles.tagText}>{pickupStr}</Text>
             </View>
           </View>
 
@@ -808,6 +810,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10,
     marginBottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tagImage: {
+    width: 18,
+    height: 18,
+    marginRight: 6,
   },
   tagText: {
     fontSize: 13,
