@@ -163,8 +163,8 @@ export default function HomeScreen({ navigation }) {
   const scrollAnim = React.useRef(new Animated.Value(0)).current;
 
   const getDeliveryTimeStr = (restaurant) => {
-    const userLat = userDetails?.lat ?? 32.0853;
-    const userLng = userDetails?.lng ?? 34.7818;
+    const userLat = userDetails?.geolocation?.lat ?? 32.0853;
+    const userLng = userDetails?.geolocation?.lng ?? 34.7818;
     const prepTime = restaurant?.prepTime || 15;
 
     if (restaurant?.geolocation) {
@@ -184,8 +184,8 @@ export default function HomeScreen({ navigation }) {
   };
 
   const getDeliveryTimeValue = (restaurant) => {
-    const userLat = userDetails?.lat ?? 32.0853;
-    const userLng = userDetails?.lng ?? 34.7818;
+    const userLat = userDetails?.geolocation?.lat ?? 32.0853;
+    const userLng = userDetails?.geolocation?.lng ?? 34.7818;
     const prepTime = restaurant?.prepTime || 15;
 
     if (restaurant?.geolocation) {
@@ -501,11 +501,21 @@ export default function HomeScreen({ navigation }) {
                     <Text style={[styles.welcomeUserText, { color: textColor }]}>{userDetails.name}</Text>
                     <Text style={[styles.usernameText, { color: subTextColor }]}>@{userDetails.username}</Text>
                   </View>
+                  <TouchableOpacity
+                    style={styles.pencilEditBtn}
+                    onPress={() => {
+                      setShowProfileMenu(false);
+                      navigation.navigate('EditProfile', { userId: userDetails.id || userDetails._id });
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.pencilEditBtnText}>✎</Text>
+                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.detailsList}>
                   <Text style={[styles.detailItemText, { color: textColor }]}>📞 Phone: {userDetails.phone}</Text>
-                  <Text style={[styles.detailItemText, { color: textColor }]}>📍 Coords: {userDetails.lat}, {userDetails.lng}</Text>
+                  <Text style={[styles.detailItemText, { color: textColor }]}>📍 Coords: {userDetails.geolocation?.lat}, {userDetails.geolocation?.lng}</Text>
                 </View>
 
                 <TouchableOpacity
@@ -518,6 +528,22 @@ export default function HomeScreen({ navigation }) {
                 >
                   <Text style={styles.logoutBtnText}>Log Out</Text>
                 </TouchableOpacity>
+
+                <View style={[styles.divider, { backgroundColor: borderCol }]} />
+
+                {/* Theme Switch Row */}
+                <View style={styles.themeRow}>
+                  <Text style={[styles.themeLabel, { color: textColor }]}>
+                    {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.themeToggleBtn, isDarkMode && styles.themeToggleBtnActive]}
+                    onPress={handleToggleDarkMode}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.themeToggleCircle, isDarkMode && styles.themeToggleCircleActive]} />
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : (
               <View style={styles.dropdownSection}>
@@ -534,22 +560,6 @@ export default function HomeScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
             )}
-
-            <View style={[styles.divider, { backgroundColor: borderCol }]} />
-
-            {/* Theme Switch Row */}
-            <View style={styles.themeRow}>
-              <Text style={[styles.themeLabel, { color: textColor }]}>
-                {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
-              </Text>
-              <TouchableOpacity
-                style={[styles.themeToggleBtn, isDarkMode && styles.themeToggleBtnActive]}
-                onPress={handleToggleDarkMode}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.themeToggleCircle, isDarkMode && styles.themeToggleCircleActive]} />
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
       )}
@@ -1314,5 +1324,21 @@ const styles = StyleSheet.create({
     width: 18,
     height: 22,
     marginRight: 6,
+  },
+  pencilEditBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#009DE0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  pencilEditBtnText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: -2,
+    transform: [{ scaleX: -1 }],
   },
 });
