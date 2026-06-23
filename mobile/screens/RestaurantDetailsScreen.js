@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { API_BASE_URL } from '../config';
 import { useCart } from '../context/CartContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -418,7 +419,26 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
 
                 <TouchableOpacity
                   style={styles.addToCartBtn}
-                  onPress={() => {
+                  onPress={async () => {
+                    const token = await AsyncStorage.getItem('userToken');
+                    if (!token) {
+                      setIsModalOpen(false);
+                      Alert.alert(
+                        'Login Required',
+                        'Please log in to add items to your cart.',
+                        [
+                          {
+                            text: 'Cancel',
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'Log In',
+                            onPress: () => navigation.navigate('Login'),
+                          },
+                        ]
+                      );
+                      return;
+                    }
                     setIsModalOpen(false);
                     const currentRestaurantName = restaurant?.name || 'Restaurant';
                     const added = addToCart(selectedProduct, id, currentRestaurantName, tempQuantity);
@@ -439,8 +459,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                           {
                             text: 'Create New Cart',
                             onPress: () => {
-                              clearCart();
-                              addToCart(selectedProduct, id, currentRestaurantName, tempQuantity);
+                              addToCart(selectedProduct, id, currentRestaurantName, tempQuantity, true);
                               Alert.alert(
                                 'Cart Updated',
                                 `${tempQuantity}x ${selectedProduct?.name} added to cart!`
