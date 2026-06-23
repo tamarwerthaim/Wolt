@@ -8,6 +8,7 @@ const router = express.Router({ mergeParams: true });
 /* Public menu endpoints */
 router.get('/', productController.getAllProducts);
 router.get('/:pld', productController.getProductById);
+router.get('/:pld/recommendations', productController.getProductRecommendations);
 
 /* Protected restaurant owner / admin endpoints */
 router.post('/', authenticateAdmin, upload.single('productImage'), productController.createProduct);

@@ -1,8 +1,9 @@
 import ProductModel from '../models/productModel.js';
 import RestaurantModel from '../models/restaurantModel.js';
-import * as userModel from '../models/userModel.js'
+import * as userModel from '../models/userModel.js';
 import { sendToCpp } from '../socket.js';
-import { getIntId } from '../idMapper.js';
+import { getIntId, getUuid } from '../idMapper.js';
+import jwt from 'jsonwebtoken';
 
 /* Controller handling menu items operations and interactions reporting to the recommendation server */
 class ProductController {
@@ -44,10 +45,18 @@ class ProductController {
                         const intProductId = getIntId(pld);
 
                         /* If the user hasn't been synced with C++ yet, send a POST, otherwise send a PATCH */
-                        const commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
-                        const command = `${commandType} ${intUserId} ${intProductId}`;
+                        let commandType = !user.isSyncedWithCpp ? 'POST' : 'PATCH';
+                        let command = `${commandType} ${intUserId} ${intProductId}`;
 
-                        const cppResponse = await sendToCpp(command);
+                        let cppResponse = await sendToCpp(command);
+
+                        /* If the command fails with 404, flip type and retry (e.g. C++ restarted or cache mismatch) */
+                        if (cppResponse.includes("404 Not Found")) {
+                            commandType = commandType === 'POST' ? 'PATCH' : 'POST';
+                            command = `${commandType} ${intUserId} ${intProductId}`;
+                            cppResponse = await sendToCpp(command);
+                        }
+
                         if (cppResponse.includes("201 Created") || cppResponse.includes("204 No Content")) {
                             user.isSyncedWithCpp = true;
                         }
@@ -59,6 +68,74 @@ class ProductController {
 
             return res.status(200).json(product);
         } catch (error) {
+            return res.status(500).json({ error: "Internal server error" });
+        }
+    }
+
+    /* GET /api/restaurants/:id/products/:pld/recommendations - Get recommended products from the same restaurant */
+    static async getProductRecommendations(req, res) {
+        try {
+            const { id, pld } = req.params;
+
+            // Get JWT token optionally from authorization header
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1];
+
+            if (!token) {
+                return res.status(200).json([]);
+            }
+
+            const JWT_SECRET = 'tamar_roni_moriya';
+            let userId;
+            try {
+                const decodedUser = jwt.verify(token, JWT_SECRET);
+                userId = decodedUser.id;
+            } catch (err) {
+                return res.status(200).json([]);
+            }
+
+            const intUserId = getIntId(userId);
+            const intProductId = getIntId(pld);
+
+            const command = `GET ${intUserId} ${intProductId}`;
+            let cppResponse;
+            try {
+                cppResponse = await sendToCpp(command);
+            } catch (cppError) {
+                console.error("C++ product recommendation query failed:", cppError);
+                return res.status(200).json([]);
+            }
+
+            if (!cppResponse.startsWith("200 Ok")) {
+                return res.status(200).json([]);
+            }
+
+            const lines = cppResponse.split('\n');
+            const productIdsLine = lines[lines.length - 1] || '';
+            const recommendedIntIds = productIdsLine.trim().split(/\s+/).filter(Boolean);
+
+            if (recommendedIntIds.length === 0) {
+                return res.status(200).json([]);
+            }
+
+            const recommendedProductUuids = recommendedIntIds
+                .map(intIdStr => getUuid(parseInt(intIdStr)))
+                .filter(Boolean);
+
+            const menu = await ProductModel.findAll(id);
+            if (!menu) {
+                return res.status(200).json([]);
+            }
+
+            // Filter recommended products so they only belong to the current restaurant
+            const recommendedProducts = menu.filter(item => {
+                const itemId = item.id || item._id;
+                return recommendedProductUuids.includes(itemId.toString());
+            });
+
+            return res.status(200).json(recommendedProducts);
+        } catch (error) {
+            console.error("Error in getProductRecommendations:", error);
             return res.status(500).json({ error: "Internal server error" });
         }
     }

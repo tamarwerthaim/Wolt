@@ -408,3 +408,85 @@
     transform: scale(1.1);
     background-color: var(--wolt-light-gray);
 }
+
+/* Scrollable modal content styling */
+.product-modal-container.scrollable {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Recommendations Section */
+.product-modal-recommendations-section {
+    width: 100%;
+    border-top: 1px solid var(--wolt-light-gray);
+    padding-top: 20px;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.product-modal-recommendations-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--wolt-dark);
+    margin: 0 0 16px 0;
+    font-family: 'Nunito', sans-serif;
+}
+
+.product-modal-recommendations-list {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 8px;
+}
+
+/* Individual recommended product card */
+.product-modal-rec-card {
+    flex: 0 0 calc(50% - 8px);
+    border: 1px solid var(--wolt-light-gray);
+    border-radius: 12px;
+    padding: 8px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.product-modal-rec-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px var(--wolt-shadow);
+}
+
+.product-modal-rec-image {
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 8px;
+    background-color: var(--wolt-light-gray);
+}
+
+.product-modal-rec-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wolt-dark);
+    margin-bottom: 4px;
+    text-align: center;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'Nunito', sans-serif;
+}
+
+.product-modal-rec-price {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--wolt-cyan);
+    font-family: 'Nunito', sans-serif;
+}
