@@ -830,11 +830,11 @@ const styles = StyleSheet.create({
   customHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingTop: Platform.OS === 'ios' ? 54 : 34,
+    paddingBottom: 8,
     borderBottomWidth: 1,
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
     zIndex: 100,
   },
   headerLogo: {
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
   },
   profileDropdown: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 95 : 75,
+    top: Platform.OS === 'ios' ? 100 : 80,
     right: 20,
     borderRadius: 16,
     borderWidth: 1,
