@@ -9,6 +9,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [restaurantId, setRestaurantId] = useState(null);
   const [restaurantName, setRestaurantName] = useState(null);
+  const [editingOrderId, setEditingOrderId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Load cart from AsyncStorage on startup
@@ -21,6 +22,7 @@ export const CartProvider = ({ children }) => {
           setCartItems(parsed.cartItems || []);
           setRestaurantId(parsed.restaurantId || null);
           setRestaurantName(parsed.restaurantName || null);
+          setEditingOrderId(parsed.editingOrderId || null);
         }
       } catch (err) {
         console.warn('Failed to load cart from storage:', err);
@@ -32,11 +34,16 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   // Save cart to AsyncStorage
-  const saveCartToStorage = async (items, restId, restName) => {
+  const saveCartToStorage = async (items, restId, restName, editOrderId) => {
     try {
       await AsyncStorage.setItem(
         'wolt_cart',
-        JSON.stringify({ cartItems: items, restaurantId: restId, restaurantName: restName })
+        JSON.stringify({
+          cartItems: items,
+          restaurantId: restId,
+          restaurantName: restName,
+          editingOrderId: editOrderId
+        })
       );
     } catch (err) {
       console.warn('Failed to save cart to storage:', err);
@@ -62,6 +69,7 @@ export const CartProvider = ({ children }) => {
           quantity: quantity
         }
       ];
+      setEditingOrderId(null);
     } else {
       const existingIndex = cartItems.findIndex(item => item.productId === targetId);
 
@@ -85,7 +93,7 @@ export const CartProvider = ({ children }) => {
     setCartItems(updatedItems);
     setRestaurantId(restId);
     setRestaurantName(restName);
-    saveCartToStorage(updatedItems, restId, restName);
+    saveCartToStorage(updatedItems, restId, restName, force ? null : editingOrderId);
     return true;
   };
 
@@ -104,18 +112,39 @@ export const CartProvider = ({ children }) => {
     const nextItems = updatedItems;
     const nextRestId = nextItems.length > 0 ? restaurantId : null;
     const nextRestName = nextItems.length > 0 ? restaurantName : null;
+    const nextEditingOrderId = nextItems.length > 0 ? editingOrderId : null;
 
     setCartItems(nextItems);
     setRestaurantId(nextRestId);
     setRestaurantName(nextRestName);
-    saveCartToStorage(nextItems, nextRestId, nextRestName);
+    setEditingOrderId(nextEditingOrderId);
+    saveCartToStorage(nextItems, nextRestId, nextRestName, nextEditingOrderId);
   };
 
   const clearCart = () => {
     setCartItems([]);
     setRestaurantId(null);
     setRestaurantName(null);
-    saveCartToStorage([], null, null);
+    setEditingOrderId(null);
+    saveCartToStorage([], null, null, null);
+  };
+
+  const loadOrderIntoCart = (order, restName, productsMap = {}) => {
+    const items = order.items.map(item => {
+      const product = productsMap[item.productId];
+      return {
+        productId: item.productId,
+        name: item.name || product?.name || `Item ID: ${item.productId.slice(0, 6)}`,
+        price: item.price !== undefined ? Number(item.price) : (product ? Number(product.price) : 0),
+        image: item.image || product?.image || '',
+        quantity: item.quantity
+      };
+    });
+    setCartItems(items);
+    setRestaurantId(order.restaurantId);
+    setRestaurantName(restName);
+    setEditingOrderId(order.id);
+    saveCartToStorage(items, order.restaurantId, restName, order.id);
   };
 
   // Derived values
@@ -127,10 +156,12 @@ export const CartProvider = ({ children }) => {
       cartItems,
       restaurantId,
       restaurantName,
+      editingOrderId,
       loading,
       addToCart,
       removeFromCart,
       clearCart,
+      loadOrderIntoCart,
       cartCount,
       cartTotal
     }}>
