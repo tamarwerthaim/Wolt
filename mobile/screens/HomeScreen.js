@@ -57,17 +57,17 @@ const decodeJwt = (token) => {
 };
 
 // Custom Views-based Shopping Bag Icon (Wolt outline + smile)
-const ShoppingBagIcon = ({ isDarkMode }) => (
+const ShoppingBagIcon = () => (
   <View style={styles.bagIconContainer}>
     <View style={styles.bagHandle} />
     <View style={styles.bagBody}>
       <View style={[
         styles.bagSmile,
         {
-          borderColor: isDarkMode ? '#009DE0' : '#202124',
-          borderLeftColor: isDarkMode ? '#009DE0' : '#202124',
-          borderRightColor: isDarkMode ? '#009DE0' : '#202124',
-          borderBottomColor: isDarkMode ? '#009DE0' : '#202124',
+          borderColor: '#009DE0',
+          borderLeftColor: '#009DE0',
+          borderRightColor: '#009DE0',
+          borderBottomColor: '#009DE0',
         }
       ]} />
     </View>
@@ -519,7 +519,7 @@ export default function HomeScreen({ navigation }) {
 
                 <View style={styles.detailsList}>
                   <Text style={[styles.detailItemText, { color: textColor }]}>📞 Phone: {userDetails.phone}</Text>
-                  <Text style={[styles.detailItemText, { color: textColor }]}>📍 Coords: {userDetails.geolocation?.lat}, {userDetails.geolocation?.lng}</Text>
+                  <Text style={[styles.detailItemText, { color: textColor }]}>📍 Location: {userDetails.geolocation?.lat}, {userDetails.geolocation?.lng}</Text>
                 </View>
 
                 <TouchableOpacity
@@ -1096,13 +1096,13 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#202124',
+    borderColor: '#009DE0',
     backgroundColor: 'transparent',
     marginTop: -5,
     borderTopColor: 'transparent',
-    borderLeftColor: '#202124',
-    borderRightColor: '#202124',
-    borderBottomColor: '#202124',
+    borderLeftColor: '#009DE0',
+    borderRightColor: '#009DE0',
+    borderBottomColor: '#009DE0',
   },
   // Custom Search Icon Styles
   searchIconContainer: {

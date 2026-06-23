@@ -324,6 +324,15 @@ export default function EditProfileScreen({ route, navigation }) {
                     <Text style={styles.submitButtonText}>Save Changes</Text>
                   )}
                 </TouchableOpacity>
+
+                {/* Back Button */}
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={() => navigation.goBack()}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.backButtonText}>← Go Back</Text>
+                </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
           </ScrollView>
