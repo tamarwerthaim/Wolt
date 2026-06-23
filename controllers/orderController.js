@@ -68,9 +68,9 @@ class OrderController {
                     try {
                         let cppResponse = await sendToCpp(cppCommand);
 
-                        /* If a POST request fails with 404, fall back to a PATCH update command */
-                        if (commandType === 'POST' && cppResponse.includes("404 Not Found")) {
-                            commandType = 'PATCH';
+                        /* If the command fails with 404, flip type and retry (e.g. C++ restarted or cache mismatch) */
+                        if (cppResponse.includes("404 Not Found")) {
+                            commandType = commandType === 'POST' ? 'PATCH' : 'POST';
                             cppCommand = `${commandType} ${intUserId} ${intProductId}`;
                             cppResponse = await sendToCpp(cppCommand);
                         }

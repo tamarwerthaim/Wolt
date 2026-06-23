@@ -11,6 +11,47 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
     /* Local states for managing the modal view and item counts inside it */
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tempQuantity, setTempQuantity] = useState(1);
+    const [recommendations, setRecommendations] = useState([]);
+
+    /* Fetch product-specific recommendations and track view based on co-view logic */
+    useEffect(() => {
+        const fetchRecommendationsAndTrackView = async () => {
+            if (!isModalOpen) {
+                setRecommendations([]);
+                return;
+            }
+            try {
+                // 1. Log view-tracking to C++ engine via backend
+                const viewHeaders = {};
+                if (currentUser) {
+                    viewHeaders['user-id'] = currentUser.id;
+                }
+                await fetch(`http://localhost:3000/api/restaurants/${restaurantId}/products/${productId}`, {
+                    headers: viewHeaders
+                }).catch(() => {});
+
+                // 2. Fetch recommendations
+                const token = localStorage.getItem('token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                const res = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}/products/${productId}/recommendations`, {
+                    headers
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setRecommendations(data);
+                } else {
+                    setRecommendations([]);
+                }
+            } catch (err) {
+                console.warn('Error fetching recommendations:', err);
+                setRecommendations([]);
+            }
+        };
+        fetchRecommendationsAndTrackView();
+    }, [isModalOpen, productId, restaurantId, currentUser]);
 
     /* Find if this item is already inside the cart to show its current count */
     const cartItem = cart?.items?.find(item => item.productId === productId);
@@ -172,7 +213,10 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
             {/* Detailed food product popup modal overlay view container */}
             {isModalOpen && (
                 <div className="product-modal-backdrop" onClick={handleCloseModal}>
-                    <div className="product-modal-container" onClick={(e) => e.stopPropagation()}>
+                    <div 
+                        className={`product-modal-container ${recommendations.length > 0 ? 'scrollable' : ''}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <button className="product-modal-close-btn" onClick={handleCloseModal} aria-label="Close modal">
                             ✕
                         </button>
@@ -204,6 +248,33 @@ const MenuItem = ({ product, cart, onAdd, onRemove, restaurantId, restaurantName
                                 <button className="product-modal-qty-btn" onClick={handleModalDecrement}>-</button>
                             </div>
                         </div>
+
+                        {/* Recommendations Section */}
+                        {recommendations.length > 0 && (
+                            <div className="product-modal-recommendations-section">
+                                <h3 className="product-modal-recommendations-title">Maybe you want:</h3>
+                                <div className="product-modal-recommendations-list">
+                                    {recommendations.map(item => (
+                                        <div
+                                            key={item.id || item._id}
+                                            className="product-modal-rec-card"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate(`?product=${item.id || item._id}`, { replace: true });
+                                            }}
+                                        >
+                                            <img
+                                                src={getImageUrl(item.image)}
+                                                alt={item.name}
+                                                className="product-modal-rec-image"
+                                            />
+                                            <div className="product-modal-rec-name" title={item.name}>{item.name}</div>
+                                            <div className="product-modal-rec-price">₪{Number(item.price).toFixed(2)}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

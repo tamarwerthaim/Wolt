@@ -87,10 +87,43 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempQuantity, setTempQuantity] = useState(1);
+  const [recommendations, setRecommendations] = useState([]);
 
   // States for managing Cart Modal and Theme
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Fetch product-specific recommendations based on co-view logic
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!isModalOpen || !selectedProduct) {
+        setRecommendations([]);
+        return;
+      }
+      try {
+        const prodId = selectedProduct.id || selectedProduct._id;
+        const token = await AsyncStorage.getItem('userToken');
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${API_BASE_URL}/api/restaurants/${id}/products/${prodId}/recommendations`, {
+          headers
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setRecommendations(data);
+        } else {
+          setRecommendations([]);
+        }
+      } catch (err) {
+        console.warn('Error fetching product recommendations:', err);
+        setRecommendations([]);
+      }
+    };
+
+    fetchRecommendations();
+  }, [isModalOpen, selectedProduct, id]);
 
 
 
@@ -273,7 +306,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
     try {
       await fetch(`${API_BASE_URL}/api/restaurants/${id}/products/${product.id || product._id}`, {
         headers: {
-          'user-id': mockUser.id
+          'user-id': currentUser ? currentUser.id : mockUser.id
         }
       });
     } catch (err) {
@@ -604,122 +637,177 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
               <Text style={styles.modalCloseButtonText}>✕</Text>
             </TouchableOpacity>
 
-            {/* Modal Image */}
-            <Image
-              source={{ uri: getFullImageUrl(selectedProduct?.image) }}
-              style={styles.modalImage}
-              resizeMode="cover"
-            />
+            {/* Scrollable Modal Content */}
+            <ScrollView
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 24 }}
+              alwaysBounceVertical={true}
+              overScrollMode="always"
+              onScroll={(e) => {
+                const offsetY = e.nativeEvent.contentOffset.y;
+                if (offsetY < -60) {
+                  setIsModalOpen(false);
+                }
+              }}
+              scrollEventThrottle={16}
+            >
+              {/* Modal Image */}
+              <Image
+                source={{ uri: getFullImageUrl(selectedProduct?.image) }}
+                style={styles.modalImage}
+                resizeMode="cover"
+              />
 
-            <View style={styles.modalBody}>
-              <Text style={[styles.modalTitle, { color: themeTextColor }]}>{selectedProduct?.name}</Text>
-              <Text style={styles.modalPriceText}>₪{Number(selectedProduct?.price).toFixed(2)}</Text>
+              <View style={styles.modalBody}>
+                <Text style={[styles.modalTitle, { color: themeTextColor }]}>{selectedProduct?.name}</Text>
+                <Text style={styles.modalPriceText}>₪{Number(selectedProduct?.price).toFixed(2)}</Text>
 
-              {selectedProduct?.description ? (
-                <Text style={[styles.modalDescription, { color: themeSubTextColor }]}>{selectedProduct?.description}</Text>
-              ) : (
-                <Text style={[styles.modalDescription, { color: themeSubTextColor }]}>No description available for this delicious dish.</Text>
-              )}
+                {selectedProduct?.description ? (
+                  <Text style={[styles.modalDescription, { color: themeSubTextColor }]}>{selectedProduct?.description}</Text>
+                ) : (
+                  <Text style={[styles.modalDescription, { color: themeSubTextColor }]}>No description available for this delicious dish.</Text>
+                )}
 
-              {/* Quantity Selector & Checkout Action Footer */}
-              <View style={[styles.modalFooter, { borderTopColor: themeBorderColor }]}>
-                <View style={[styles.qtySelector, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
+                {/* Quantity Selector & Checkout Action Footer */}
+                <View style={[styles.modalFooter, { borderTopColor: themeBorderColor }]}>
+                  <View style={[styles.qtySelector, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f3f4f6' }]}>
+                    <TouchableOpacity
+                      style={[styles.qtyBtn, { backgroundColor: isDarkMode ? '#333' : '#fff' }]}
+                      onPress={() => setTempQuantity(q => Math.max(0, q - 1))}
+                    >
+                      <Text style={[styles.qtyBtnText, { color: themeTextColor }]}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={[styles.qtyVal, { color: themeTextColor }]}>{tempQuantity}</Text>
+                    <TouchableOpacity
+                      style={[styles.qtyBtn, { backgroundColor: isDarkMode ? '#333' : '#fff' }]}
+                      onPress={() => setTempQuantity(q => q + 1)}
+                    >
+                      <Text style={[styles.qtyBtnText, { color: themeTextColor }]}>+</Text>
+                    </TouchableOpacity>
+                  </View>
+
                   <TouchableOpacity
-                    style={[styles.qtyBtn, { backgroundColor: isDarkMode ? '#333' : '#fff' }]}
-                    onPress={() => setTempQuantity(q => Math.max(0, q - 1))}
-                  >
-                    <Text style={[styles.qtyBtnText, { color: themeTextColor }]}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={[styles.qtyVal, { color: themeTextColor }]}>{tempQuantity}</Text>
-                  <TouchableOpacity
-                    style={[styles.qtyBtn, { backgroundColor: isDarkMode ? '#333' : '#fff' }]}
-                    onPress={() => setTempQuantity(q => q + 1)}
-                  >
-                    <Text style={[styles.qtyBtnText, { color: themeTextColor }]}>+</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <TouchableOpacity
-                  style={tempQuantity === 0 ? styles.removeFromCartBtn : styles.addToCartBtn}
-                  onPress={async () => {
-                    const token = await AsyncStorage.getItem('userToken');
-                    if (!token) {
-                      setIsModalOpen(false);
-                      Alert.alert(
-                        'Login Required',
-                        'Please log in to add items to your cart.',
-                        [
-                          {
-                            text: 'Cancel',
-                            style: 'cancel',
-                          },
-                          {
-                            text: 'Log In',
-                            onPress: () => navigation.navigate('Login'),
-                          },
-                        ]
-                      );
-                      return;
-                    }
-
-                    const prodId = selectedProduct?.id || selectedProduct?._id;
-                    const cartItem = cartItems.find(item => item.productId === prodId);
-                    const currentQty = cartItem ? cartItem.quantity : 0;
-                    const currentRestaurantName = restaurant?.name || 'Restaurant';
-
-                    if (tempQuantity === 0) {
-                      for (let i = 0; i < currentQty; i++) {
-                        removeFromCart(prodId);
+                    style={tempQuantity === 0 ? styles.removeFromCartBtn : styles.addToCartBtn}
+                    onPress={async () => {
+                      const token = await AsyncStorage.getItem('userToken');
+                      if (!token) {
+                        setIsModalOpen(false);
+                        Alert.alert(
+                          'Login Required',
+                          'Please log in to add items to your cart.',
+                          [
+                            {
+                              text: 'Cancel',
+                              style: 'cancel',
+                            },
+                            {
+                              text: 'Log In',
+                              onPress: () => navigation.navigate('Login'),
+                            },
+                          ]
+                        );
+                        return;
                       }
-                      setIsModalOpen(false);
-                      // No alert
-                    } else {
-                      const diff = tempQuantity - currentQty;
-                      if (diff > 0) {
-                        const added = addToCart(selectedProduct, id, currentRestaurantName, diff);
-                        if (added) {
-                          setIsModalOpen(false);
-                          // No alert
-                        } else {
-                          Alert.alert(
-                            'Create a new cart?',
-                            `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
-                            [
-                              {
-                                text: 'Cancel',
-                                style: 'cancel',
-                              },
-                              {
-                                text: 'Create New Cart',
-                                onPress: () => {
-                                  addToCart(selectedProduct, id, currentRestaurantName, diff, true);
-                                  setIsModalOpen(false);
-                                  // No alert
-                                },
-                              },
-                            ]
-                          );
-                        }
-                      } else if (diff < 0) {
-                        for (let i = 0; i < Math.abs(diff); i++) {
+
+                      const prodId = selectedProduct?.id || selectedProduct?._id;
+                      const cartItem = cartItems.find(item => item.productId === prodId);
+                      const currentQty = cartItem ? cartItem.quantity : 0;
+                      const currentRestaurantName = restaurant?.name || 'Restaurant';
+
+                      if (tempQuantity === 0) {
+                        for (let i = 0; i < currentQty; i++) {
                           removeFromCart(prodId);
                         }
                         setIsModalOpen(false);
                         // No alert
                       } else {
-                        setIsModalOpen(false);
+                        const diff = tempQuantity - currentQty;
+                        if (diff > 0) {
+                          const added = addToCart(selectedProduct, id, currentRestaurantName, diff);
+                          if (added) {
+                            setIsModalOpen(false);
+                            // No alert
+                          } else {
+                            Alert.alert(
+                              'Create a new cart?',
+                              `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
+                              [
+                                {
+                                  text: 'Cancel',
+                                  style: 'cancel',
+                                },
+                                {
+                                  text: 'Create New Cart',
+                                  onPress: () => {
+                                    addToCart(selectedProduct, id, currentRestaurantName, diff, true);
+                                    setIsModalOpen(false);
+                                    // No alert
+                                  },
+                                },
+                              ]
+                            );
+                          }
+                        } else if (diff < 0) {
+                          for (let i = 0; i < Math.abs(diff); i++) {
+                            removeFromCart(prodId);
+                          }
+                          setIsModalOpen(false);
+                          // No alert
+                        } else {
+                          setIsModalOpen(false);
+                        }
                       }
-                    }
-                  }}
-                >
-                  <Text style={styles.addToCartBtnText}>
-                    {tempQuantity === 0
-                      ? 'Remove from order'
-                      : `Add to order • ₪${(selectedProduct?.price * tempQuantity).toFixed(2)}`}
-                  </Text>
-                </TouchableOpacity>
+                    }}
+                  >
+                    <Text style={styles.addToCartBtnText}>
+                      {tempQuantity === 0
+                        ? 'Remove from order'
+                        : `Add to order • ₪${(selectedProduct?.price * tempQuantity).toFixed(2)}`}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Recommendations Section */}
+                {recommendations.length > 0 && (
+                  <View style={[styles.recommendationsSection, { borderTopColor: themeBorderColor }]}>
+                    <Text style={[styles.recommendationsTitle, { color: themeTextColor }]}>Maybe you want:</Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.recommendationsScroll}
+                    >
+                      {recommendations.map(item => (
+                        <TouchableOpacity
+                          key={item.id || item._id}
+                          style={[styles.recCard, { backgroundColor: isDarkMode ? '#2d2d2d' : '#f9fafb', borderColor: themeBorderColor }]}
+                          onPress={async () => {
+                            setSelectedProduct(item);
+                            const cartItem = cartItems.find(c => c.productId === (item.id || item._id));
+                            setTempQuantity(cartItem ? cartItem.quantity : 1);
+                            
+                            // Log product view track
+                            try {
+                              await fetch(`${API_BASE_URL}/api/restaurants/${id}/products/${item.id || item._id}`, {
+                                headers: {
+                                  'user-id': currentUser ? currentUser.id : mockUser.id
+                                }
+                              });
+                            } catch (err) {
+                              console.warn('Could not register product view track:', err);
+                            }
+                          }}
+                        >
+                          <Image source={{ uri: getFullImageUrl(item.image) }} style={styles.recCardImage} />
+                          <Text style={[styles.recCardName, { color: themeTextColor }]} numberOfLines={1}>{item.name}</Text>
+                          <Text style={styles.recCardPrice}>₪{Number(item.price).toFixed(2)}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
               </View>
-            </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -1298,5 +1386,48 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     fontFamily: ROUNDED_FONT,
+  },
+  recommendationsSection: {
+    marginTop: 20,
+    borderTopWidth: 1,
+    paddingTop: 16,
+  },
+  recommendationsTitle: {
+    fontFamily: ROUNDED_FONT,
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 12,
+  },
+  recommendationsScroll: {
+    paddingRight: 16,
+    gap: 12,
+  },
+  recCard: {
+    width: (width - 60) / 2,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 8,
+    alignItems: 'center',
+  },
+  recCardImage: {
+    width: '100%',
+    height: 100,
+    borderRadius: 8,
+    backgroundColor: '#e5e7eb',
+    marginBottom: 8,
+  },
+  recCardName: {
+    fontFamily: ROUNDED_FONT,
+    fontSize: 13,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 4,
+    width: '100%',
+  },
+  recCardPrice: {
+    fontFamily: ROUNDED_FONT,
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#009DE0',
   },
 });
