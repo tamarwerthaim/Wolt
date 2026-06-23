@@ -152,7 +152,7 @@ export const formStyle = {
     fontSize: 15,
     color: '#1f2937',
     backgroundColor: '#f9fafb',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif',
+    fontFamily: ROUNDED_FONT,
   },
   inputActive: {
     borderColor: '#009DE0',

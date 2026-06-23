@@ -32,6 +32,23 @@ export default function EditProfileScreen({ route, navigation }) {
   const [focusedField, setFocusedField] = useState('');
   const [error, setError] = useState('');
   const [showEditOverlay, setShowEditOverlay] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const loadDarkMode = async () => {
+      try {
+        const value = await AsyncStorage.getItem('darkModeEnabled');
+        if (value !== null) {
+          setIsDarkMode(value === 'true');
+        }
+      } catch (e) {
+        console.error('Error loading dark mode:', e);
+      }
+    };
+    loadDarkMode();
+    const unsubscribe = navigation.addListener('focus', loadDarkMode);
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -193,15 +210,19 @@ export default function EditProfileScreen({ route, navigation }) {
   const getInputStyle = (field) => {
     return [
       styles.input,
-      focusedField === field && styles.inputActive
+      isDarkMode && { backgroundColor: '#2d2d2d', color: '#ffffff', borderColor: '#2d2d2d' },
+      focusedField === field && [
+        styles.inputActive,
+        isDarkMode && { backgroundColor: '#1e1e1e', borderColor: '#009DE0' }
+      ]
     ];
   };
 
   if (loading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }, isDarkMode && { backgroundColor: '#121212' }]}>
         <ActivityIndicator size="large" color="#009DE0" />
-        <Text style={{ marginTop: 12, fontSize: 16, fontFamily: ROUNDED_FONT, color: '#6b7280' }}>
+        <Text style={{ marginTop: 12, fontSize: 16, fontFamily: ROUNDED_FONT, color: isDarkMode ? '#ffffff' : '#6b7280' }}>
           Loading user details...
         </Text>
       </View>
@@ -211,14 +232,14 @@ export default function EditProfileScreen({ route, navigation }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, isDarkMode && { backgroundColor: '#121212' }]}
     >
       <TouchableWithoutFeedback onPress={() => setShowEditOverlay(false)}>
         <View style={{ flex: 1, width: '100%' }}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <TouchableWithoutFeedback onPress={() => setShowEditOverlay(false)}>
-              <View style={styles.form}>
-                <Text style={styles.heading}>Edit Profile</Text>
+              <View style={[styles.form, isDarkMode && { backgroundColor: '#1e1e1e', borderColor: '#2d2d2d' }]}>
+                <Text style={[styles.heading, isDarkMode && { color: '#ffffff' }]}>Edit Profile</Text>
 
                 {error ? <Text style={styles.errorTextGeneral}>⚠️ {error}</Text> : null}
 
@@ -228,7 +249,8 @@ export default function EditProfileScreen({ route, navigation }) {
                     onPress={handleImagePress}
                     style={[
                       styles.imagePickerCircle,
-                      imageUri && { borderStyle: 'solid', borderColor: '#e5e7eb' }
+                      isDarkMode && { backgroundColor: '#2d2d2d', borderColor: '#4b5563' },
+                      imageUri && { borderStyle: 'solid', borderColor: isDarkMode ? '#4b5563' : '#e5e7eb' }
                     ]}
                     activeOpacity={0.8}
                   >
@@ -245,8 +267,8 @@ export default function EditProfileScreen({ route, navigation }) {
                       </View>
                     ) : (
                       <View style={styles.imagePickerPlaceholder}>
-                        <Text style={styles.imagePickerPlus}>+</Text>
-                        <Text style={styles.imagePickerText}>Add Photo</Text>
+                        <Text style={[styles.imagePickerPlus, isDarkMode && { color: '#888888' }]}>+</Text>
+                        <Text style={[styles.imagePickerText, isDarkMode && { color: '#d1d5db' }]}>Add Photo</Text>
                       </View>
                     )}
                   </TouchableOpacity>
@@ -254,13 +276,13 @@ export default function EditProfileScreen({ route, navigation }) {
 
                 {/* Display Name Input */}
                 <View style={styles.inputWrapper}>
-                  <Text style={styles.label}>Display Name</Text>
+                  <Text style={[styles.label, isDarkMode && { color: '#ffffff' }]}>Display Name</Text>
                   <TextInput
                     style={getInputStyle('name')}
                     value={name}
                     onChangeText={setName}
                     placeholder="Enter your name"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor={isDarkMode ? '#888888' : '#9ca3af'}
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField('')}
                   />
@@ -268,13 +290,13 @@ export default function EditProfileScreen({ route, navigation }) {
 
                 {/* Phone Input */}
                 <View style={styles.inputWrapper}>
-                  <Text style={styles.label}>Phone Number</Text>
+                  <Text style={[styles.label, isDarkMode && { color: '#ffffff' }]}>Phone Number</Text>
                   <TextInput
                     style={getInputStyle('phone')}
                     value={phone}
                     onChangeText={setPhone}
                     placeholder="e.g. 05XXXXXXXX"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor={isDarkMode ? '#888888' : '#9ca3af'}
                     keyboardType="phone-pad"
                     onFocus={() => setFocusedField('phone')}
                     onBlur={() => setFocusedField('')}
@@ -284,26 +306,26 @@ export default function EditProfileScreen({ route, navigation }) {
                 {/* Geolocation Fields */}
                 <View style={styles.row}>
                   <View style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}>
-                    <Text style={styles.label}>Latitude</Text>
+                    <Text style={[styles.label, isDarkMode && { color: '#ffffff' }]}>Latitude</Text>
                     <TextInput
                       style={getInputStyle('lat')}
                       value={lat}
                       onChangeText={setLat}
                       placeholder="e.g. 32.0801"
-                      placeholderTextColor="#9ca3af"
+                      placeholderTextColor={isDarkMode ? '#888888' : '#9ca3af'}
                       keyboardType="numeric"
                       onFocus={() => setFocusedField('lat')}
                       onBlur={() => setFocusedField('')}
                     />
                   </View>
                   <View style={[styles.inputWrapper, { flex: 1 }]}>
-                    <Text style={styles.label}>Longitude</Text>
+                    <Text style={[styles.label, isDarkMode && { color: '#ffffff' }]}>Longitude</Text>
                     <TextInput
                       style={getInputStyle('lng')}
                       value={lng}
                       onChangeText={setLng}
                       placeholder="e.g. 34.7805"
-                      placeholderTextColor="#9ca3af"
+                      placeholderTextColor={isDarkMode ? '#888888' : '#9ca3af'}
                       keyboardType="numeric"
                       onFocus={() => setFocusedField('lng')}
                       onBlur={() => setFocusedField('')}

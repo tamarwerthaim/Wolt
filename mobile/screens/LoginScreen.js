@@ -269,13 +269,14 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginBottom: 8,
     fontWeight: '500',
+    fontFamily: ROUNDED_FONT,
   },
   label: {
     fontSize: 15,
     fontWeight: '700',
     color: '#4b5563',
     marginBottom: 8,
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
+    fontFamily: ROUNDED_FONT,
   },
   input: {
     width: '100%',
@@ -287,6 +288,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1f2937',
     backgroundColor: '#f9fafb',
-    fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif',
+    fontFamily: ROUNDED_FONT,
   },
 });

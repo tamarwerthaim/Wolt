@@ -265,6 +265,8 @@ export default function HomeScreen({ navigation }) {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.setItem('darkModeEnabled', 'false');
+      setIsDarkMode(false);
       setIsLoggedIn(false);
       setUserDetails(null);
       setRecommendedRestaurants([]); // Clear recommendations on logout
@@ -914,6 +916,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     marginTop: 2,
+    fontFamily: ROUNDED_FONT,
   },
   detailsList: {
     marginBottom: 12,
@@ -1014,6 +1017,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     paddingHorizontal: 20,
     marginVertical: 16,
+    fontFamily: ROUNDED_FONT,
   },
   listContainer: {
     paddingHorizontal: 20,
@@ -1040,10 +1044,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 4,
+    fontFamily: ROUNDED_FONT,
   },
   cardPrep: {
     fontSize: 13,
     fontWeight: '600',
+    fontFamily: ROUNDED_FONT,
   },
   cardPrepRow: {
     flexDirection: 'row',
@@ -1054,6 +1060,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     marginTop: 40,
+    fontFamily: ROUNDED_FONT,
   },
   floatingButtonsContainer: {
     position: 'absolute',
@@ -1239,6 +1246,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 20,
+    fontFamily: ROUNDED_FONT,
   },
   guestLoginBtn: {
     backgroundColor: '#009DE0',
@@ -1277,6 +1285,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
+    fontFamily: ROUNDED_FONT,
   },
   // Local Slide Splash Styles
   splashOverlay: {
