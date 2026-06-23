@@ -12,6 +12,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
+import { formStyle } from '../styles/formStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
@@ -260,53 +261,14 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f3f4f6', // Light background to contrast with the card
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 75,
-    paddingBottom: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoContainer: {
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  logo: {
-    width: 125,
-    height: 125,
-    borderRadius: 50,
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#1f2937',
-    marginBottom: 24,
-    textAlign: 'center',
-    fontFamily: ROUNDED_FONT,
-  },
-  form: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  inputWrapper: {
-    marginBottom: 20,
-    width: '100%',
+  ...formStyle,
+  scrollContent: formStyle.scrollContentLogin,
+  splashImage: formStyle.loginSplashImage,
+  helperText: {
+    fontSize: 11,
+    color: '#6b7280',
+    marginBottom: 8,
+    fontWeight: '500',
   },
   label: {
     fontSize: 15,
@@ -314,12 +276,6 @@ const styles = StyleSheet.create({
     color: '#4b5563',
     marginBottom: 8,
     fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif-medium',
-  },
-  helperText: {
-    fontSize: 11,
-    color: '#6b7280',
-    marginBottom: 8,
-    fontWeight: '500',
   },
   input: {
     width: '100%',
@@ -332,94 +288,5 @@ const styles = StyleSheet.create({
     color: '#1f2937',
     backgroundColor: '#f9fafb',
     fontFamily: Platform.OS === 'ios' ? 'ui-rounded' : 'sans-serif',
-  },
-  inputActive: {
-    borderColor: '#009DE0',
-    backgroundColor: '#fff',
-  },
-  inputError: {
-    borderColor: '#ef4444',
-    backgroundColor: '#fff',
-  },
-  errorTextInline: {
-    color: '#ef4444',
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 6,
-    paddingLeft: 4,
-  },
-  errorTextGeneral: {
-    color: '#ef4444',
-    fontSize: 13,
-    fontWeight: '700',
-    marginVertical: 12,
-    textAlign: 'center',
-  },
-  submitButton: {
-    width: '100%',
-    height: 52,
-    backgroundColor: '#009DE0',
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: ROUNDED_FONT,
-  },
-  skipButton: {
-    marginTop: 20,
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  skipButtonText: {
-    color: '#009DE0',
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: ROUNDED_FONT,
-  },
-  registerLink: {
-    marginTop: 10,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  registerLinkText: {
-    color: '#4b5563',
-    fontSize: 14,
-    fontWeight: '500',
-    fontFamily: ROUNDED_FONT,
-  },
-  registerLinkHighlight: {
-    color: '#009DE0',
-    fontWeight: '700',
-  },
-  splashContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 100,
-  },
-  splashImage: {
-    width: 340,
-    height: 340,
-    marginBottom: -15,
-  },
-  splashText: {
-    fontSize: 38,
-    fontWeight: '900',
-    color: '#009DE0',
-    textAlign: 'center',
-    fontFamily: ROUNDED_FONT,
   },
 });
