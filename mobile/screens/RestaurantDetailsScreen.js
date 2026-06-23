@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config';
+import { useCart } from '../context/CartContext';
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const customAtob = (input = '') => {
@@ -54,6 +55,7 @@ const { width } = Dimensions.get('window');
 
 export default function RestaurantDetailsScreen({ route, navigation }) {
   const { id } = route.params || {};
+  const { cartItems, addToCart, removeFromCart } = useCart();
 
   // State hooks for managing API server data
   const [restaurant, setRestaurant] = useState(null);
@@ -75,33 +77,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempQuantity, setTempQuantity] = useState(1);
 
-  // Cart state
-  const [cart, setCart] = useState({});
 
-  // Load cart from AsyncStorage on mount
-  useEffect(() => {
-    const loadCart = async () => {
-      try {
-        const savedCart = await AsyncStorage.getItem('wolt_cart_mobile');
-        if (savedCart) {
-          setCart(JSON.parse(savedCart));
-        }
-      } catch (e) {
-        console.error('Error loading cart:', e);
-      }
-    };
-    loadCart();
-  }, []);
-
-  // Save cart helper
-  const handleUpdateCart = async (newCart) => {
-    setCart(newCart);
-    try {
-      await AsyncStorage.setItem('wolt_cart_mobile', JSON.stringify(newCart));
-    } catch (e) {
-      console.error('Error saving cart:', e);
-    }
-  };
 
   // Mock currentUser location for guest flow to calculate delivery times
   // In the future, this will be retrieved from the authentication state
@@ -256,9 +232,9 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   };
 
   // Open product details modal and send product view-track signal to backend (Task 4.2.3)
-  const handleProductPress = async (product) => {
     const prodId = product.id || product._id;
-    const currentQty = cart[prodId] || 0;
+    const cartItem = cartItems.find(item => item.productId === prodId);
+    const currentQty = cartItem ? cartItem.quantity : 0;
     setSelectedProduct(product);
     setTempQuantity(currentQty > 0 ? currentQty : 1);
     setIsModalOpen(true);
@@ -271,7 +247,6 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
           'user-id': mockUser.id
         }
       });
-      console.log(`Product view tracked successfully for: ${product.name}`);
     } catch (err) {
       console.warn('Could not register product view track:', err);
     }
@@ -498,26 +473,31 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                       source={{ uri: getFullImageUrl(product.image) }}
                       style={styles.productCardImage}
                     />
-                    {cart[product.id || product._id] > 0 && (
-                      <View style={styles.imageQuantityBadge}>
-                        <Text style={styles.imageQuantityBadgeText}>{cart[product.id || product._id]}</Text>
-                      </View>
-                    )}
+                    {(() => {
+                      const itemInCart = cartItems.find(item => item.productId === (product.id || product._id));
+                      return itemInCart && itemInCart.quantity > 0 ? (
+                        <View style={styles.imageQuantityBadge}>
+                          <Text style={styles.imageQuantityBadgeText}>{itemInCart.quantity}</Text>
+                        </View>
+                      ) : null;
+                    })()}
                     <TouchableOpacity
                       style={styles.quickAddButton}
                       activeOpacity={0.8}
                       onPress={(e) => {
                         e.stopPropagation();
-                        const prodId = product.id || product._id;
-                        const newCart = {
-                          ...cart,
-                          [prodId]: (cart[prodId] || 0) + 1
-                        };
-                        handleUpdateCart(newCart);
-                        Alert.alert(
-                          'Cart Updated',
-                          `1x ${product.name} added to cart!`
-                        );
+                        const added = addToCart(product, id, restaurant?.name || 'Restaurant', 1);
+                        if (added) {
+                          Alert.alert(
+                            'Cart Updated',
+                            `1x ${product.name} added to cart!`
+                          );
+                        } else {
+                          Alert.alert(
+                            'Cart Mismatch',
+                            'You can only add items from one restaurant at a time. Clear your cart first.'
+                          );
+                        }
                       }}
                     >
                       <Text style={styles.quickAddButtonText}>+</Text>
@@ -586,20 +566,38 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                   style={tempQuantity === 0 ? styles.removeFromCartBtn : styles.addToCartBtn}
                   onPress={() => {
                     const prodId = selectedProduct?.id || selectedProduct?._id;
-                    const newCart = { ...cart };
+                    const cartItem = cartItems.find(item => item.productId === prodId);
+                    const currentQty = cartItem ? cartItem.quantity : 0;
+
                     if (tempQuantity === 0) {
-                      delete newCart[prodId];
+                      for (let i = 0; i < currentQty; i++) {
+                        removeFromCart(prodId);
+                      }
+                      setIsModalOpen(false);
+                      Alert.alert('Item Removed', `${selectedProduct?.name} removed from order!`);
                     } else {
-                      newCart[prodId] = tempQuantity;
+                      const diff = tempQuantity - currentQty;
+                      if (diff > 0) {
+                        const added = addToCart(selectedProduct, id, restaurant?.name || 'Restaurant', diff);
+                        if (added) {
+                          setIsModalOpen(false);
+                          Alert.alert('Cart Updated', `${tempQuantity}x ${selectedProduct?.name} added to cart!`);
+                        } else {
+                          Alert.alert(
+                            'Cart Mismatch',
+                            'You can only add items from one restaurant at a time. Clear your cart first.'
+                          );
+                        }
+                      } else if (diff < 0) {
+                        for (let i = 0; i < Math.abs(diff); i++) {
+                          removeFromCart(prodId);
+                        }
+                        setIsModalOpen(false);
+                        Alert.alert('Cart Updated', `${tempQuantity}x ${selectedProduct?.name} added to cart!`);
+                      } else {
+                        setIsModalOpen(false);
+                      }
                     }
-                    handleUpdateCart(newCart);
-                    setIsModalOpen(false);
-                    Alert.alert(
-                      tempQuantity === 0 ? 'Item Removed' : 'Cart Updated',
-                      tempQuantity === 0 
-                        ? `${selectedProduct?.name} removed from order!`
-                        : `${tempQuantity}x ${selectedProduct?.name} added to cart!`
-                    );
                   }}
                 >
                   <Text style={styles.addToCartBtnText}>

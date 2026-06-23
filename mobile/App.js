@@ -10,19 +10,21 @@ import AddProductScreen from './screens/AddProductScreen';
 import EditRestaurantScreen from './screens/EditRestaurantScreen';
 import EditProductScreen from './screens/EditProductScreen';
 import SearchScreen from './screens/SearchScreen';
+import { CartProvider } from './context/CartContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator 
-        initialRouteName="Home"
-        screenOptions={{
-          headerBackTitleVisible: false,
-          headerTintColor: '#009DE0',
-        }}
-      >
+    <CartProvider>
+      <NavigationContainer>
+        <Stack.Navigator 
+          initialRouteName="Home"
+          screenOptions={{
+            headerBackTitleVisible: false,
+            headerTintColor: '#009DE0',
+          }}
+        >
         <Stack.Screen 
           name="Home" 
           component={HomeScreen} 
@@ -70,5 +72,6 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </CartProvider>
   );
 }

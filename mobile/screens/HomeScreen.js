@@ -85,6 +85,31 @@ const SearchIconWithLines = () => (
   </View>
 );
 
+// Custom Views-based Blue Scooter Icon (classic Vespa layout)
+const BlueScooterIcon = () => (
+  <Image
+    source={require('../assets/Bike.png')}
+    style={styles.scooterImage}
+    resizeMode="contain"
+  />
+);
+
+// Straight-line distance calculation (in kilometers) between two coordinates
+const getDistance = (lat1, lon1, lat2, lon2) => {
+  if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return null;
+  const R = 6371; // Earth's radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
 export default function HomeScreen({ navigation }) {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,7 +131,7 @@ export default function HomeScreen({ navigation }) {
         console.error('Error loading dark mode:', e);
       }
     };
-    
+
     const unsubscribe = navigation.addListener('focus', () => {
       loadDarkMode();
     });
@@ -136,6 +161,47 @@ export default function HomeScreen({ navigation }) {
 
   // Loop scroll anim for infinite marquee carousel
   const scrollAnim = React.useRef(new Animated.Value(0)).current;
+
+  const getDeliveryTimeStr = (restaurant) => {
+    const userLat = userDetails?.lat ?? 32.0853;
+    const userLng = userDetails?.lng ?? 34.7818;
+    const prepTime = restaurant?.prepTime || 15;
+
+    if (restaurant?.geolocation) {
+      const distance = getDistance(
+        userLat,
+        userLng,
+        restaurant.geolocation.lat,
+        restaurant.geolocation.lng
+      );
+      if (distance !== null) {
+        const travelTime = Math.round(distance * 3);
+        const deliveryTime = travelTime + prepTime;
+        return `${deliveryTime}-${deliveryTime + 5} min`;
+      }
+    }
+    return `${prepTime + 15}-${prepTime + 20} min`;
+  };
+
+  const getDeliveryTimeValue = (restaurant) => {
+    const userLat = userDetails?.lat ?? 32.0853;
+    const userLng = userDetails?.lng ?? 34.7818;
+    const prepTime = restaurant?.prepTime || 15;
+
+    if (restaurant?.geolocation) {
+      const distance = getDistance(
+        userLat,
+        userLng,
+        restaurant.geolocation.lat,
+        restaurant.geolocation.lng
+      );
+      if (distance !== null) {
+        const travelTime = Math.round(distance * 3);
+        return travelTime + prepTime;
+      }
+    }
+    return prepTime + 15;
+  };
 
   useEffect(() => {
     if (restaurants.length === 0) return;
@@ -251,36 +317,33 @@ export default function HomeScreen({ navigation }) {
     }
   }, [activeTab, isLoggedIn]);
 
-  // Check login status on focus to react to successful login redirects
+  const fetchRestaurants = async (showLoader = false) => {
+    try {
+      if (showLoader) setLoading(true);
+      setError('');
+      const response = await fetch(`${API_BASE_URL}/api/restaurants`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch restaurants.');
+      }
+      const data = await response.json();
+      setRestaurants(data);
+    } catch (err) {
+      setError(err.message || 'Could not load restaurants.');
+    } finally {
+      if (showLoader) setLoading(false);
+    }
+  };
+
+  // Check login status and fetch restaurants on focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       checkLoginStatus();
+      fetchRestaurants(false);
     });
     checkLoginStatus(); // Run initial check
+    fetchRestaurants(true); // Initial fetch with spinner
     return unsubscribe;
   }, [navigation]);
-
-  // Fetch all restaurants from the database on mount
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const response = await fetch(`${API_BASE_URL}/api/restaurants`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch restaurants.');
-        }
-        const data = await response.json();
-        setRestaurants(data);
-      } catch (err) {
-        setError(err.message || 'Could not load restaurants.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRestaurants();
-  }, []);
 
   // Theme styling configurations
   const containerBg = isDarkMode ? '#121212' : '#f3f4f6';
@@ -290,9 +353,14 @@ export default function HomeScreen({ navigation }) {
   const subTextColor = isDarkMode ? '#a0a0a0' : '#6b7280';
   const borderCol = isDarkMode ? '#2d2d2d' : '#e5e7eb';
 
+  // Filter restaurants owned by the current logged-in user
+  const myRestaurants = restaurants.filter(
+    r => r.ownerId === userDetails?.id || r.ownerId === userDetails?._id
+  );
+
   // Dynamic logos and profile images
-  const headerLogoSource = isDarkMode 
-    ? require('../assets/wolt-dark-logo.jpg') 
+  const headerLogoSource = isDarkMode
+    ? require('../assets/wolt-dark-logo.jpg')
     : require('../assets/wolt-delivery1310.logowik.com.png');
 
   const profileAvatarUri = (isLoggedIn && userDetails && userDetails.profileImage)
@@ -314,7 +382,7 @@ export default function HomeScreen({ navigation }) {
       <View style={[styles.centerContainer, { backgroundColor: isDarkMode ? '#121212' : '#fff' }]}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={isDarkMode ? '#121212' : '#fff'} />
         <Text style={styles.errorText}>❌ {error}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.retryButton}
           onPress={() => {
             setLoading(true);
@@ -340,8 +408,11 @@ export default function HomeScreen({ navigation }) {
   const renderCarousel = () => {
     if (restaurants.length === 0) return null;
 
+    // Sort restaurants from shortest to longest delivery time
+    const sortedCarousel = [...restaurants].sort((a, b) => getDeliveryTimeValue(a) - getDeliveryTimeValue(b));
+
     // Double the restaurants list to create a flawless infinite scroll marquee look
-    const doubleRestaurants = [...restaurants, ...restaurants];
+    const doubleRestaurants = [...sortedCarousel, ...sortedCarousel];
 
     return (
       <View style={styles.carouselSection}>
@@ -372,26 +443,18 @@ export default function HomeScreen({ navigation }) {
                     <Text style={[styles.carouselCardName, { color: textColor }]} numberOfLines={1}>
                       {restaurant.name}
                     </Text>
-                    <Text style={styles.carouselCardDist} numberOfLines={1}>
-                      🛵 {restaurant.prepTime + 15} min
-                    </Text>
+                    <View style={styles.carouselCardDistRow}>
+                      <BlueScooterIcon />
+                      <Text style={styles.carouselCardDist} numberOfLines={1}>
+                        {getDeliveryTimeStr(restaurant)}
+                      </Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
             })}
           </Animated.View>
         </View>
-
-        {/* Floating plus button for admins */}
-        {isLoggedIn && userDetails?.isAdmin && (
-          <TouchableOpacity
-            style={styles.addRestaurantFab}
-            onPress={() => navigation.navigate('AddRestaurant')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.addRestaurantFabText}>+</Text>
-          </TouchableOpacity>
-        )}
       </View>
     );
   };
@@ -399,22 +462,22 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={[styles.container, { backgroundColor: containerBg }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={headerBg} />
-      
+
       {/* Custom Sticky Header */}
       <View style={[styles.customHeader, { backgroundColor: headerBg, borderBottomColor: borderCol }]}>
-        <Image 
-          source={headerLogoSource} 
-          style={styles.headerLogo} 
-          resizeMode="contain" 
+        <Image
+          source={headerLogoSource}
+          style={styles.headerLogo}
+          resizeMode="contain"
         />
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.profileBtn}
           onPress={() => setShowProfileMenu(!showProfileMenu)}
           activeOpacity={0.7}
         >
-          <Image 
-            source={{ uri: profileAvatarUri }} 
-            style={styles.profileAvatar} 
+          <Image
+            source={{ uri: profileAvatarUri }}
+            style={styles.profileAvatar}
           />
         </TouchableOpacity>
       </View>
@@ -428,7 +491,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.closeBtnText}>✖</Text>
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.dropdownContent}>
             {isLoggedIn && userDetails ? (
               <View style={styles.dropdownSection}>
@@ -439,14 +502,14 @@ export default function HomeScreen({ navigation }) {
                     <Text style={[styles.usernameText, { color: subTextColor }]}>@{userDetails.username}</Text>
                   </View>
                 </View>
-                
+
                 <View style={styles.detailsList}>
                   <Text style={[styles.detailItemText, { color: textColor }]}>📞 Phone: {userDetails.phone}</Text>
                   <Text style={[styles.detailItemText, { color: textColor }]}>📍 Coords: {userDetails.lat}, {userDetails.lng}</Text>
                 </View>
-                
-                <TouchableOpacity 
-                  style={styles.logoutBtn} 
+
+                <TouchableOpacity
+                  style={styles.logoutBtn}
                   onPress={() => {
                     handleLogout();
                     setShowProfileMenu(false);
@@ -459,7 +522,7 @@ export default function HomeScreen({ navigation }) {
             ) : (
               <View style={styles.dropdownSection}>
                 <Text style={[styles.guestText, { color: subTextColor }]}>Hello, Guest! Log in to place orders.</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.loginBtn}
                   onPress={() => {
                     setShowProfileMenu(false);
@@ -471,15 +534,15 @@ export default function HomeScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
             )}
-            
+
             <View style={[styles.divider, { backgroundColor: borderCol }]} />
-            
+
             {/* Theme Switch Row */}
             <View style={styles.themeRow}>
               <Text style={[styles.themeLabel, { color: textColor }]}>
                 {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
               </Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.themeToggleBtn, isDarkMode && styles.themeToggleBtnActive]}
                 onPress={handleToggleDarkMode}
                 activeOpacity={0.8}
@@ -497,30 +560,54 @@ export default function HomeScreen({ navigation }) {
       {/* Main Content Layout */}
       {/* Tab Switcher */}
       <View style={[styles.tabsContainer, { borderBottomColor: borderCol }]}>
-        <TouchableOpacity 
+        {isLoggedIn && userDetails?.isAdmin && (
+          <TouchableOpacity
+            style={styles.addRestaurantTabBtn}
+            onPress={() => navigation.navigate('AddRestaurant')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.addRestaurantTabBtnText}>+</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
           style={[styles.tabButton, activeTab === 'all' && styles.activeTabButton]}
           onPress={() => setActiveTab('all')}
           activeOpacity={0.8}
         >
           <Text style={[
-            styles.tabButtonText, 
+            styles.tabButtonText,
             activeTab === 'all' ? styles.activeTabButtonText : styles.inactiveTabButtonText
           ]}>
             All Restaurants
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.tabButton, activeTab === 'recommended' && styles.activeTabButton]}
           onPress={() => setActiveTab('recommended')}
           activeOpacity={0.8}
         >
           <Text style={[
-            styles.tabButtonText, 
+            styles.tabButtonText,
             activeTab === 'recommended' ? styles.activeTabButtonText : styles.inactiveTabButtonText
           ]}>
             Especially for You
           </Text>
         </TouchableOpacity>
+        {isLoggedIn && userDetails?.isAdmin && (
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'mine' && styles.activeTabButton]}
+            onPress={() => setActiveTab('mine')}
+            activeOpacity={0.8}
+          >
+            <Text style={[
+              styles.tabButtonText,
+              activeTab === 'mine' ? styles.activeTabButtonText : styles.inactiveTabButtonText
+            ]}>
+              My Restaurants
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Render tab contents based on selected tab */}
@@ -529,7 +616,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={[styles.emptyText, { color: subTextColor }]}>No restaurants found.</Text>
         ) : (
           <FlatList
-            data={restaurants}
+            data={[...restaurants].sort((a, b) => getDeliveryTimeValue(a) - getDeliveryTimeValue(b))}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContainer}
             renderItem={({ item }) => {
@@ -546,14 +633,17 @@ export default function HomeScreen({ navigation }) {
                   <Image source={{ uri: imageUrl }} style={styles.cardImage} />
                   <View style={styles.cardInfo}>
                     <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    <Text style={[styles.cardPrep, { color: subTextColor }]}>🛵 Delivery in {item.prepTime + 15} min</Text>
+                    <View style={styles.cardPrepRow}>
+                      <BlueScooterIcon />
+                      <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
             }}
           />
         )
-      ) : (
+      ) : activeTab === 'recommended' ? (
         recommendedRestaurants.length === 0 ? (
           <Text style={[styles.emptyText, { color: subTextColor }]}>No recommendations found.</Text>
         ) : (
@@ -575,7 +665,42 @@ export default function HomeScreen({ navigation }) {
                   <Image source={{ uri: imageUrl }} style={styles.cardImage} />
                   <View style={styles.cardInfo}>
                     <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    <Text style={[styles.cardPrep, { color: subTextColor }]}>🛵 Delivery in {item.prepTime + 15} min</Text>
+                    <View style={styles.cardPrepRow}>
+                      <BlueScooterIcon />
+                      <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
+          />
+        )
+      ) : (
+        myRestaurants.length === 0 ? (
+          <Text style={[styles.emptyText, { color: subTextColor }]}>No restaurants owned under your account.</Text>
+        ) : (
+          <FlatList
+            data={myRestaurants}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+            renderItem={({ item }) => {
+              const imageUrl = item.image
+                ? `${API_BASE_URL}${item.image}`
+                : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
+
+              return (
+                <TouchableOpacity
+                  style={[styles.restaurantCard, { backgroundColor: cardBg }]}
+                  activeOpacity={0.9}
+                  onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
+                >
+                  <Image source={{ uri: imageUrl }} style={styles.cardImage} />
+                  <View style={styles.cardInfo}>
+                    <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
+                    <View style={styles.cardPrepRow}>
+                      <BlueScooterIcon />
+                      <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
@@ -586,14 +711,14 @@ export default function HomeScreen({ navigation }) {
 
       {/* Floating Action Buttons (Cart & Search) at the bottom */}
       <View style={styles.floatingButtonsContainer}>
-        <TouchableOpacity 
-          style={[styles.floatingCartBtn, { backgroundColor: isDarkMode ? '#009DE0' : '#202124' }]} 
+        <TouchableOpacity
+          style={[styles.floatingCartBtn, { backgroundColor: '#009DE0' }]}
           activeOpacity={0.85}
         >
-          <ShoppingBagIcon isDarkMode={isDarkMode} />
+          <ShoppingBagIcon isDarkMode={true} />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.floatingSearchBtn, { backgroundColor: isDarkMode ? '#009DE0' : '#202124' }]} 
+        <TouchableOpacity
+          style={[styles.floatingSearchBtn, { backgroundColor: '#009DE0' }]}
           activeOpacity={0.85}
           onPress={() => navigation.navigate('Search')}
         >
@@ -845,6 +970,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
+  cardPrepRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
   emptyText: {
     textAlign: 'center',
     fontSize: 16,
@@ -989,7 +1119,7 @@ const styles = StyleSheet.create({
   // Recommendation Tabs Styles
   tabsContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     marginBottom: 10,
   },
@@ -1148,31 +1278,41 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#9ca3af',
-    marginTop: 3,
     fontFamily: ROUNDED_FONT,
   },
-  addRestaurantFab: {
+  carouselCardDistRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 3,
+  },
+  addRestaurantTabBtn: {
     position: 'absolute',
     left: 10,
-    top: '38%',
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#ffffff',
+    top: -170,
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#009DE0',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1000,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
-    shadowRadius: 5,
+    shadowRadius: 4,
     elevation: 5,
-    zIndex: 100,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
-  addRestaurantFabText: {
-    fontSize: 24,
+  addRestaurantTabBtnText: {
+    color: '#ffffff',
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#000000',
+    fontFamily: ROUNDED_FONT,
+    marginTop: -3,
+  },
+  // Custom Scooter Icon Styles
+  scooterImage: {
+    width: 18,
+    height: 22,
+    marginRight: 6,
   },
 });
