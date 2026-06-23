@@ -9,11 +9,11 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
-  SafeAreaView,
   StatusBar,
   Platform,
   ScrollView
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import { useCart } from '../context/CartContext';
