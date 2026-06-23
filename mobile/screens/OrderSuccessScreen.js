@@ -6,10 +6,10 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   StatusBar,
   Platform
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ROUNDED_FONT } from '../config';
 
