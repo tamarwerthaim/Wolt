@@ -18,7 +18,7 @@ const { width } = Dimensions.get('window');
 
 export default function RestaurantDetailsScreen({ route, navigation }) {
   const { id } = route.params || {};
-  const { addToCart } = useCart();
+  const { addToCart, clearCart, restaurantName: cartRestaurantName } = useCart();
 
   // State hooks for managing API server data
   const [restaurant, setRestaurant] = useState(null);
@@ -106,12 +106,12 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   const handleRate = async (score) => {
     try {
       setRatingStatus('Submitting rating...');
-      
+
       const response = await fetch(`${API_BASE_URL}/api/restaurants/${id}/rate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer guest-simulated-token` 
+          'Authorization': `Bearer guest-simulated-token`
         },
         body: JSON.stringify({ score })
       });
@@ -226,7 +226,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>❌ Error: {error}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.retryButton}
           onPress={() => navigation.goBack()}
         >
@@ -243,7 +243,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       {/* Floating Back Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
         activeOpacity={0.8}
@@ -265,7 +265,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         {/* Info Header Card */}
         <View style={styles.infoCard}>
           <Text style={styles.restaurantName}>{restaurant?.name || 'Restaurant'}</Text>
-          
+
           <Text style={styles.restaurantLocation}>
             {restaurant?.geolocation
               ? `Coordinates: (${restaurant.geolocation.lat.toFixed(4)}, ${restaurant.geolocation.lng.toFixed(4)})`
@@ -285,7 +285,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
           {/* Ratings Component Card */}
           <View style={styles.ratingsCard}>
             <Text style={styles.ratingsCardTitle}>Rating & Reviews</Text>
-            
+
             <View style={styles.ratingStatsRow}>
               <Text style={styles.averageRatingText}>{getAverageRating()}</Text>
               <View style={styles.ratingsCountContainer}>
@@ -420,7 +420,8 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                   style={styles.addToCartBtn}
                   onPress={() => {
                     setIsModalOpen(false);
-                    const added = addToCart(selectedProduct, id, restaurant?.name || 'Restaurant', tempQuantity);
+                    const currentRestaurantName = restaurant?.name || 'Restaurant';
+                    const added = addToCart(selectedProduct, id, currentRestaurantName, tempQuantity);
                     if (added) {
                       Alert.alert(
                         'Cart Updated',
@@ -428,8 +429,25 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                       );
                     } else {
                       Alert.alert(
-                        'Cart Mismatch',
-                        'You can only add items from one restaurant at a time. Clear your cart first.'
+                        'Create a new cart?',
+                        `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
+                        [
+                          {
+                            text: 'Cancel',
+                            style: 'cancel',
+                          },
+                          {
+                            text: 'Create New Cart',
+                            onPress: () => {
+                              clearCart();
+                              addToCart(selectedProduct, id, currentRestaurantName, tempQuantity);
+                              Alert.alert(
+                                'Cart Updated',
+                                `${tempQuantity}x ${selectedProduct?.name} added to cart!`
+                              );
+                            },
+                          },
+                        ]
                       );
                     }
                   }}
