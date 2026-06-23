@@ -15,6 +15,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
+import { formStyle } from '../styles/formStyle';
 
 export default function AddRestaurantScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -127,7 +128,7 @@ export default function AddRestaurantScreen({ navigation }) {
   const getInputStyle = (field) => {
     return [
       styles.input,
-      focusedField === field && styles.inputFocused
+      focusedField === field && styles.inputActive
     ];
   };
 
@@ -137,10 +138,10 @@ export default function AddRestaurantScreen({ navigation }) {
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.formCard}>
-          <Text style={styles.title}>Add New Restaurant</Text>
+        <View style={styles.form}>
+          <Text style={styles.heading}>Add New Restaurant</Text>
 
-          {error ? <Text style={styles.errorText}>⚠️ {error}</Text> : null}
+          {error ? <Text style={styles.errorTextGeneral}>⚠️ {error}</Text> : null}
 
           {/* Image Picker */}
           <TouchableOpacity
@@ -224,7 +225,7 @@ export default function AddRestaurantScreen({ navigation }) {
 
           {/* Submit Button */}
           <TouchableOpacity
-            style={styles.submitBtn}
+            style={styles.submitButton}
             onPress={handleSubmit}
             disabled={loading}
             activeOpacity={0.85}
@@ -232,7 +233,7 @@ export default function AddRestaurantScreen({ navigation }) {
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.submitBtnText}>Add Restaurant</Text>
+              <Text style={styles.submitButtonText}>Add Restaurant</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -242,40 +243,7 @@ export default function AddRestaurantScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f3f4f6',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  formCard: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '800',
-    fontFamily: ROUNDED_FONT,
-    color: '#1f2937',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  errorText: {
-    color: '#ef4444',
-    fontSize: 13,
-    fontWeight: '700',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
+  ...formStyle,
   imagePicker: {
     height: 150,
     borderWidth: 2,
@@ -287,6 +255,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    width: '100%',
   },
   imageContainer: {
     width: '100%',
@@ -332,53 +301,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#6b7280',
-    fontFamily: ROUNDED_FONT,
-  },
-  inputWrapper: {
-    marginBottom: 16,
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#4b5563',
-    marginBottom: 6,
-    fontFamily: ROUNDED_FONT,
-  },
-  input: {
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    fontSize: 15,
-    color: '#1f2937',
-    backgroundColor: '#f9fafb',
-    fontFamily: ROUNDED_FONT,
-  },
-  inputFocused: {
-    borderColor: '#009DE0',
-    backgroundColor: '#fff',
-  },
-  submitBtn: {
-    height: 52,
-    backgroundColor: '#009DE0',
-    borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  submitBtnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
     fontFamily: ROUNDED_FONT,
   },
 });
