@@ -113,11 +113,11 @@ export default function SearchScreen({ navigation }) {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: bgTheme }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={bgTheme} />
-      
+
       {/* Search Header Bar */}
       <View style={[styles.headerContainer, { borderBottomColor: borderTheme }]}>
-        <TouchableOpacity 
-          style={styles.backButton} 
+        <TouchableOpacity
+          style={styles.backButton}
           onPress={() => navigation.goBack()}
           activeOpacity={0.7}
         >
@@ -146,10 +146,10 @@ export default function SearchScreen({ navigation }) {
       {/* Initial State: food.png */}
       {showInitialIllustration && (
         <View style={styles.centerContainer}>
-          <Image 
-            source={require('../assets/food.png')} 
-            style={styles.illustrationImage} 
-            resizeMode="contain" 
+          <Image
+            source={require('../assets/food.png')}
+            style={styles.illustrationImage}
+            resizeMode="contain"
           />
           <Text style={[styles.illustrationTitle, { color: textTheme }]}>Let's find some food!</Text>
           <Text style={[styles.illustrationSubtitle, { color: subTextTheme }]}>Search for your favorite restaurants and dishes</Text>
@@ -167,10 +167,10 @@ export default function SearchScreen({ navigation }) {
       {/* Empty Result State: cry.png */}
       {showEmptyIllustration && (
         <View style={styles.centerContainer}>
-          <Image 
-            source={require('../assets/cry.png')} 
-            style={[styles.illustrationImage, styles.cryIllustrationImage]} 
-            resizeMode="contain" 
+          <Image
+            source={require('../assets/cry.png')}
+            style={[styles.illustrationImage, styles.cryIllustrationImage]}
+            resizeMode="contain"
           />
           <Text style={[styles.illustrationTitle, { color: textTheme }]}>No results found</Text>
           <Text style={[styles.illustrationSubtitle, { color: subTextTheme }]}>We couldn't find anything matching "{query}"</Text>
@@ -182,50 +182,50 @@ export default function SearchScreen({ navigation }) {
         <View style={{ flex: 1 }}>
           {/* Filters Pill Row */}
           <View style={[styles.filterRow, { borderBottomColor: borderTheme }]}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
-                styles.filterPill, 
+                styles.filterPill,
                 activeFilter === 'all' ? styles.activeFilterPill : { backgroundColor: inputBgTheme }
               ]}
               onPress={() => setActiveFilter('all')}
               activeOpacity={0.8}
             >
               <Text style={[
-                styles.filterPillText, 
+                styles.filterPillText,
                 activeFilter === 'all' ? styles.activeFilterPillText : { color: textTheme }
               ]}>All</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={[
-                styles.filterPill, 
+                styles.filterPill,
                 activeFilter === 'restaurants' ? styles.activeFilterPill : { backgroundColor: inputBgTheme }
               ]}
               onPress={() => setActiveFilter('restaurants')}
               activeOpacity={0.8}
             >
               <Text style={[
-                styles.filterPillText, 
+                styles.filterPillText,
                 activeFilter === 'restaurants' ? styles.activeFilterPillText : { color: textTheme }
               ]}>Restaurants ({filteredRestaurants.length})</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
-                styles.filterPill, 
+                styles.filterPill,
                 activeFilter === 'dishes' ? styles.activeFilterPill : { backgroundColor: inputBgTheme }
               ]}
               onPress={() => setActiveFilter('dishes')}
               activeOpacity={0.8}
             >
               <Text style={[
-                styles.filterPillText, 
+                styles.filterPillText,
                 activeFilter === 'dishes' ? styles.activeFilterPillText : { color: textTheme }
               ]}>Dishes ({filteredProducts.length})</Text>
             </TouchableOpacity>
           </View>
 
-          <ScrollView 
+          <ScrollView
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
           >
