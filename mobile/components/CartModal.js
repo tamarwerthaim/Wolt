@@ -92,11 +92,11 @@ export default function CartModal({ isOpen, onClose, isDarkMode, navigation }) {
       }
 
       if (response.ok) {
-        Alert.alert(
-          'Order Placed! 🎉',
-          `Your order from "${restaurantName}" was successfully received. Bon appétit!`,
-          [{ text: 'Great!' }]
-        );
+        navigation.navigate('OrderSuccess', {
+          restaurantName,
+          cartTotal,
+          cartItems: [...cartItems]
+        });
         clearCart();
         onClose();
       } else {
