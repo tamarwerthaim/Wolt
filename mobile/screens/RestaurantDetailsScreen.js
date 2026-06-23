@@ -12,11 +12,13 @@ import {
   Dimensions
 } from 'react-native';
 import { API_BASE_URL } from '../config';
+import { useCart } from '../context/CartContext';
 
 const { width } = Dimensions.get('window');
 
 export default function RestaurantDetailsScreen({ route, navigation }) {
   const { id } = route.params || {};
+  const { addToCart } = useCart();
 
   // State hooks for managing API server data
   const [restaurant, setRestaurant] = useState(null);
@@ -160,7 +162,6 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
           'user-id': mockUser.id
         }
       });
-      console.log(`Product view tracked successfully for: ${product.name}`);
     } catch (err) {
       console.warn('Could not register product view track:', err);
     }
@@ -419,10 +420,18 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
                   style={styles.addToCartBtn}
                   onPress={() => {
                     setIsModalOpen(false);
-                    Alert.alert(
-                      'Cart Updated',
-                      `${tempQuantity}x ${selectedProduct?.name} added to cart! (Simulated)`
-                    );
+                    const added = addToCart(selectedProduct, id, restaurant?.name || 'Restaurant', tempQuantity);
+                    if (added) {
+                      Alert.alert(
+                        'Cart Updated',
+                        `${tempQuantity}x ${selectedProduct?.name} added to cart!`
+                      );
+                    } else {
+                      Alert.alert(
+                        'Cart Mismatch',
+                        'You can only add items from one restaurant at a time. Clear your cart first.'
+                      );
+                    }
                   }}
                 >
                   <Text style={styles.addToCartBtnText}>
