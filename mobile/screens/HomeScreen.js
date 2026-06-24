@@ -129,6 +129,12 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     const loadDarkMode = async () => {
       try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) {
+          setIsDarkMode(false);
+          await AsyncStorage.setItem('darkModeEnabled', 'false');
+          return;
+        }
         const value = await AsyncStorage.getItem('darkModeEnabled');
         if (value !== null) {
           setIsDarkMode(value === 'true');
@@ -254,6 +260,8 @@ export default function HomeScreen({ navigation }) {
           } else {
             setUserDetails(null);
             await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.setItem('darkModeEnabled', 'false');
+            setIsDarkMode(false);
             setIsLoggedIn(false);
           }
         }

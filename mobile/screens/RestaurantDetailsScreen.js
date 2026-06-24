@@ -202,6 +202,10 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
             setUserDetails(data);
           } else {
             setUserDetails(null);
+            setCurrentUser(null);
+            await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.setItem('darkModeEnabled', 'false');
+            setIsDarkMode(false);
           }
         } else {
           setCurrentUser(null);
@@ -214,6 +218,12 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
 
     const loadDarkMode = async () => {
       try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) {
+          setIsDarkMode(false);
+          await AsyncStorage.setItem('darkModeEnabled', 'false');
+          return;
+        }
         const value = await AsyncStorage.getItem('darkModeEnabled');
         if (value !== null) {
           setIsDarkMode(value === 'true');
