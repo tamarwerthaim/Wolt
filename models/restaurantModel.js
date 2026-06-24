@@ -51,7 +51,7 @@ class RestaurantModel {
     static async findAll() {
         const list = await Restaurant.find();
         return Promise.all(list.map(async r => {
-            const obj = r.toObject();
+            const obj = r.toObject({ flattenMaps: true });
             obj.id = obj._id;
             const products = await Product.find({ restaurantId: obj.id });
             obj.menu = products.map(p => {
@@ -67,7 +67,7 @@ class RestaurantModel {
     static async findById(id) {
         const r = await Restaurant.findById(id);
         if (!r) return null;
-        const obj = r.toObject();
+        const obj = r.toObject({ flattenMaps: true });
         obj.id = obj._id;
         const products = await Product.find({ restaurantId: obj.id });
         obj.menu = products.map(p => {
@@ -82,7 +82,7 @@ class RestaurantModel {
     static async findByName(name) {
         const r = await Restaurant.findOne({ name: { $regex: new RegExp("^" + name + "$", "i") } });
         if (!r) return null;
-        const obj = r.toObject();
+        const obj = r.toObject({ flattenMaps: true });
         obj.id = obj._id;
         const products = await Product.find({ restaurantId: obj.id });
         obj.menu = products.map(p => {
@@ -107,7 +107,7 @@ class RestaurantModel {
             ownerId: restaurantData.ownerId
         });
         await newRestaurant.save();
-        const obj = newRestaurant.toObject();
+        const obj = newRestaurant.toObject({ flattenMaps: true });
         obj.id = obj._id;
         obj.menu = [];
         return obj;
@@ -155,7 +155,7 @@ class RestaurantModel {
         }
 
         await restaurant.save();
-        const obj = restaurant.toObject();
+        const obj = restaurant.toObject({ flattenMaps: true });
         obj.id = obj._id;
         const products = await Product.find({ restaurantId: obj.id });
         obj.menu = products.map(p => {

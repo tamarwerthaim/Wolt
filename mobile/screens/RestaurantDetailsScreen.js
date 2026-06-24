@@ -125,6 +125,20 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
     fetchRecommendations();
   }, [isModalOpen, selectedProduct, id]);
 
+  // Update user rating state when restaurant data or currentUser updates
+  useEffect(() => {
+    if (currentUser && restaurant && restaurant.ratings && typeof restaurant.ratings === 'object' && !Array.isArray(restaurant.ratings)) {
+      const existingUserRating = restaurant.ratings[currentUser.id];
+      if (existingUserRating) {
+        setUserRating(existingUserRating);
+      } else {
+        setUserRating(0);
+      }
+    } else {
+      setUserRating(0);
+    }
+  }, [restaurant, currentUser]);
+
 
 
   // Mock currentUser location for guest flow to calculate delivery times
@@ -147,11 +161,6 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
       }
       const resData = await resResponse.json();
       setRestaurant(resData);
-
-      // Sync rating if user has previously rated
-      if (resData.ratings && resData.ratings[mockUser.id]) {
-        setUserRating(resData.ratings[mockUser.id]);
-      }
 
       // 2. Fetch all products (menu) for this restaurant
       const prodResponse = await fetch(`${API_BASE_URL}/api/restaurants/${id}/products`);
@@ -248,6 +257,19 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
 
   // Submit star rating to the backend
   const handleRate = async (score) => {
+    const token = await AsyncStorage.getItem('userToken');
+    if (!currentUser || !token) {
+      Alert.alert(
+        'Login Required',
+        'Please log in to rate this restaurant.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Log In', onPress: () => navigation.navigate('Login') }
+        ]
+      );
+      return;
+    }
+
     try {
       setRatingStatus('Submitting rating...');
 
@@ -255,23 +277,10 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer guest-simulated-token`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ score })
       });
-
-      // If unauthorized, simulate locally for guest UI purposes
-      if (response.status === 401 || response.status === 403) {
-        setTimeout(() => {
-          setRatingStatus('Thank you for rating! (Simulated)');
-          setUserRating(score);
-          setRestaurant(prev => {
-            const updatedRatings = { ...prev.ratings, [mockUser.id]: score };
-            return { ...prev, ratings: updatedRatings };
-          });
-        }, 800);
-        return;
-      }
 
       const data = await response.json();
       if (!response.ok) {
