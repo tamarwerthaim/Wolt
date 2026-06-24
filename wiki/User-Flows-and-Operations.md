@@ -115,6 +115,7 @@ This guide details how to perform the main application workflows—Registration,
   3. The application will instantly switch color palettes and styling across all screens.
 
 ![Dark Mode / Profile Dropdown](../mobile/assets/wiki/user/user_profil.png)
+![Dark Mode](../mobile/assets/wiki/user/dark_mode.jpeg)
 
 ### Edit Profile
 - **How to Use:**
@@ -146,8 +147,18 @@ Powered by a high-performance C++ backend engine, this feature dynamically analy
 - **How it works:**
   1. When a user logs in, the application retrieves their coordinates from their profile.
   2. The app dynamically calculates the straight-line distance (in kilometers) using the Haversine formula between the user's location and each restaurant's coordinates.
-  3. **Visual Distance & Time Indicators:** On each restaurant card, the app displays the computed distance (e.g., `📍 1.2 km`) and the estimated travel time (e.g., `🛵 4 min` computed as `distance * 3`).
+  3. **Visual Distance & Time Indicators:** On each restaurant card, the app displays the computed distance (e.g., `📍 1.2 km`) and the estimated travel time (e.g., ` 4 min` computed as `distance * 3`).
   4. **Automatic Sorting:** The HomeScreen automatically sorts all restaurants (in both the horizontal marquee and the main vertical list) from shortest to longest delivery time (travel time + prep time), ensuring that the closest restaurants are presented first.
   5. If logged out, the cards default to displaying standard coordinate markers without distance estimations.
 
 ![Distance Sorted HomeScreen](../mobile/assets/wiki/user/user_home.jpeg)
+
+### Restaurant Rating System
+- **How it works:**
+  1. Users can view the average score (e.g., `4.5 ★`) and the number of total ratings (e.g., `(12 ratings)`) on the restaurant details page.
+  2. **Access Restrictions:** Only logged-in users can submit ratings.
+  3. **Guest Warning:** If a guest user attempts to select a star to rate, they are shown a **Login Required** popup alert instructing them to log in to vote.
+  4. **Interactive Stars:** Authenticated users can tap the 1-to-5 star component to rate the restaurant. This submits a POST request to `/api/restaurants/:id/rate` and updates the stats in real-time.
+
+![Restaurant Details and Rating Component](../mobile/assets/wiki/user/Restaurant_details.png)
+![Rate Restaurant](../mobile/assets/wiki/user/rating.jpeg)
