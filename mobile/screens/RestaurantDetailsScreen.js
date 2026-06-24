@@ -10,7 +10,8 @@ import {
   Modal,
   Alert,
   Dimensions,
-  StatusBar
+  StatusBar,
+  Animated
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
@@ -68,6 +69,8 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
     cartCount,
     cartTotal
   } = useCart();
+
+  const scrollY = React.useRef(new Animated.Value(0)).current;
 
   // State hooks for managing API server data
   const [restaurant, setRestaurant] = useState(null);
@@ -432,12 +435,39 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
 
-      <ScrollView contentContainerStyle={[styles.scrollContent, showCartBar && { paddingBottom: 110 }]}>
+      <Animated.ScrollView
+        contentContainerStyle={[styles.scrollContent, showCartBar && { paddingBottom: 110 }]}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+      >
         {/* Banner Section */}
         <View style={styles.bannerContainer}>
-          <Image
+          <Animated.Image
             source={{ uri: bannerUrl }}
-            style={styles.bannerImage}
+            style={[
+              styles.bannerImage,
+              {
+                transform: [
+                  {
+                    scale: scrollY.interpolate({
+                      inputRange: [-200, 0, 200],
+                      outputRange: [1.5, 1, 0.85],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                  {
+                    translateY: scrollY.interpolate({
+                      inputRange: [-200, 0, 200],
+                      outputRange: [0, 0, 80],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
+              },
+            ]}
             resizeMode="cover"
           />
           <View style={styles.imageOverlay} />
@@ -551,7 +581,7 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
             )}
           </View>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Sticky Bottom Cart Bar */}
       {showCartBar && (
@@ -841,6 +871,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 240,
+    overflow: 'hidden',
   },
   bannerImage: {
     width: '100%',
