@@ -253,6 +253,8 @@ export default function HomeScreen({ navigation }) {
             setUserDetails(data);
           } else {
             setUserDetails(null);
+            await AsyncStorage.removeItem('userToken');
+            setIsLoggedIn(false);
           }
         }
       } else {
