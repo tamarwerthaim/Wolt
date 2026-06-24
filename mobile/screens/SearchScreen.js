@@ -56,10 +56,16 @@ export default function SearchScreen({ navigation }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'restaurants' | 'dishes'
 
-  // Load dark mode preference
+  // Load dark mode preference on mount/focus
   useEffect(() => {
     const loadDarkMode = async () => {
       try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) {
+          setIsDarkMode(false);
+          await AsyncStorage.setItem('darkModeEnabled', 'false');
+          return;
+        }
         const value = await AsyncStorage.getItem('darkModeEnabled');
         if (value !== null) {
           setIsDarkMode(value === 'true');
@@ -68,8 +74,13 @@ export default function SearchScreen({ navigation }) {
         console.error('Error loading dark mode:', e);
       }
     };
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadDarkMode();
+    });
     loadDarkMode();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   // Debounced Search query
   useEffect(() => {
