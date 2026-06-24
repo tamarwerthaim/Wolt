@@ -40,6 +40,15 @@ const SearchLensIcon = ({ isDarkMode }) => {
   );
 };
 
+// Custom Views-based Blue Scooter Icon (classic Vespa layout)
+const BlueScooterIcon = () => (
+  <Image
+    source={require('../assets/Bike.png')}
+    style={styles.scooterImage}
+    resizeMode="contain"
+  />
+);
+
 export default function SearchScreen({ navigation }) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -158,7 +167,7 @@ export default function SearchScreen({ navigation }) {
 
       {/* Loading State */}
       {loading && (
-        <View style={styles.centerContainer}>
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#009DE0" />
           <Text style={[styles.loadingText, { color: subTextTheme }]}>Searching Wolt...</Text>
         </View>
@@ -254,9 +263,12 @@ export default function SearchScreen({ navigation }) {
                           <Text style={[styles.restaurantCardName, { color: textTheme }]} numberOfLines={1}>
                             {item.name}
                           </Text>
-                          <Text style={styles.restaurantCardPrep} numberOfLines={1}>
-                            🛵 {item.prepTime + 15} min
-                          </Text>
+                          <View style={styles.cardPrepRow}>
+                            <BlueScooterIcon />
+                            <Text style={styles.restaurantCardPrep} numberOfLines={1}>
+                              {item.prepTime + 15} min
+                            </Text>
+                          </View>
                         </View>
                       </TouchableOpacity>
                     );
@@ -291,9 +303,12 @@ export default function SearchScreen({ navigation }) {
                         <Text style={[styles.dishDescription, { color: subTextTheme }]} numberOfLines={2}>
                           {product.description}
                         </Text>
-                        <Text style={styles.dishRestaurantBadge}>
-                          🛵 from {product.restaurantName}
-                        </Text>
+                        <View style={styles.cardPrepRow}>
+                          <BlueScooterIcon />
+                          <Text style={styles.dishRestaurantBadge}>
+                            from {product.restaurantName}
+                          </Text>
+                        </View>
                       </View>
                     </TouchableOpacity>
                   );
@@ -389,6 +404,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 5,
   },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 150, // Centers the loading spinner above the keyboard
+  },
   illustrationImage: {
     width: Dimensions.get('window').width * 0.95,
     height: Dimensions.get('window').width * 0.95,
@@ -480,7 +501,16 @@ const styles = StyleSheet.create({
     color: '#009DE0',
     fontWeight: '700',
     fontFamily: ROUNDED_FONT,
-    marginTop: 2,
+  },
+  cardPrepRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  scooterImage: {
+    width: 14,
+    height: 18,
+    marginRight: 4,
   },
   dishCard: {
     flexDirection: 'row',
