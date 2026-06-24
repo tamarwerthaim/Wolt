@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
+import RestaurantCard from '../components/RestaurantCard';
 
 // Custom Custom Chevron Down Icon
 const ChevronDownIcon = ({ isDarkMode }) => {
@@ -49,36 +50,145 @@ const BlueScooterIcon = () => (
   />
 );
 
+// Base64 decoder helpers for JWT tokens
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+const customAtob = (input = '') => {
+  let str = input.replace(/=+$/, '');
+  let output = '';
+  if (str.length % 4 === 1) {
+    throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
+  }
+  for (
+    let bc = 0, bs = 0, buffer, idx = 0;
+    (buffer = str.charAt(idx++));
+    ~buffer && ((bs = bc % 4 ? bs * 64 + buffer : buffer), bc++ % 4)
+      ? (output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6))))
+      : 0
+  ) {
+    buffer = chars.indexOf(buffer);
+  }
+  return output;
+};
+
+const decodeJwt = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      customAtob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error decoding token:', e);
+    return null;
+  }
+};
+
+const getDistance = (lat1, lon1, lat2, lon2) => {
+  if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return null;
+  const R = 6371; // Earth's radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+const getDeliveryTimeStr = (restaurant, userDetails) => {
+  const userLat = userDetails?.geolocation?.lat ?? 32.0853;
+  const userLng = userDetails?.geolocation?.lng ?? 34.7818;
+  const prepTime = restaurant?.prepTime || 15;
+
+  if (restaurant?.geolocation) {
+    const distance = getDistance(
+      userLat,
+      userLng,
+      restaurant.geolocation.lat,
+      restaurant.geolocation.lng
+    );
+    if (distance !== null) {
+      const travelTime = Math.round(distance * 3);
+      const deliveryTime = travelTime + prepTime;
+      return `${deliveryTime}-${deliveryTime + 5} min`;
+    }
+  }
+  return `${prepTime + 15}-${prepTime + 20} min`;
+};
+
+const getFullImageUrl = (imagePath) => {
+  if (!imagePath) {
+    return 'https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_9J5wE4V0zN6lH1N19p7FvjVp0O5XFpI5.jpg';
+  }
+  if (imagePath.startsWith('/uploads')) {
+    return `${API_BASE_URL}${imagePath}`;
+  }
+  return imagePath;
+};
+
 export default function SearchScreen({ navigation }) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState({ restaurants: [], products: [] });
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'restaurants' | 'dishes'
 
-  // Load dark mode preference on mount/focus
+  // Load dark mode preference and login status on mount/focus
   useEffect(() => {
-    const loadDarkMode = async () => {
+    const loadDarkModeAndAuth = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
+        setIsLoggedIn(!!token);
         if (!token) {
           setIsDarkMode(false);
           await AsyncStorage.setItem('darkModeEnabled', 'false');
+          setUserDetails(null);
           return;
         }
+
+        // Load Dark Mode
         const value = await AsyncStorage.getItem('darkModeEnabled');
         if (value !== null) {
           setIsDarkMode(value === 'true');
         }
+
+        // Fetch User Details
+        const payload = decodeJwt(token);
+        if (payload && payload.id) {
+          const res = await fetch(`${API_BASE_URL}/api/users/${payload.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setUserDetails(data);
+          } else {
+            setUserDetails(null);
+            await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.setItem('darkModeEnabled', 'false');
+            setIsDarkMode(false);
+            setIsLoggedIn(false);
+          }
+        }
       } catch (e) {
-        console.error('Error loading dark mode:', e);
+        console.error('Error loading config/auth in SearchScreen:', e);
       }
     };
 
     const unsubscribe = navigation.addListener('focus', () => {
-      loadDarkMode();
+      loadDarkModeAndAuth();
     });
-    loadDarkMode();
+    loadDarkModeAndAuth();
     return unsubscribe;
   }, [navigation]);
 
@@ -259,31 +369,16 @@ export default function SearchScreen({ navigation }) {
                   data={filteredRestaurants}
                   keyExtractor={(item) => `restaurant-${item.id}`}
                   contentContainerStyle={styles.restaurantsHorizontalList}
-                  renderItem={({ item }) => {
-                    const imageUrl = item.image
-                      ? `${API_BASE_URL}${item.image}`
-                      : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
-                    return (
-                      <TouchableOpacity
-                        style={[styles.restaurantCard, { backgroundColor: cardBgTheme, borderColor: borderTheme }]}
-                        onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
-                        activeOpacity={0.9}
-                      >
-                        <Image source={{ uri: imageUrl }} style={styles.restaurantCardImage} />
-                        <View style={styles.restaurantCardInfo}>
-                          <Text style={[styles.restaurantCardName, { color: textTheme }]} numberOfLines={1}>
-                            {item.name}
-                          </Text>
-                          <View style={styles.cardPrepRow}>
-                            <BlueScooterIcon />
-                            <Text style={styles.restaurantCardPrep} numberOfLines={1}>
-                              {item.prepTime + 15} min
-                            </Text>
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  }}
+                  renderItem={({ item }) => (
+                    <RestaurantCard
+                      item={item}
+                      isLoggedIn={isLoggedIn}
+                      isDarkMode={isDarkMode}
+                      deliveryTimeStr={getDeliveryTimeStr(item, userDetails)}
+                      isCarousel={true}
+                      onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
+                    />
+                  )}
                 />
               </View>
             )}
@@ -293,9 +388,7 @@ export default function SearchScreen({ navigation }) {
               <View style={styles.sectionContainer}>
                 <Text style={[styles.sectionTitle, { color: textTheme }]}>Dishes</Text>
                 {filteredProducts.map((product) => {
-                  const imageUrl = product.image
-                    ? `${API_BASE_URL}${product.image}`
-                    : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
+                  const imageUrl = getFullImageUrl(product.image);
                   return (
                     <TouchableOpacity
                       key={`product-${product.id}`}
