@@ -19,6 +19,7 @@ import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCart } from '../context/CartContext';
 import CartModal from '../components/CartModal';
+import RestaurantCard from '../components/RestaurantCard';
 
 // Base64 decoder helper for JWT tokens
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -434,39 +435,17 @@ export default function HomeScreen({ navigation }) {
               },
             ]}
           >
-            {doubleRestaurants.map((restaurant, index) => {
-              const imageUrl = restaurant.image
-                ? `${API_BASE_URL}${restaurant.image}`
-                : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
-
-              return (
-                <TouchableOpacity
-                  key={`carousel-${restaurant.id}-${index}`}
-                  style={[styles.carouselCard, { backgroundColor: cardBg }]}
-                  activeOpacity={0.9}
-                  onPress={() => navigation.navigate('RestaurantDetails', { id: restaurant.id })}
-                >
-                  <Image source={{ uri: imageUrl }} style={styles.carouselCardImage} />
-                  <View style={styles.carouselCardInfo}>
-                    <Text style={[styles.carouselCardName, { color: textColor }]} numberOfLines={1}>
-                      {restaurant.name}
-                    </Text>
-                    {!isLoggedIn ? (
-                      <Text style={styles.carouselCardDist} numberOfLines={1}>
-                        📍 {restaurant.geolocation ? `${restaurant.geolocation.lat.toFixed(4)}, ${restaurant.geolocation.lng.toFixed(4)}` : 'No location'}
-                      </Text>
-                    ) : (
-                      <View style={styles.carouselCardDistRow}>
-                        <BlueScooterIcon />
-                        <Text style={styles.carouselCardDist} numberOfLines={1}>
-                          {getDeliveryTimeStr(restaurant)}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+            {doubleRestaurants.map((restaurant, index) => (
+              <RestaurantCard
+                key={`carousel-${restaurant.id}-${index}`}
+                item={restaurant}
+                isLoggedIn={isLoggedIn}
+                isDarkMode={isDarkMode}
+                deliveryTimeStr={getDeliveryTimeStr(restaurant)}
+                onPress={() => navigation.navigate('RestaurantDetails', { id: restaurant.id })}
+                isCarousel={true}
+              />
+            ))}
           </Animated.View>
         </View>
       </View>
@@ -673,34 +652,15 @@ export default function HomeScreen({ navigation }) {
             data={[...restaurants].sort((a, b) => getDeliveryTimeValue(a) - getDeliveryTimeValue(b))}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContainer}
-            renderItem={({ item }) => {
-              const imageUrl = item.image
-                ? `${API_BASE_URL}${item.image}`
-                : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
-
-              return (
-                <TouchableOpacity
-                  style={[styles.restaurantCard, { backgroundColor: cardBg }]}
-                  activeOpacity={0.9}
-                  onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
-                >
-                  <Image source={{ uri: imageUrl }} style={styles.cardImage} />
-                  <View style={styles.cardInfo}>
-                    <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    {!isLoggedIn ? (
-                      <Text style={[styles.cardPrep, { color: subTextColor }]}>
-                        📍 {item.geolocation ? `Location: ${item.geolocation.lat.toFixed(4)}, ${item.geolocation.lng.toFixed(4)}` : 'No location'}
-                      </Text>
-                    ) : (
-                      <View style={styles.cardPrepRow}>
-                        <BlueScooterIcon />
-                        <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
+            renderItem={({ item }) => (
+              <RestaurantCard
+                item={item}
+                isLoggedIn={isLoggedIn}
+                isDarkMode={isDarkMode}
+                deliveryTimeStr={getDeliveryTimeStr(item)}
+                onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
+              />
+            )}
           />
         )
       ) : activeTab === 'recommended' ? (
@@ -735,34 +695,15 @@ export default function HomeScreen({ navigation }) {
             data={recommendedRestaurants}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContainer}
-            renderItem={({ item }) => {
-              const imageUrl = item.image
-                ? `${API_BASE_URL}${item.image}`
-                : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
-
-              return (
-                <TouchableOpacity
-                  style={[styles.restaurantCard, { backgroundColor: cardBg }]}
-                  activeOpacity={0.9}
-                  onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
-                >
-                  <Image source={{ uri: imageUrl }} style={styles.cardImage} />
-                  <View style={styles.cardInfo}>
-                    <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    {!isLoggedIn ? (
-                      <Text style={[styles.cardPrep, { color: subTextColor }]}>
-                        📍 {item.geolocation ? `Location: ${item.geolocation.lat.toFixed(4)}, ${item.geolocation.lng.toFixed(4)}` : 'No location'}
-                      </Text>
-                    ) : (
-                      <View style={styles.cardPrepRow}>
-                        <BlueScooterIcon />
-                        <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
+            renderItem={({ item }) => (
+              <RestaurantCard
+                item={item}
+                isLoggedIn={isLoggedIn}
+                isDarkMode={isDarkMode}
+                deliveryTimeStr={getDeliveryTimeStr(item)}
+                onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
+              />
+            )}
           />
         )
       ) : (
@@ -773,34 +714,15 @@ export default function HomeScreen({ navigation }) {
             data={myRestaurants}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContainer}
-            renderItem={({ item }) => {
-              const imageUrl = item.image
-                ? `${API_BASE_URL}${item.image}`
-                : 'https://imagedelivery.net/az7y0_0U1W8u7D7G7H8d/768x512/wolt.com/dae31a1a-4712-4d7a-85d6-3e4b3e8e2e60.jpg';
-
-              return (
-                <TouchableOpacity
-                  style={[styles.restaurantCard, { backgroundColor: cardBg }]}
-                  activeOpacity={0.9}
-                  onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
-                >
-                  <Image source={{ uri: imageUrl }} style={styles.cardImage} />
-                  <View style={styles.cardInfo}>
-                    <Text style={[styles.cardName, { color: textColor }]}>{item.name}</Text>
-                    {!isLoggedIn ? (
-                      <Text style={[styles.cardPrep, { color: subTextColor }]}>
-                        📍 {item.geolocation ? `Location: ${item.geolocation.lat.toFixed(4)}, ${item.geolocation.lng.toFixed(4)}` : 'No location'}
-                      </Text>
-                    ) : (
-                      <View style={styles.cardPrepRow}>
-                        <BlueScooterIcon />
-                        <Text style={[styles.cardPrep, { color: subTextColor }]}>Delivery in {getDeliveryTimeStr(item)}</Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
+            renderItem={({ item }) => (
+              <RestaurantCard
+                item={item}
+                isLoggedIn={isLoggedIn}
+                isDarkMode={isDarkMode}
+                deliveryTimeStr={getDeliveryTimeStr(item)}
+                onPress={() => navigation.navigate('RestaurantDetails', { id: item.id })}
+              />
+            )}
           />
         )
       )}

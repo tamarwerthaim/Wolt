@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, ROUNDED_FONT } from '../config';
 import { useCart } from '../context/CartContext';
 import CartModal from '../components/CartModal';
+import ProductCard from '../components/ProductCard';
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const customAtob = (input = '') => {
@@ -524,82 +525,18 @@ export default function RestaurantDetailsScreen({ route, navigation }) {
               <Text style={[styles.emptyMenuText, { color: themeSubTextColor }]}>No items available on the menu yet.</Text>
             ) : (
               products.map((product) => (
-                <TouchableOpacity
+                <ProductCard
                   key={product.id || product._id}
-                  style={[styles.productCard, { backgroundColor: themeCardBg, borderColor: themeBorderColor }]}
-                  activeOpacity={0.8}
+                  product={product}
+                  restaurant={restaurant}
+                  currentUser={currentUser}
+                  cartItems={cartItems}
+                  cartRestaurantName={cartRestaurantName}
+                  addToCart={addToCart}
+                  isDarkMode={isDarkMode}
                   onPress={() => handleProductPress(product)}
-                >
-                  {/* Left Side: Product Text Information */}
-                  <View style={styles.productTextWrapper}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <Text style={[styles.productNameText, { color: themeTextColor }]}>{product.name}</Text>
-                      {currentUser?.isAdmin && restaurant?.ownerId === currentUser.id && (
-                        <TouchableOpacity
-                          onPress={(e) => {
-                            e.stopPropagation();
-                            navigation.navigate('EditProduct', { restaurantId: id, productId: product.id || product._id });
-                          }}
-                          style={styles.editProductBadge}
-                          activeOpacity={0.7}
-                        >
-                          <Text style={styles.editProductBadgeText}>✎</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                    <Text style={[styles.productDescText, { color: themeSubTextColor }]} numberOfLines={2}>
-                      {product.description || 'No description available for this delicious dish.'}
-                    </Text>
-                    <Text style={[styles.productPriceText, { color: themeTextColor }]}>₪{Number(product.price).toFixed(2)}</Text>
-                  </View>
-
-                  {/* Right Side: Product Image & Quick Add Button */}
-                  <View style={styles.productImageWrapper}>
-                    <Image
-                      source={{ uri: getFullImageUrl(product.image) }}
-                      style={styles.productCardImage}
-                    />
-                    {(() => {
-                      const itemInCart = cartItems.find(item => item.productId === (product.id || product._id));
-                      return itemInCart && itemInCart.quantity > 0 ? (
-                        <View style={styles.imageQuantityBadge}>
-                          <Text style={styles.imageQuantityBadgeText}>{itemInCart.quantity}</Text>
-                        </View>
-                      ) : null;
-                    })()}
-                    <TouchableOpacity
-                      style={styles.quickAddButton}
-                      activeOpacity={0.8}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        const currentRestaurantName = restaurant?.name || 'Restaurant';
-                        const added = addToCart(product, id, currentRestaurantName, 1);
-                        if (added) {
-                          // No alert
-                        } else {
-                          Alert.alert(
-                            'Create a new cart?',
-                            `Your cart contains items from "${cartRestaurantName || 'another restaurant'}". Do you want to clear your cart and start a new one from "${currentRestaurantName}"?`,
-                            [
-                              {
-                                text: 'Cancel',
-                                style: 'cancel',
-                              },
-                              {
-                                text: 'Create New Cart',
-                                onPress: () => {
-                                  addToCart(product, id, currentRestaurantName, 1, true);
-                                },
-                              },
-                            ]
-                          );
-                        }
-                      }}
-                    >
-                      <Text style={styles.quickAddButtonText}>+</Text>
-                    </TouchableOpacity>
-                  </View>
-                </TouchableOpacity>
+                  navigation={navigation}
+                />
               ))
             )}
           </View>
