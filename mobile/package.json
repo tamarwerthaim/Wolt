@@ -15,10 +15,10 @@
     "react-native-screens": "~4.16.0"
   },
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "node start.js",
+    "android": "node start.js --android",
+    "ios": "node start.js --ios",
+    "web": "node start.js --web"
   },
   "private": true
 }
