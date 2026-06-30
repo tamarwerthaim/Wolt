@@ -23,6 +23,11 @@ This guide details how to perform the main application workflows—Registration,
 
 ![Login Screen](../mobile/assets/wiki/guest/log_in.png)
 
+### Default Administrator Credentials
+The default restaurants and menu items in the database are owned by the system administrator account. To modify, edit, or delete them, log in with:
+- **Username:** `admin`
+- **Password:** `Password123`
+
 ---
 
 ## 2. Managing Restaurants

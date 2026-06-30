@@ -29,6 +29,11 @@ npm start
 - **Express API Server:** Running locally on `http://localhost:3000`.
 - **MongoDB Database:** Running on `mongodb://localhost:27017`.
 
+### Default Administrator Credentials
+The initial restaurants and products are pre-loaded and owned by a default administrator account. To modify, edit, or delete any of this default data, log in using:
+- **Username:** `admin`
+- **Password:** `Password123`
+
 ---
 
 ## User Flows and Guides
